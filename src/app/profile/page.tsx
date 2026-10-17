@@ -108,11 +108,19 @@ export default async function ProfilePage() {
         </p>
       </Card>
 
-      <form action="/auth/sign-out" method="post">
-        <Button type="submit" variant="secondary" className="w-full sm:w-auto">
-          <LogOut className="size-4" aria-hidden="true" /> Sign out
-        </Button>
-      </form>
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <form action="/auth/sign-out" method="post">
+          <Button type="submit" variant="secondary" className="w-full sm:w-auto">
+            <LogOut className="size-4" aria-hidden="true" /> Sign out
+          </Button>
+        </form>
+        <form action="/auth/sign-out" method="post">
+          <input type="hidden" name="everywhere" value="1" />
+          <Button type="submit" variant="ghost" className="w-full sm:w-auto">
+            Sign out on all devices
+          </Button>
+        </form>
+      </div>
 
       <section aria-labelledby="delete-heading" className="border-t border-stone-200 pt-6">
         <h2 id="delete-heading" className="text-base font-bold text-ink">

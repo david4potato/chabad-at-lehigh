@@ -50,7 +50,7 @@ test.describe("students", () => {
 
     // Sign out from Profile & settings
     await page.goto("/profile");
-    await page.getByRole("main").getByRole("button", { name: "Sign out" }).click();
+    await page.getByRole("main").getByRole("button", { name: "Sign out", exact: true }).click();
     await expect(page).toHaveURL(/\/$/);
     await expect(page.getByRole("banner").getByRole("link", { name: "Sign in" })).toBeVisible();
   });

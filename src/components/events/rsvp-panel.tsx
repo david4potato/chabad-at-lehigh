@@ -138,7 +138,15 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
             <input type="hidden" name="slug" value={event.slug} />
             <input type="hidden" name="guest_count" value={0} />
             <Alert tone="info">{CANCEL_AFTER_CLOSE_MESSAGE}</Alert>
-            <SubmitButton name="response" value="not_going" variant="secondary" className="w-full">
+            <SubmitButton
+              name="response"
+              value="not_going"
+              variant="secondary"
+              className="w-full"
+              onClick={(e) => {
+                if (!confirm("Cancel your spot? RSVPs are closed, so you won't be able to RSVP again here.")) e.preventDefault();
+              }}
+            >
               I can&apos;t make it
             </SubmitButton>
           </form>

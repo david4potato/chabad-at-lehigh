@@ -192,9 +192,11 @@ export function EventForm({
             label="Web address"
             htmlFor="slug"
             hint={
-              event && event.status !== "draft"
-                ? "Changing this breaks links already shared and in people's notifications."
-                : "Leave blank to create one from the title and date."
+              !event
+                ? "Leave blank to create one from the title and date."
+                : event.status === "draft"
+                  ? "Leave blank to keep the current address."
+                  : "Changing this breaks links already shared and in people's notifications."
             }
             errors={e?.slug}
           >

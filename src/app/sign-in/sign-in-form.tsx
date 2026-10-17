@@ -16,7 +16,12 @@ declare global {
     turnstile?: {
       render: (
         el: HTMLElement,
-        opts: { sitekey: string; callback: (token: string) => void; "expired-callback"?: () => void },
+        opts: {
+          sitekey: string;
+          callback: (token: string) => void;
+          "expired-callback"?: () => void;
+          appearance?: "always" | "execute" | "interaction-only";
+        },
       ) => string;
       reset: (id?: string) => void;
     };
@@ -77,6 +82,8 @@ export function SignInForm({ next }: { next: string }) {
       sitekey: turnstileSiteKey,
       callback: setCaptchaToken,
       "expired-callback": () => setCaptchaToken(null),
+      // Only takes up space when Cloudflare actually needs the person to click.
+      appearance: "interaction-only",
     });
   }
 
@@ -155,8 +162,6 @@ export function SignInForm({ next }: { next: string }) {
 
       {error ? <Alert tone="danger">{error}</Alert> : null}
 
-      {turnstileSiteKey ? <div ref={captchaRef} className="min-h-16" /> : null}
-
       {step === "email" ? (
         <form onSubmit={sendCode} className="space-y-4" noValidate>
           <Field label="Email address" htmlFor="email" hint="Lehigh students: use your @lehigh.edu address.">
@@ -229,6 +234,9 @@ export function SignInForm({ next }: { next: string }) {
           <p className="text-sm text-muted">Can&apos;t find it? Check your spam or promotions folder.</p>
         </form>
       )}
+
+      {/* One bot-check widget for both steps, so Resend and a different email get fresh tokens. */}
+      {turnstileSiteKey ? <div ref={captchaRef} /> : null}
     </div>
   );
 }

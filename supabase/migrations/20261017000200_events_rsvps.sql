@@ -572,6 +572,10 @@ begin
     raise exception 'rsvp_not_found';
   end if;
 
+  if coalesce(v_event.ends_at, v_event.starts_at + interval '3 hours') < now() then
+    raise exception 'event_ended';
+  end if;
+
   select * into v_rsvp from public.rsvps where id = p_rsvp_id for update;
   if v_rsvp.status not in ('going', 'waitlist', 'pending') then
     raise exception 'invalid_state';
@@ -586,7 +590,9 @@ begin
 
   perform private.notify_user(v_rsvp.user_id, v_event.id, 'rsvp_cancelled',
     'Your RSVP was cancelled',
-    'An organizer marked you as not going to ' || v_event.title || '. If that''s a mistake, you can RSVP again on the event page.',
+    'An organizer marked you as not going to ' || v_event.title || '. If that''s a mistake, '
+      || case when v_event.rsvp_enabled and (v_event.rsvp_deadline is null or now() <= v_event.rsvp_deadline)
+              then 'you can RSVP again on the event page.' else 'please contact the organizer.' end,
     '/events/' || v_event.slug, false);
   perform private.promote_waitlist(v_event.id);
   perform private.log_audit('rsvp.staff_cancel', 'rsvps', p_rsvp_id::text, jsonb_build_object('event_id', v_event.id));

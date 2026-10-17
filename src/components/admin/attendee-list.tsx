@@ -185,6 +185,7 @@ export function AttendeeList({
                     {a.status === "waitlist" && !fits(needed) ? (
                       <Button
                         variant="secondary"
+                        className="h-auto min-h-11 whitespace-normal py-2 text-left"
                         disabled={busy}
                         onClick={() => {
                           if (confirm(`Confirm ${a.name} even though the event is full?`)) run(a.id, () => decideRsvp(eventId, a.id, "approve", true));
@@ -202,6 +203,7 @@ export function AttendeeList({
                         ) : (
                           <Button
                             variant="secondary"
+                            className="h-auto min-h-11 whitespace-normal py-2 text-left"
                             disabled={busy}
                             onClick={() => {
                               if (confirm(`Approve ${a.name}'s guests even though there aren't enough seats?`))

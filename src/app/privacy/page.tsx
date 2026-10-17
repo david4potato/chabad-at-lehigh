@@ -54,7 +54,8 @@ export default async function PrivacyPage() {
             <Link href="/profile/dietary" className="font-semibold text-brand-700 hover:underline">
               Dietary &amp; allergies
             </Link>
-            , or choose not to share it with the kitchen.
+            , or choose not to share it with the kitchen. Notes you write about your guests&apos; needs for an event
+            always go to kitchen staff so they can cook for them.
           </li>
           <li>Update your details on your profile.</li>
           <li>
