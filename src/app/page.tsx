@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Clock, Flame, MapPin, Phone, Salad, Mail, Navigation } from "lucide-react";
+import { ArrowRight, Clock, Flame, HandHeart, MapPin, Phone, Salad, Mail, Navigation } from "lucide-react";
 import { getViewer } from "@/lib/auth";
 import { getOrgSettings } from "@/lib/settings";
 import { safeNextPath } from "@/lib/safe-redirect";
@@ -150,9 +150,14 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
             <h2 id="upcoming-heading" className="text-lg font-bold text-ink">
               Coming up
             </h2>
-            <Link href="/events" className="text-sm font-semibold text-brand-700 hover:underline">
-              All events
-            </Link>
+            <div className="flex gap-4">
+              <Link href="/events?view=month" className="text-sm font-semibold text-brand-700 hover:underline">
+                Calendar
+              </Link>
+              <Link href="/events" className="text-sm font-semibold text-brand-700 hover:underline">
+                All events
+              </Link>
+            </div>
           </div>
           {others.length === 0 ? (
             <EmptyState title="No other upcoming events yet">New events are added every week.</EmptyState>
@@ -190,6 +195,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
               <ul className="divide-y divide-stone-100">
                 <QuickLink href="/find-us" Icon={Navigation} label="Find us & directions" />
                 <QuickLink href="/meal-safety" Icon={Salad} label="Meals & allergies" />
+                <QuickLink href="/volunteer" Icon={HandHeart} label="Help out: cook, set up, clean up" />
                 {org.contact_email ? (
                   <QuickLink href={`mailto:${org.contact_email}`} Icon={Mail} label="Email the organizer" external />
                 ) : null}

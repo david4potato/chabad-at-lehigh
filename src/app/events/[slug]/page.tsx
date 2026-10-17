@@ -8,6 +8,7 @@ import { isStaff } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 import { formatEventWhen, formatLongDate, formatTimeRange, spansDays } from "@/lib/time";
 import { getEventBySlug, getEventsMeta, getMyMealPreference } from "@/lib/data/events";
+import { listOpenShifts } from "@/lib/data/volunteer";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert } from "@/components/ui/alert";
@@ -18,6 +19,7 @@ import { ContactCard } from "@/components/events/contact-card";
 import { ShareButton } from "@/components/events/share-button";
 import { CATEGORY_LABELS, mapsUrl, paragraphs, rsvpClosedReason } from "@/components/events/event-utils";
 import { EventMenuSection } from "@/components/menu/event-menu-section";
+import { EventHelpOut } from "@/components/volunteer/event-help-out";
 
 const SLUG_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
@@ -73,10 +75,11 @@ export default async function EventPage({ params, searchParams }: PageProps<"/ev
     notFound();
   }
 
-  const [{ counts, rsvps }, mealPref, shareWithKitchen] = await Promise.all([
+  const [{ counts, rsvps }, mealPref, shareWithKitchen, shifts] = await Promise.all([
     getEventsMeta([event.id], viewer?.id),
     viewer && event.has_meal ? getMyMealPreference(event.id, viewer.id) : Promise.resolve(null),
     viewer && event.has_meal ? getShareWithKitchen(viewer.id) : Promise.resolve(true),
+    event.status === "published" ? listOpenShifts({ eventId: event.id, viewerId: viewer?.id }) : Promise.resolve([]),
   ]);
   const rsvp = rsvps.get(event.id) ?? null;
   const intent = query.rsvp === "going" || query.rsvp === "not_going" ? query.rsvp : null;
@@ -203,6 +206,7 @@ export default async function EventPage({ params, searchParams }: PageProps<"/ev
             </Card>
           ) : null}
           <EventMenuSection event={event} viewer={viewer} />
+          <EventHelpOut shifts={shifts} slug={event.slug} signedIn={Boolean(viewer)} />
           <div className="lg:hidden">
             <ContactCard contact={{ name: event.contact_name, email: event.contact_email, phone: event.contact_phone }} />
           </div>

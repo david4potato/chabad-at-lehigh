@@ -3,10 +3,12 @@ import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { canManageEvents, isAdmin } from "@/lib/roles";
 import { getAdminEvent } from "@/lib/data/admin";
+import { listShiftsForEvent } from "@/lib/data/volunteer";
 import { Alert } from "@/components/ui/alert";
 import { EventTabs } from "@/components/admin/event-tabs";
 import { AdminEventHeader } from "@/components/admin/event-header";
 import { EventForm } from "@/components/admin/event-form";
+import { EventShiftsAdmin } from "@/components/volunteer/event-shifts-admin";
 import { deleteEvent, duplicateEvent, updateEvent } from "../actions";
 
 export const metadata: Metadata = { title: "Edit event" };
@@ -15,7 +17,7 @@ export default async function EditEventPage({ params, searchParams }: PageProps<
   const [{ id }, query] = await Promise.all([params, searchParams]);
   const viewer = await requireRole(["organizer", "kitchen_staff", "admin"], `/admin/events/${id}`);
   if (!canManageEvents(viewer.roles)) redirect(`/admin/events/${id}/menu`);
-  const event = await getAdminEvent(id);
+  const [event, shifts] = await Promise.all([getAdminEvent(id), listShiftsForEvent(id)]);
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -35,6 +37,7 @@ export default async function EditEventPage({ params, searchParams }: PageProps<
           Copied as a draft one week later. Check the details, then set the status to Published.
         </Alert>
       ) : null}
+      <EventShiftsAdmin eventId={event.id} shifts={shifts} />
       <EventForm
         action={updateEvent}
         event={event}

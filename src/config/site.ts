@@ -17,6 +17,7 @@ export const MAIN_NAV: NavItem[] = [
 export const FOOTER_NAV: NavItem[] = [
   { href: "/events", label: "Events" },
   { href: "/announcements", label: "Announcements" },
+  { href: "/volunteer", label: "Help out" },
   { href: "/find-us", label: "Find Us" },
   { href: "/meal-safety", label: "Meals & allergies" },
   { href: "/coming-soon", label: "Coming soon" },

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { ROLES, ROLE_DESCRIPTIONS, ROLE_LABELS, type Role } from "@/lib/roles";
@@ -8,6 +10,7 @@ import { Input } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
 import { GrantRoleForm, PendingGrantChip, RoleChip } from "@/components/admin/people-forms";
+import { activityLine } from "@/components/admin/person-history";
 
 export const metadata: Metadata = { title: "People & roles" };
 
@@ -31,6 +34,13 @@ export default async function PeoplePage({ searchParams }: PageProps<"/admin/peo
     query,
     supabase.from("pending_role_grants").select("email, role").order("email"),
   ]);
+
+  // One call for everyone on this page: how often they came and when last.
+  const ids = (people ?? []).map((p) => p.id);
+  const { data: activityRows, error: activityError } = ids.length
+    ? await supabase.rpc("get_people_activity", { p_user_ids: ids })
+    : { data: [], error: null };
+  const activity = new Map((activityRows ?? []).map((a) => [a.user_id, a]));
 
   return (
     <div className="space-y-6">
@@ -84,8 +94,20 @@ export default async function PeoplePage({ searchParams }: PageProps<"/admin/peo
         <ul className="mt-4 divide-y divide-stone-100">
           {(people ?? []).map((p) => (
             <li key={p.id} className="py-3">
-              <p className="font-semibold text-ink">{p.full_name || p.preferred_name || "—"}</p>
-              <p className="text-sm text-muted">{p.email}</p>
+              <Link
+                href={`/admin/people/${p.id}`}
+                className="inline-flex min-h-11 items-center gap-1 font-semibold wrap-anywhere text-brand-700 hover:underline"
+              >
+                {p.full_name || p.preferred_name || p.email}
+                <ChevronRight className="size-4 shrink-0" aria-hidden="true" />
+              </Link>
+              {p.full_name || p.preferred_name ? <p className="text-sm break-all text-muted">{p.email}</p> : null}
+              {/* If the activity call failed, say nothing rather than "hasn't come yet". */}
+              {activityError ? null : (
+                <p className="text-sm text-muted">
+                  {activityLine(activity.get(p.id)?.events ?? 0, activity.get(p.id)?.last_at ?? null)}
+                </p>
+              )}
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {(p.roles ?? []).map(({ role }) => (
                   <RoleChip key={role} userId={p.id} role={role as Role} label={ROLE_LABELS[role as Role]} />

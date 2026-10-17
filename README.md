@@ -16,17 +16,19 @@ ingredients and allergens, private dietary preferences, and a simple organizer d
 | --- | --- |
 | Sign-in | Email link or 6-digit code, no passwords. `@lehigh.edu` → Student role automatically. |
 | Home | Shabbat dinner card with **Going / Not going / Change RSVP**, urgent notices, upcoming events, announcements. |
-| Events | Capacity, automatic waitlist, plus-ones, organizer approval, deadlines, add to calendar, **Invite friends**, My Events. |
+| Events | List and **Month** views with filters (e.g. Shabbat dinners), **Subscribe** to public events in Google/Apple Calendar, capacity, automatic waitlist, plus-ones, organizer approval, deadlines, **Invite friends**. |
+| RSVP | Optional and one tap: **Going / Not going**, change any time; plus-ones, notes and "I can't make it" after the deadline are optional extras. |
+| My Events | Upcoming RSVPs, past events with a category filter and "Last time: …". |
+| Help out | Sign up to cook, set up or clean up (spots left, one-tap sign up / can't make it); organizers post shifts and see who's coming. |
 | Menus | Ingredients and allergens visible before RSVP: **Contains** vs **May contain (cross-contact)** vs **Related** (sesame seeds ↔ oil, wheat ↔ gluten). Kitchen confirmation, versions, urgent updates, disclaimer and organizer contact. Personal allergy alerts — never a "safe" label. |
 | Voting | Favorites, votes on proposed dishes, suggestions — all advisory. |
-| Profile & settings | Details, private dietary profile (allergens with severity, diets, notes, consent), notifications, delete dietary info or the whole account. |
+| Profile & settings | **Your activity** (events, Shabbat dinners, times helped, coming since, last time), details, private dietary profile (allergens with severity, diets, notes, consent), notifications, delete dietary info or the whole account. |
 | Notifications | In-app bell: waitlist promotions, approvals, invitations, cancelled or changed events, urgent menu changes. |
-| Dashboard | Events (duplicate weekly), attendees (approvals, guests, cancel for someone, check-in, email, CSV, invitations), menu editor with required preparation confirmation, dishes and ingredients, dietary report, announcements, suggestions, people & roles, settings, audit log, Help. |
+| Dashboard | **This semester** numbers (events, people, new faces, avg. at Shabbat, volunteer sign-ups), events (duplicate weekly), volunteer shifts, attendees (approvals, guests, cancel for someone, check-in, email, CSV, invitations), menu editor with required preparation confirmation, dishes and ingredients, dietary report, announcements, suggestions, people & roles (with each person's history: events attended, last time, volunteering), settings, audit log, Help. |
 | Find Us | Address, directions, map buttons, contact. Pre-filled from public sources — confirm in Settings and add the phone. |
 
-**Planned** (shown at `/coming-soon`): volunteer and learning sign-ups, photo gallery, opt-in "friends
-attending", email/text reminders, QR check-in, customized meals. Database tables for volunteer shifts,
-learning sign-ups and a gallery bucket already exist.
+**Planned** (shown at `/coming-soon`): learning sign-ups, photo gallery, opt-in "friends attending",
+email/text reminders, QR check-in, customized meals. Tables for learning sign-ups and a gallery bucket already exist.
 
 ## How email works
 
@@ -81,8 +83,8 @@ http://127.0.0.1:54324.
 
 ## Verified locally (before deployment)
 
-Against a local Supabase stack and a production build: **115** unit tests, **154** database tests,
-**32** end-to-end tests (16 journeys × phone and desktop, real email-code sign-in), and a crawl of every
+Against a local Supabase stack and a production build: **199** unit tests, **291** database tests,
+**56** end-to-end tests (28 journeys × phone and desktop, real email-code sign-in), and a crawl of every
 internal link as a visitor and as an admin (no errors). The one-file SQL setup was verified on an empty database. Your
 hosted Supabase, Vercel, email sender and domain are verified by the checklist at the end of SETUP.md.
 

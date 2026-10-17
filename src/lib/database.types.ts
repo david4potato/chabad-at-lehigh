@@ -1453,6 +1453,24 @@ export type Database = {
       };
       get_event_menu: { Args: { p_event_id: string; p_include_draft?: boolean }; Returns: Json };
       get_my_context: { Args: Record<PropertyKey, never>; Returns: Json };
+      get_my_stats: { Args: Record<PropertyKey, never>; Returns: Json };
+      get_people_activity: {
+        Args: { p_user_ids: string[] };
+        Returns: {
+          events: number;
+          last_at: string;
+          user_id: string;
+        }[];
+      };
+      get_person_history: { Args: { p_user_id: string }; Returns: Json };
+      get_staff_stats: { Args: { p_since: string }; Returns: Json };
+      get_volunteer_counts: {
+        Args: { p_shift_ids: string[] };
+        Returns: {
+          shift_id: string;
+          taken: number;
+        }[];
+      };
       has_any_role: { Args: { p_roles: Database["public"]["Enums"]["app_role"][] }; Returns: boolean };
       has_role: { Args: { p_role: Database["public"]["Enums"]["app_role"] }; Returns: boolean };
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
@@ -1610,6 +1628,7 @@ export type Database = {
           result: string;
         }[];
       };
+      staff_remove_signup: { Args: { p_shift_id: string; p_user_id: string }; Returns: undefined };
       staff_set_check_in: {
         Args: { p_checked_in: boolean; p_rsvp_id: string };
         Returns: {

@@ -13,6 +13,7 @@ serious allergies.
       can't come, and check people in (Dashboard → Event → Attendees & check-in).
 - [ ] Cancelling an event, or changing its time or place, sends everyone who RSVP'd an urgent in-app notification.
 - [ ] We know **Email everyone going** (opens your email app, BCC) and the CSV export (no dietary data).
+- [ ] Volunteer shifts (Dashboard → Volunteers) fit how we organize cooking, setup and clean-up.
 
 ## 2. Meals and allergens
 

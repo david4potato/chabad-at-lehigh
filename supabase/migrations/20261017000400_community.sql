@@ -1,7 +1,7 @@
 -- =============================================================================
 -- Announcements, volunteer shifts, learning programs, gallery storage.
--- (Volunteer, learning and gallery screens are planned features; the tables
--- and security rules exist now so they can be built without schema churn.)
+-- (Learning and gallery screens are planned features; the tables and security
+-- rules exist now so they can be built without schema churn.)
 -- =============================================================================
 
 -- -----------------------------------------------------------------------------
@@ -34,7 +34,7 @@ create trigger announcements_audit
   for each row execute function private.audit_row_change();
 
 -- -----------------------------------------------------------------------------
--- Volunteer shifts (planned feature)
+-- Volunteer shifts ("Help out": cooking, setup, clean-up)
 -- -----------------------------------------------------------------------------
 create table public.volunteer_shifts (
   id uuid primary key default gen_random_uuid(),
@@ -160,8 +160,15 @@ create policy "announcements: organizers update" on public.announcements for upd
 create policy "announcements: organizers delete" on public.announcements for delete to authenticated
   using ((select public.can_manage_events()));
 
+-- Visible when not a draft and (if tied to an event) that event is published and
+-- visible to the viewer (the subquery runs under the events policies).
 create policy "volunteer_shifts: read open" on public.volunteer_shifts for select to anon, authenticated
-  using (status <> 'draft');
+  using (
+    status <> 'draft'
+    and (volunteer_shifts.event_id is null or exists (
+      select 1 from public.events e where e.id = volunteer_shifts.event_id and e.status = 'published'
+    ))
+  );
 create policy "volunteer_shifts: organizers read all" on public.volunteer_shifts for select to authenticated
   using ((select public.can_manage_events()));
 create policy "volunteer_shifts: organizers insert" on public.volunteer_shifts for insert to authenticated

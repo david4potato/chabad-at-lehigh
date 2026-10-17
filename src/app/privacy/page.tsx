@@ -16,6 +16,8 @@ export default async function PrivacyPage() {
           <li>Your email address (to sign you in and send event updates).</li>
           <li>Your name, whether you&apos;re a student or community member, and optionally class year and phone.</li>
           <li>Your RSVPs, guests and notes to organizers.</li>
+          <li>Which events you came to (from RSVPs and check-ins).</li>
+          <li>Volunteer shifts you sign up for.</li>
           <li>Optional dietary information: allergies, diet, notes for the kitchen, per-event meal notes.</li>
           <li>Dish votes and suggestions.</li>
         </ul>
@@ -26,6 +28,8 @@ export default async function PrivacyPage() {
       body: (
         <ul className="list-disc space-y-1 pl-5">
           <li>Organizers see RSVPs, names and contact details to run events.</li>
+          <li>Organizers see who signed up for a volunteer shift and can email them.</li>
+          <li>Admins can see a person&apos;s attendance and volunteering history. Other organizers see totals only, without names.</li>
           <li>
             Your dietary information is visible only to you, and to kitchen staff and admins for events you RSVP to — only
             for preparing food. Every time they open the dietary report it is logged.

@@ -602,7 +602,8 @@ $$;
 
 -- -----------------------------------------------------------------------------
 -- Event changes: fill seats freed by a capacity change, and tell everyone who
--- RSVP'd (urgent, in-app) when an event is cancelled, rescheduled or moved.
+-- RSVP'd or signed up to help (urgent, in-app) when an event is cancelled,
+-- rescheduled or moved.
 -- -----------------------------------------------------------------------------
 create or replace function private.after_event_update()
 returns trigger
@@ -641,10 +642,17 @@ begin
     return null;
   end if;
 
+  -- Everyone who RSVP'd, plus anyone signed up to help at this event.
   insert into public.notifications (user_id, event_id, kind, title, body, link, is_urgent)
-  select r.user_id, new.id, v_kind, left(v_title, 200), left(v_body, 2000), '/events/' || new.slug, true
-  from public.rsvps r
-  where r.event_id = new.id and r.status in ('going', 'waitlist', 'pending');
+  select u.user_id, new.id, v_kind, left(v_title, 200), left(v_body, 2000), '/events/' || new.slug, true
+  from (
+    select r.user_id from public.rsvps r
+    where r.event_id = new.id and r.status in ('going', 'waitlist', 'pending')
+    union
+    select v.user_id from public.volunteer_signups v
+    join public.volunteer_shifts s on s.id = v.shift_id
+    where s.event_id = new.id
+  ) u;
   return null;
 end;
 $$;

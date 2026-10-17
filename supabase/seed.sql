@@ -144,6 +144,15 @@ begin
   update public.events set location_address = '306 Wyandotte Street, Bethlehem, PA 18015'
   where is_demo and location_name like 'Chabad House%';
 
+  -- Volunteer shifts for this Friday's dinner (Help out page).
+  insert into public.volunteer_shifts (event_id, title, description, starts_at, ends_at, slots, status, is_demo) values
+    (e_shabbat, '[DEMO] Help cook Shabbat dinner', 'Sample shift for testing: chop, stir and plate with the kitchen team.',
+      (v_fri - 1 + time '16:00') at time zone 'America/New_York', (v_fri - 1 + time '19:00') at time zone 'America/New_York', 4, 'open', true),
+    (e_shabbat, '[DEMO] Set up tables', 'Sample shift for testing.',
+      (v_fri + time '17:00') at time zone 'America/New_York', (v_fri + time '18:00') at time zone 'America/New_York', 3, 'open', true),
+    (e_shabbat, '[DEMO] Clean up after dinner', 'Sample shift for testing.',
+      (v_fri + time '21:00') at time zone 'America/New_York', (v_fri + time '22:00') at time zone 'America/New_York', 3, 'open', true);
+
   -- ---------------------------------------------------------------------------
   -- Ingredients
   -- ---------------------------------------------------------------------------

@@ -14,6 +14,7 @@ export const ADMIN_NAV: Item[] = [
   { href: "/admin/ingredients", label: "Ingredients", show: canManageMenus },
   { href: "/admin/suggestions", label: "Suggestions", show: canManageMenus },
   { href: "/admin/announcements", label: "Announcements", show: canManageEvents },
+  { href: "/admin/volunteers", label: "Volunteers", show: canManageEvents },
   { href: "/admin/people", label: "People & roles", show: isAdmin },
   { href: "/admin/settings", label: "Settings", show: isAdmin },
   { href: "/admin/audit", label: "Audit log", show: isAdmin },

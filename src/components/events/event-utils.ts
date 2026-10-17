@@ -29,8 +29,9 @@ export const CATEGORY_FILTERS: { value: EventCategory; label: string }[] = [
   { value: "other", label: "Other" },
 ];
 
+// Own keys only: `in` would also accept "constructor", "__proto__" and friends.
 export const isEventCategory = (value: unknown): value is EventCategory =>
-  typeof value === "string" && value in CATEGORY_LABELS;
+  typeof value === "string" && Object.hasOwn(CATEGORY_LABELS, value);
 
 export type BadgeTone = "neutral" | "brand" | "gold" | "green" | "red" | "amber";
 

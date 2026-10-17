@@ -6,11 +6,13 @@ import { canManageEvents, canManageMenus, isAdmin } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 import { formatShortDate, formatTime } from "@/lib/time";
 import { getEventCounts } from "@/lib/data/events";
+import { formatSince, parseStaffStats, semesterStart } from "@/lib/stats";
 import { Card, CardTitle } from "@/components/ui/card";
 import { ButtonLink } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Alert } from "@/components/ui/alert";
 import { GettingStarted } from "@/components/admin/getting-started";
+import { StatsRow } from "@/components/admin/stats-row";
 
 export const metadata: Metadata = { title: "Overview" };
 
@@ -24,8 +26,9 @@ export default async function AdminHome({ searchParams }: PageProps<"/admin">) {
   const organizer = canManageEvents(viewer.roles);
   const menus = canManageMenus(viewer.roles);
   const supabase = await createClient();
+  const semester = semesterStart();
 
-  const [{ data: events }, { data: published }, suggestions] = await Promise.all([
+  const [{ data: events }, { data: published }, suggestions, semesterStats] = await Promise.all([
     supabase
       .from("events")
       .select("id, title, starts_at, capacity, status, has_meal")
@@ -40,12 +43,15 @@ export default async function AdminHome({ searchParams }: PageProps<"/admin">) {
     menus
       ? supabase.from("dish_suggestions").select("id", { count: "exact", head: true }).eq("status", "new")
       : Promise.resolve({ count: 0 }),
+    // A few numbers for organizers/admins; the SQL function checks the role too.
+    organizer ? supabase.rpc("get_staff_stats", { p_since: semester }) : Promise.resolve(null),
   ]);
   const upcoming = events ?? [];
   const pendingIds = (published ?? []).map((e) => e.id);
   const counts = await getEventCounts([...new Set([...upcoming.map((e) => e.id), ...pendingIds])]);
   const pendingTotal = pendingIds.reduce((sum, id) => sum + (counts.get(id)?.pending ?? 0), 0);
   const newSuggestions = suggestions.count ?? 0;
+  const staffStats = semesterStats && !semesterStats.error ? parseStaffStats(semesterStats.data) : null;
 
   return (
     <div className="space-y-6">
@@ -116,6 +122,8 @@ export default async function AdminHome({ searchParams }: PageProps<"/admin">) {
           </ul>
         )}
       </Card>
+
+      {staffStats ? <StatsRow stats={staffStats} since={formatSince(semester)} /> : null}
     </div>
   );
 }

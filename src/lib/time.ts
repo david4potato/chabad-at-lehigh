@@ -63,6 +63,42 @@ export function toDateTimeLocalValue(d: DateInput | null | undefined): string {
   return `${p.year}-${pad(p.month)}-${pad(p.day)}T${pad(p.hour)}:${pad(p.minute)}`;
 }
 
+/** The calendar day an instant falls on in site time, e.g. "2026-10-23". */
+export const siteDateKey = (d: DateInput) => toDateTimeLocalValue(d).slice(0, 10);
+
+const shortDateWithYear = fmt({ weekday: "short", month: "short", day: "numeric", year: "numeric" });
+
+/**
+ * "Fri, Oct 23" when the date is in the current year (site time), otherwise
+ * "Thu, Oct 9, 2025", so an old date never reads as this year's.
+ */
+export function formatShortDateMaybeYear(d: DateInput, now: Date = new Date()): string {
+  const date = toDate(d);
+  const sameYear = siteDateKey(date).slice(0, 4) === siteDateKey(now).slice(0, 4);
+  return (sameYear ? shortDate : shortDateWithYear).format(date);
+}
+
+const monthYear = fmt({ month: "long", year: "numeric" });
+const monthShort = fmt({ month: "short" });
+
+/** "October 2026" for a calendar month (month is 1-12). */
+export function formatMonthYear(year: number, month: number): string {
+  // Noon UTC on the 15th is the same day and month in Bethlehem.
+  return monthYear.format(new Date(Date.UTC(year, month - 1, 15, 12)));
+}
+
+/** "Oct" for a calendar month (month is 1-12). */
+export function formatMonthShort(year: number, month: number): string {
+  return monthShort.format(new Date(Date.UTC(year, month - 1, 15, 12)));
+}
+
+/** "Friday, October 23" for a site-time day key like "2026-10-23". */
+export function formatDayKey(key: string): string {
+  const [y, m, d] = key.split("-").map(Number);
+  // Noon UTC is 7 or 8 AM the same day in Bethlehem.
+  return formatLongDate(Date.UTC(y, m - 1, d, 12));
+}
+
 /**
  * Convert a datetime-local value typed in site time ("2026-10-23T18:30") into
  * a UTC ISO string. Handles daylight saving time without extra libraries.

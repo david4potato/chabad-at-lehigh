@@ -46,6 +46,7 @@ export default async function AttendeesPage({ params }: PageProps<"/admin/events
         <InvitePeople eventId={event.id} eventPath={`/events/${event.slug}`} published={event.status === "published"} />
       </Card>
       <p className="mt-6 text-sm text-muted">Allergy and dietary details are on the Dietary tab (names are visible to kitchen staff and admins only).</p>
+      <p className="mt-2 text-sm text-muted">If you check in at least half the people going, only checked-in people count in the stats.</p>
     </div>
   );
 }

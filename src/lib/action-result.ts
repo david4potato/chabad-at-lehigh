@@ -42,6 +42,8 @@ const DB_ERROR_MESSAGES: Record<string, string> = {
   change_summary_required: "Describe what changed so people with allergies can review it.",
   signup_closed: "Sign-ups are closed.",
   signup_full: "That's full.",
+  shift_not_found: "We couldn't find that shift.",
+  signup_not_found: "That person isn't signed up for this shift anymore.",
 };
 
 export function dbErrorMessage(error: PostgrestError | { message?: string; code?: string } | null): string {

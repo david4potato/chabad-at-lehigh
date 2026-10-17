@@ -85,6 +85,7 @@ const SECTIONS: Section[] = [
           Someone tells you they can&apos;t come? <strong>Cancel RSVP</strong> frees their seat. They get a notification and the waitlist moves up.
         </li>
         <li><strong>Email everyone going</strong> opens your email app with everyone in BCC. <strong>Download spreadsheet</strong> gives a CSV (no dietary data).</li>
+        <li>If you check in at least half the people going, only checked-in people count in the stats.</li>
         <li>Allergy details are on the <strong>Dietary</strong> tab, not here.</li>
       </ul>
     ),
@@ -171,6 +172,58 @@ const SECTIONS: Section[] = [
           emails or texts yet — use{" "}
           <strong>Email everyone going</strong> for reminders.
         </li>
+      </ul>
+    ),
+  },
+  {
+    id: "volunteers",
+    title: "Volunteer shifts",
+    who: "Organizers",
+    body: (
+      <ul className="list-disc space-y-2 pl-5">
+        <li>
+          <A href="/admin/volunteers/new">Volunteers → New shift</A>: a title (&ldquo;Help cook Shabbat dinner&rdquo;), the time, how many spots, and
+          optionally the event it&apos;s for. Or open an event and press <strong>Add a volunteer shift</strong>.
+        </li>
+        <li>
+          <strong>Open</strong> shifts show on the <A href="/volunteer">Help out</A> page and on their event&apos;s page. People sign up with one tap and
+          can press <strong>Can&apos;t make it</strong> to free their spot until the shift starts. Sign-ups stop when the shift starts or every spot is taken.
+        </li>
+        <li>
+          A shift for a draft event stays hidden until the event is published. Shifts for a cancelled event are hidden too. The shift list shows a
+          label when this happens.
+        </li>
+        <li>
+          <strong>Closed</strong> stops new sign-ups but keeps everyone already signed up. <strong>Draft</strong> hides the shift while you plan, from
+          people signed up too.
+        </li>
+        <li>
+          Open a shift to see who signed up (first come, first listed). <strong>Email everyone</strong> opens your email app with them in BCC, handy for a
+          reminder the day before. Someone can&apos;t come? Press <strong>Remove</strong> next to their name. They get a notification.
+        </li>
+        <li>
+          If the event is cancelled or moved, people signed up for its shifts get a notification too. Moving an event doesn&apos;t move its shifts, so
+          update their times as well. When you change a shift&apos;s time or delete it, people signed up get a notification.
+        </li>
+      </ul>
+    ),
+  },
+  {
+    id: "stats",
+    title: "This semester stats",
+    who: "Organizers",
+    body: (
+      <ul className="list-disc space-y-2 pl-5">
+        <li>
+          The numbers on <A href="/admin">Overview</A> count published events since the semester started (August 1 or January 1) that have
+          already ended. They show totals only, never names.
+        </li>
+        <li>
+          <strong>People who came</strong> counts everyone going. If you checked in at least half the people going, only those checked in count.
+        </li>
+        <li><strong>New faces</strong> are people whose first event ever was this semester.</li>
+        <li><strong>Avg. at Shabbat</strong> is the average per dinner, including approved guests. Dinners nobody came to are left out.</li>
+        <li><strong>Volunteer sign-ups</strong> counts sign-ups for shifts that have ended (not drafts or shifts for cancelled events).</li>
       </ul>
     ),
   },

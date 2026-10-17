@@ -14,9 +14,10 @@ No password. Once an admin gives you a role, a **Dashboard** button appears at t
 | Overview | What needs attention: RSVPs to approve, new suggestions, and the getting-started checklist for admins |
 | Events | Create, publish and duplicate events. Each event has **Details**, **Attendees & check-in**, **Menu** and **Dietary** tabs |
 | Dishes, Ingredients | Your recipe library. Allergens come from the ingredients |
+| Volunteers | Help shifts (cooking, setup, clean-up): post them, see who signed up, email them |
 | Suggestions | Dish ideas from students |
 | Announcements | Posts on the home page |
-| People & roles | Who can do what *(admins)* |
+| People & roles | Who can do what, and each person's history: events attended, last time, volunteering *(admins)* |
 | Settings | Contact details (including the phone shown for allergy questions), address, directions, parking *(admins)* |
 | Audit log | Record of important changes *(admins)* |
 | Help | Step-by-step guides |
@@ -25,10 +26,16 @@ No password. Once an admin gives you a role, a **Dashboard** button appears at t
 
 1. **Events → Past** → last week's dinner → **Duplicate for next week** → check the date → **Status: Published** → **Save event**.
 2. **Menu** tab → add dishes → tick the preparation confirmation → **Publish**.
-3. Share it: **Copy event link** for group chats, or **Invite people** on the Attendees tab.
+3. Share it: **Copy event link** for group chats, or **Invite people** on the Attendees tab. Need hands?
+   **Volunteers → New shift** (e.g. "Help cook", Thursday 4–7pm, 4 spots) — it shows on the event and on **Help out**.
 4. If **Overview** shows RSVPs needing approval, approve or decline them. Someone texts that they can't come?
    **Cancel RSVP** on the Attendees tab frees their seat for the waitlist.
 5. On the day: kitchen prints the **Dietary** tab; at the door, tap **Check in** on **Attendees & check-in**.
+
+## Numbers
+
+Overview shows **This semester**: events held, people who came, new faces, average at Shabbat and volunteer
+sign-ups (no names). Each student sees their own activity on their profile.
 
 ## Roles
 

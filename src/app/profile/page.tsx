@@ -5,12 +5,14 @@ import { requireViewer } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { getOrgSettings } from "@/lib/settings";
 import { ROLE_LABELS, isStaff } from "@/lib/roles";
+import { parseMyStats } from "@/lib/stats";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProfileForm } from "@/components/account/profile-form";
 import { DeleteAccount } from "@/components/account/delete-account";
+import { ActivityCard } from "@/components/account/activity-card";
 import { saveProfile } from "./actions";
 
 export const metadata: Metadata = { title: "Profile & settings" };
@@ -18,10 +20,13 @@ export const metadata: Metadata = { title: "Profile & settings" };
 export default async function ProfilePage() {
   const viewer = await requireViewer("/profile");
   const supabase = await createClient();
-  const [{ data: profile }, org] = await Promise.all([
+  const [{ data: profile }, org, myStats] = await Promise.all([
     supabase.from("profiles").select("full_name, preferred_name, affiliation, class_year, phone").eq("id", viewer.id).single(),
     getOrgSettings(),
+    supabase.rpc("get_my_stats"),
   ]);
+  // The numbers are a nice extra: if they fail to load, the rest of the page still works.
+  const activity = myStats.error ? null : parseMyStats(myStats.data);
 
   const links = [
     { href: "/profile/dietary", label: "Dietary & allergies", hint: viewer.hasDietaryInfo ? "Saved — private" : "Not added yet", Icon: Salad },
@@ -46,6 +51,8 @@ export default async function ProfilePage() {
           </Badge>
         ))}
       </div>
+
+      {activity ? <ActivityCard stats={activity} /> : null}
 
       <ul className="grid gap-3 sm:grid-cols-2">
         {links.map(({ href, label, hint, Icon }) => (

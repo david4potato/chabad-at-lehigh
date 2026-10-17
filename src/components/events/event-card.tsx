@@ -34,7 +34,9 @@ export function EventCard({
   rsvp?: MyRsvp | null;
 }) {
   const closed = rsvpClosedReason(event);
-  const capacity = event.status === "cancelled" ? null : capacityInfo(event.capacity, counts, !closed);
+  // Spots left only matter before an event; past and cancelled events skip it.
+  const capacity =
+    event.status === "cancelled" || closed === "ended" ? null : capacityInfo(event.capacity, counts, !closed);
   const when = relativeDay(event.starts_at);
   const badge = rsvp ? RSVP_BADGES[rsvp.status] : null;
 

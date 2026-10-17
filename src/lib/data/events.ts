@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/database.types";
+import { MAX_EVENT_SPAN_DAYS } from "@/lib/calendar";
 
 // Server-only data helpers for events, RSVPs and the home feed. Every query
 // runs as the signed-in person (RLS applies). Counts and RSVPs for a list of
@@ -127,6 +128,64 @@ export async function listPastEvents(
 }
 
 /**
+ * Published and cancelled events that overlap [from, to), soonest first: those
+ * starting in the range, plus multi-day events that started up to
+ * MAX_EVENT_SPAN_DAYS earlier and are still going at `from`. Used by the
+ * month calendar; RLS still hides members-only events from visitors.
+ */
+export async function listEventsBetween(options: {
+  from: string;
+  to: string;
+  category?: EventCategory;
+  limit?: number;
+}): Promise<EventSummary[]> {
+  const earliest = new Date(new Date(options.from).getTime() - MAX_EVENT_SPAN_DAYS * 24 * HOUR).toISOString();
+  const supabase = await createClient();
+  let query = supabase
+    .from("events")
+    .select(SUMMARY_COLUMNS)
+    .in("status", ["published", "cancelled"])
+    .gte("starts_at", earliest)
+    .lt("starts_at", options.to)
+    .or(`starts_at.gte."${options.from}",ends_at.gt."${options.from}"`)
+    .order("starts_at", { ascending: true })
+    .limit(options.limit ?? 200);
+  if (options.category) query = query.eq("category", options.category);
+  const { data } = await query;
+  return (data ?? []) as EventSummary[];
+}
+
+/** What the calendar feed needs for each event. */
+export type FeedEventRow = Pick<
+  EventRow,
+  "id" | "slug" | "title" | "summary" | "starts_at" | "ends_at" | "location_name" | "location_address"
+>;
+
+/**
+ * Published PUBLIC events from 30 days ago to 6 months ahead, for the
+ * subscribable calendar feed. Members-only events are never included, even
+ * when a signed-in person fetches the feed. Throws on a database error: an
+ * empty feed would make calendar apps delete every event.
+ */
+export async function listCalendarFeedEvents(now: Date = new Date()): Promise<FeedEventRow[]> {
+  const from = new Date(now.getTime() - 30 * 24 * HOUR);
+  const to = new Date(now);
+  to.setUTCMonth(to.getUTCMonth() + 6);
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("events")
+    .select("id, slug, title, summary, starts_at, ends_at, location_name, location_address")
+    .eq("status", "published")
+    .eq("visibility", "public")
+    .gte("starts_at", from.toISOString())
+    .lte("starts_at", to.toISOString())
+    .order("starts_at", { ascending: true })
+    .limit(500);
+  if (error) throw error;
+  return data ?? [];
+}
+
+/**
  * One event by slug (published, cancelled, or a draft when the viewer is
  * staff — RLS decides). Cached per request so metadata and page share it.
  */
@@ -195,11 +254,20 @@ export async function getEventsMeta(eventIds: string[], userId: string | null | 
   return { counts, rsvps };
 }
 
-/** The viewer's RSVPs split into upcoming, not going, and past attended. */
-export async function getMyEvents(userId: string): Promise<{
+/**
+ * The viewer's RSVPs split into upcoming, not going, and past (published
+ * events they said they were going to that are over). `past` is the 20 most
+ * recent (optionally only one category); `pastTotal` covers every category.
+ * Whether they actually came (check-in) is decided in SQL: see get_my_stats().
+ */
+export async function getMyEvents(
+  userId: string,
+  options: { pastCategory?: EventCategory } = {},
+): Promise<{
   upcoming: MyEventEntry[];
   notGoing: MyEventEntry[];
   past: MyEventEntry[];
+  pastTotal: number;
 }> {
   const supabase = await createClient();
   const { data } = await supabase
@@ -230,7 +298,14 @@ export async function getMyEvents(userId: string): Promise<{
       notGoing.push(entry);
     }
   }
-  return { upcoming, notGoing, past: past.reverse().slice(0, 20) };
+  past.reverse(); // most recent first
+  const filtered = options.pastCategory ? past.filter((e) => e.event.category === options.pastCategory) : past;
+  return {
+    upcoming,
+    notGoing,
+    past: filtered.slice(0, 20),
+    pastTotal: past.length,
+  };
 }
 
 /** The viewer's private meal preference for one event (owner-only via RLS). */

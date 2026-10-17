@@ -2,13 +2,18 @@ import { describe, expect, it } from "vitest";
 import {
   SITE_TIME_ZONE,
   formatDateTime,
+  formatDayKey,
   formatEventWhen,
   formatLongDate,
+  formatMonthShort,
+  formatMonthYear,
   formatShortDate,
+  formatShortDateMaybeYear,
   formatTime,
   formatTimeRange,
   isPast,
   relativeDay,
+  siteDateKey,
   siteLocalToUtcIso,
   spansDays,
   toDateTimeLocalValue,
@@ -72,10 +77,8 @@ describe("siteLocalToUtcIso", () => {
     },
   );
 
-  // BUG (minor): the regex accepts impossible calendar values and Date.UTC rolls
-  // them over silently, e.g. "2026-02-30T18:00" becomes March 2. Browsers never
-  // send these from <input type="datetime-local">, but a hand-crafted form post
-  // could. Expected: null. Remove `.fails` once siteLocalToUtcIso range-checks.
+  // Browsers never send these from <input type="datetime-local">, but a
+  // hand-crafted form post could; they must not roll over (Feb 30 -> Mar 2).
   it("returns null for impossible dates and times", () => {
     expect(siteLocalToUtcIso("2026-02-30T18:00")).toBeNull();
     expect(siteLocalToUtcIso("2026-13-01T10:00")).toBeNull();
@@ -207,5 +210,53 @@ describe("relativeDay", () => {
   it("works across the fall-back transition", () => {
     const saturdayNoon = new Date("2026-10-31T16:00:00Z"); // EDT
     expect(relativeDay("2026-11-01T17:00:00Z", saturdayNoon)).toBe("Tomorrow"); // EST
+  });
+});
+
+describe("calendar days and months", () => {
+  it("gives the Bethlehem calendar day of an instant", () => {
+    expect(siteDateKey("2026-10-23T22:30:00Z")).toBe("2026-10-23");
+    // 11:30 PM Friday in Bethlehem is already Saturday in UTC.
+    expect(siteDateKey("2026-10-24T03:30:00Z")).toBe("2026-10-23");
+    expect(siteDateKey(new Date("2026-11-01T05:30:00Z"))).toBe("2026-11-01");
+  });
+
+  it("formats a month and year", () => {
+    expect(formatMonthYear(2026, 10)).toBe("October 2026");
+    expect(formatMonthYear(2027, 1)).toBe("January 2027");
+    expect(formatMonthYear(2026, 3)).toBe("March 2026");
+    expect(formatMonthShort(2026, 9)).toBe("Sep");
+    expect(formatMonthShort(2026, 12)).toBe("Dec");
+  });
+
+  it("formats a day key as a long date", () => {
+    expect(formatDayKey("2026-10-23")).toBe("Friday, October 23");
+    expect(formatDayKey("2026-03-08")).toBe("Sunday, March 8");
+    expect(formatDayKey("2026-11-01")).toBe("Sunday, November 1");
+  });
+});
+
+describe("formatShortDateMaybeYear", () => {
+  const now = new Date("2026-10-17T16:00:00Z"); // Saturday, October 17, 2026 in Bethlehem
+
+  it("leaves the year off for dates in the current year", () => {
+    expect(formatShortDateMaybeYear("2026-10-09T16:00:00Z", now)).toBe("Fri, Oct 9");
+    expect(formatShortDateMaybeYear("2026-01-04T16:00:00Z", now)).toBe("Sun, Jan 4");
+  });
+
+  it("adds the year for dates in another year", () => {
+    expect(formatShortDateMaybeYear("2025-10-09T16:00:00Z", now)).toBe("Thu, Oct 9, 2025");
+    expect(formatShortDateMaybeYear("2027-01-08T16:00:00Z", now)).toBe("Fri, Jan 8, 2027");
+  });
+
+  it("uses the year in Bethlehem, not UTC", () => {
+    // 10 PM on New Year's Eve in Bethlehem is already January 1 in UTC.
+    const newYearsEve = "2027-01-01T03:00:00Z";
+    expect(formatShortDateMaybeYear(newYearsEve, new Date("2026-12-31T20:00:00Z"))).toBe("Thu, Dec 31");
+    expect(formatShortDateMaybeYear(newYearsEve, new Date("2027-01-01T06:00:00Z"))).toBe("Thu, Dec 31, 2026");
+  });
+
+  it("defaults to the current time", () => {
+    expect(formatShortDateMaybeYear(new Date())).toBe(formatShortDate(new Date()));
   });
 });
