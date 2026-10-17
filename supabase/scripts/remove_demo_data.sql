@@ -33,10 +33,4 @@ delete from public.announcements where is_demo;
 delete from public.volunteer_shifts where is_demo;
 delete from public.learning_programs where is_demo;
 
--- Clear demo placeholder contact text (fill in real values in Admin → Settings).
-update public.app_settings
-set value = value
-  || jsonb_build_object('contact_name', '', 'contact_email', '', 'directions', '', 'parking', '')
-where key = 'organization' and value ->> 'contact_email' = 'organizer@example.com';
-
 commit;

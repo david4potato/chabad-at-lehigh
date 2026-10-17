@@ -15,6 +15,7 @@ import { Alert } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { RsvpPanel } from "@/components/events/rsvp-panel";
+import { ShareButton } from "@/components/events/share-button";
 import { EventCard } from "@/components/events/event-card";
 import { AnnouncementList } from "@/components/events/announcement-list";
 import { telHref } from "@/components/events/event-utils";
@@ -39,6 +40,9 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
 
   return (
     <div className="space-y-8">
+      {params.account_deleted ? (
+        <Alert tone="success">Your account and its information have been deleted. You&apos;re always welcome back.</Alert>
+      ) : null}
       {params.denied ? (
         <Alert tone="warning">That page is only for organizers. If you think you should have access, ask an admin.</Alert>
       ) : null}
@@ -120,6 +124,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
                 <Link href={`/events/${shabbat.slug}`} className="inline-flex min-h-11 items-center gap-1 font-semibold text-brand-700 hover:underline">
                   Event details <ArrowRight className="size-4" aria-hidden="true" />
                 </Link>
+                {shabbat.status === "published" ? <ShareButton title={shabbat.title} path={`/events/${shabbat.slug}`} /> : null}
               </div>
             </div>
           </div>

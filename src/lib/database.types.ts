@@ -1409,6 +1409,7 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      delete_my_account: { Args: Record<PropertyKey, never>; Returns: undefined };
       event_dietary_report: {
         Args: { p_event_id: string };
         Returns: {
@@ -1579,6 +1580,13 @@ export type Database = {
           isOneToOne: true;
           isSetofReturn: false;
         };
+      };
+      staff_invite_to_event: {
+        Args: { p_emails: string[]; p_event_id: string; p_message?: string };
+        Returns: {
+          email: string;
+          result: string;
+        }[];
       };
       staff_set_check_in: {
         Args: { p_checked_in: boolean; p_rsvp_id: string };

@@ -40,20 +40,6 @@ begin
   v_sun := v_today + ((7 - extract(isodow from v_today)::int + 7) % 7) + case when extract(isodow from v_today) = 7 then 7 else 0 end;
 
   -- ---------------------------------------------------------------------------
-  -- Organization settings (placeholders — edit in Admin → Settings)
-  -- ---------------------------------------------------------------------------
-  update public.app_settings set value = jsonb_build_object(
-    'name', 'Chabad at Lehigh',
-    'contact_name', '[DEMO] Organizer name',
-    'contact_email', 'organizer@example.com',
-    'contact_phone', '',
-    'address', '',
-    'directions', '[DEMO] Add walking directions from campus here (Admin → Settings).',
-    'parking', '[DEMO] Add parking notes here (Admin → Settings).',
-    'map_query', ''
-  ) where key = 'organization';
-
-  -- ---------------------------------------------------------------------------
   -- Events
   -- ---------------------------------------------------------------------------
   insert into public.events (slug, title, summary, description, category, status, visibility,
@@ -67,7 +53,7 @@ begin
     'shabbat_dinner', 'published', 'public',
     (v_fri + time '18:30') at time zone 'America/New_York',
     (v_fri + time '21:00') at time zone 'America/New_York',
-    '[DEMO] Chabad House', 60, true,
+    'Chabad House', 60, true,
     (v_fri + time '12:00') at time zone 'America/New_York',
     'guests_need_approval', 2, true, false,
     '[DEMO] Organizer', 'organizer@example.com', true
@@ -84,7 +70,7 @@ begin
     'shabbat_dinner', 'published', 'public',
     (v_next_fri + time '18:30') at time zone 'America/New_York',
     (v_next_fri + time '21:00') at time zone 'America/New_York',
-    '[DEMO] Chabad House', 60, true, 'guests_need_approval', 2, true, true, true
+    'Chabad House', 60, true, 'guests_need_approval', 2, true, true, true
   ) returning id into e_shabbat_next;
 
   insert into public.events (slug, title, summary, description, category, status, visibility,
@@ -112,7 +98,7 @@ begin
     'social', 'published', 'members',
     (v_mon + time '20:00') at time zone 'America/New_York',
     (v_mon + time '22:00') at time zone 'America/New_York',
-    '[DEMO] Chabad House', null, true, 'auto', 3, false, true
+    'Chabad House', null, true, 'auto', 3, false, true
   ) returning id into e_study;
 
   insert into public.events (slug, title, summary, description, category, status, visibility,
@@ -126,7 +112,7 @@ begin
     'volunteer', 'published', 'public',
     (v_sun + time '10:00') at time zone 'America/New_York',
     (v_sun + time '12:00') at time zone 'America/New_York',
-    '[DEMO] Chabad House', 15, true, 'all_need_approval', 0, false, true
+    'Chabad House', 15, true, 'all_need_approval', 0, false, true
   ) returning id into e_volunteer;
 
   insert into public.events (slug, title, summary, description, category, status, visibility,
@@ -140,7 +126,7 @@ begin
     'social', 'published', 'public',
     (v_wed + 1 + time '19:00') at time zone 'America/New_York',
     (v_wed + 1 + time '21:00') at time zone 'America/New_York',
-    '[DEMO] Chabad House kitchen', 3, true, 'auto', 0, false, true
+    'Chabad House kitchen', 3, true, 'auto', 0, false, true
   ) returning id into e_cooking;
 
   insert into public.events (slug, title, summary, category, status, visibility,
@@ -153,6 +139,10 @@ begin
     (v_next_fri + 2 + time '17:00') at time zone 'America/New_York',
     '[DEMO] TBD', 100, true, true
   ) returning id into e_draft;
+
+  -- Demo events held at Chabad House use the real address so map links work.
+  update public.events set location_address = '306 Wyandotte Street, Bethlehem, PA 18015'
+  where is_demo and location_name like 'Chabad House%';
 
   -- ---------------------------------------------------------------------------
   -- Ingredients

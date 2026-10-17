@@ -46,7 +46,8 @@ You will add these in **Vercel → your project → Settings → Environment Var
 3. Fill in: **Name** `chabad-at-lehigh`; **Database password** → click *Generate a password* and
    save it in a password manager; **Region** → *East US (North Virginia)* (closest to Bethlehem, PA).
    Click **Create new project** and wait ~2 minutes until it says the project is ready.
-4. In the left sidebar open **SQL Editor** → **New query**.
+4. In the left sidebar open **SQL Editor** → **New query**
+   (direct link: <https://supabase.com/dashboard/project/_/sql/new> — the `_` picks your project).
 5. On GitHub (or your computer) open the file `supabase/setup/all_migrations.sql`, copy **all** of
    it, paste it into the SQL Editor and click **Run**. You should see *Success. No rows returned*.
    (Run it only once, on a new project.)
@@ -58,15 +59,15 @@ You will add these in **Vercel → your project → Settings → Environment Var
    no red "Error" items. A few yellow warnings about functions that anyone can call (such as
    `get_event_menu`, `get_event_counts`, `has_role`) are expected: they only return public
    information or answer "no" for visitors.
-8. Sidebar → **Project Settings → Data API**: copy the **Project URL** into a note
+8. Sidebar → **Project Settings → Data API** (<https://supabase.com/dashboard/project/_/settings/api>): copy the **Project URL** into a note
    (`NEXT_PUBLIC_SUPABASE_URL`).
-9. **Project Settings → API Keys**: copy the **Publishable key** (`sb_publishable_…`) into the
+9. **Project Settings → API Keys** (<https://supabase.com/dashboard/project/_/settings/api-keys>): copy the **Publishable key** (`sb_publishable_…`) into the
    same note (`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`). Do not copy the secret key.
 
 ### Sign-in emails
 
-10. Sidebar → **Authentication → Emails** (older dashboards: *Email Templates*). Open the
-    **Magic Link** template:
+10. Sidebar → **Authentication → Emails / Email Templates**
+    (<https://supabase.com/dashboard/project/_/auth/templates>). Open the **Magic Link** template:
     - **Subject:** `Your Chabad at Lehigh sign-in link`
     - **Body:** replace everything with the contents of `supabase/templates/magic_link.html`.
     - Click **Save**.
@@ -76,7 +77,7 @@ You will add these in **Vercel → your project → Settings → Environment Var
 
     These emails contain both a button (works on any device) and a 6-digit code (handy when
     someone reads email on their phone but signs in on a laptop).
-12. **Authentication → Sign In / Providers → Email**: make sure **Email** is enabled. Leave
+12. **Authentication → Sign In / Providers → Email** (<https://supabase.com/dashboard/project/_/auth/providers>): make sure **Email** is enabled. Leave
     *Confirm email* on. Save if you changed anything.
 
 ### Email delivery (required for real use)
@@ -91,7 +92,7 @@ it needs a domain you control (step 13). No domain yet? Use the Gmail option in 
     Records → Add record**, copying each **Type / Name / Value** exactly (Resend also offers an
     automatic *Sign in to Cloudflare* button). Back in Resend click **Verify** (can take a few minutes).
 15. In Resend go to **API Keys → Create API Key** (permission: *Sending access*). Copy it.
-16. In Supabase: **Authentication → Emails → SMTP Settings** → turn on **Enable custom SMTP**:
+16. In Supabase: **Authentication → Emails → SMTP Settings** (<https://supabase.com/dashboard/project/_/auth/smtp>) → turn on **Enable custom SMTP**:
     - Sender email: `no-reply@chabadlehigh.org` (your verified domain)
     - Sender name: `Chabad at Lehigh`
     - Host: `smtp.resend.com` · Port: `465` · Username: `resend` · Password: *the Resend API key*
@@ -100,7 +101,7 @@ it needs a domain you control (step 13). No domain yet? Use the Gmail option in 
     create an **App password** (Google Account → Security → App passwords), then in the same
     Supabase SMTP form use Host `smtp.gmail.com`, Port `587`, Username = the Gmail address,
     Password = the app password, Sender email = the same Gmail address.
-18. **Authentication → Rate Limits**: after enabling custom SMTP the email limit starts at 30 per
+18. **Authentication → Rate Limits** (<https://supabase.com/dashboard/project/_/auth/rate-limits>): after enabling custom SMTP the email limit starts at 30 per
     hour. Raise *Rate limit for sending emails* to about `100` and **Save**.
 
 ### Make yourself the first admin
@@ -130,7 +131,7 @@ it needs a domain you control (step 13). No domain yet? Use the Gmail option in 
     - `NEXT_PUBLIC_SITE_URL` = leave for now (step 27)
 25. Click **Deploy** and wait (~2 minutes). When it finishes, copy your production address, e.g.
     `https://chabad-at-lehigh.vercel.app`.
-26. Back in **Supabase → Authentication → URL Configuration**:
+26. Back in **Supabase → Authentication → URL Configuration** (<https://supabase.com/dashboard/project/_/auth/url-configuration>):
     - **Site URL:** your Vercel address (e.g. `https://chabad-at-lehigh.vercel.app`)
     - **Redirect URLs → Add URL:** `https://chabad-at-lehigh.vercel.app/**`
       (and `http://localhost:3000/**` if you'll develop locally). **Save**.
@@ -169,8 +170,10 @@ it needs a domain you control (step 13). No domain yet? Use the Gmail option in 
 35. Click **Sign in**, enter your email. Within a minute you get an email with a **Sign in**
     button and a **code**. Use either. Complete the short welcome form. You should now see
     **Dashboard** in the top menu (because of step 19).
-36. Dashboard → **Settings**: fill in the real contact name, email, phone, address, directions and
-    parking. Then remove the demo content: **SQL Editor → New query** → paste
+36. Dashboard → **Settings**: the contact details come pre-filled from public listings
+    (Rabbi Zalman & Dit Greenberg, rabbi@chabadlehigh.org, (610) 419-9036, 306 Wyandotte Street).
+    **Confirm them with the Greenbergs**, correct anything that's out of date, and add parking notes.
+    Then remove the demo content: **SQL Editor → New query** → paste
     `supabase/scripts/remove_demo_data.sql` → **Run**.
 37. Create a real test event (Dashboard → Events → New event), publish it, and RSVP from a
     second account (e.g. a friend's phone): try **Going**, **Not going** and **Change RSVP**.
@@ -182,9 +185,11 @@ it needs a domain you control (step 13). No domain yet? Use the Gmail option in 
     notice on the home page.
 40. Give a trusted person the **Kitchen staff** role (Dashboard → People & roles) and confirm only
     kitchen staff/admins can see names on the event's **Dietary** tab, while organizers see counts.
-41. Supabase → **Advisors → Security Advisor**: no errors. Supabase → **Authentication → Users**:
+41. Sign in with a throwaway test account, open **Profile & settings**, change your name, then
+    use **Delete account** at the bottom (type DELETE). You should land on the home page signed out.
+42. Supabase → **Advisors → Security Advisor**: no errors. Supabase → **Authentication → Users**:
     your test users appear.
-42. Ask the Chabad organizers to go through [docs/ORGANIZER_REVIEW.md](docs/ORGANIZER_REVIEW.md)
+43. Ask the Chabad organizers to go through [docs/ORGANIZER_REVIEW.md](docs/ORGANIZER_REVIEW.md)
     and sign off before announcing the site.
 
 ---

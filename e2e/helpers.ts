@@ -52,7 +52,7 @@ export async function grantRole(email: string, role: TestRole) {
  * Sign in through the real UI (email → code from Mailpit), completing the
  * welcome form for new accounts. Returns once the destination page loads.
  */
-export async function signIn(page: Page, email: string, opts: { next?: string; name?: string } = {}) {
+export async function signIn(page: Page, email: string, opts: { next?: string; name?: string; newAccount?: boolean } = {}) {
   const started = Date.now();
   await page.goto(`/sign-in${opts.next ? `?next=${encodeURIComponent(opts.next)}` : ""}`);
   await page.getByLabel("Email address").fill(email);
@@ -60,9 +60,12 @@ export async function signIn(page: Page, email: string, opts: { next?: string; n
   const code = await getSignInCode(email, started);
   await page.getByLabel("Sign-in code").fill(code);
   await page.getByRole("button", { name: /^sign in$/i }).click();
+  // New accounts always go to /welcome first; existing ones go straight to `next`.
   await page.waitForURL((url) => !url.pathname.startsWith("/sign-in"), { timeout: 20_000 });
+  await page.waitForLoadState("domcontentloaded");
 
-  if (new URL(page.url()).pathname === "/welcome") {
+  if (opts.newAccount || new URL(page.url()).pathname === "/welcome") {
+    await page.waitForURL((url) => url.pathname === "/welcome", { timeout: 20_000 });
     await page.getByLabel(/full name/i).fill(opts.name ?? "Test Person");
     await page.getByRole("button", { name: /continue|save/i }).first().click();
     await page.waitForURL((url) => url.pathname !== "/welcome", { timeout: 20_000 });
@@ -79,7 +82,7 @@ export async function signIn(page: Page, email: string, opts: { next?: string; n
 export async function signInAs(page: Page, role: TestRole, opts: { next?: string } = {}) {
   const domain = role === "student" ? "lehigh.edu" : "example.com";
   const email = uniqueEmail(role.replace("_", ""), domain);
-  await signIn(page, email, { name: `Test ${role}` });
+  await signIn(page, email, { name: `Test ${role}`, newAccount: true });
   if (role !== "student" && role !== "community_guest") await grantRole(email, role);
   if (opts.next) await page.goto(opts.next);
   return email;

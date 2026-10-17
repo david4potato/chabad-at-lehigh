@@ -174,3 +174,23 @@ export async function deleteNotification(id: string): Promise<ActionResult> {
   revalidatePath("/notifications");
   return { ok: true };
 }
+
+/** Permanently delete the signed-in person's account and everything tied to it. */
+export async function deleteAccount(): Promise<ActionResult> {
+  const viewer = await getViewer();
+  if (!viewer) return { ok: false, error: "Please sign in first." };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("delete_my_account");
+  if (error) {
+    return {
+      ok: false,
+      error:
+        error.message === "last_admin"
+          ? "You're the only admin. Make someone else an admin first (Dashboard → People & roles)."
+          : dbErrorMessage(error),
+    };
+  }
+  await supabase.auth.signOut({ scope: "local" });
+  revalidatePath("/", "layout");
+  redirect("/?account_deleted=1");
+}

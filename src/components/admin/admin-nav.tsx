@@ -17,6 +17,7 @@ export const ADMIN_NAV: Item[] = [
   { href: "/admin/people", label: "People & roles", show: isAdmin },
   { href: "/admin/settings", label: "Settings", show: isAdmin },
   { href: "/admin/audit", label: "Audit log", show: isAdmin },
+  { href: "/admin/help", label: "Help", show: () => true },
 ];
 
 /** Horizontal, scrollable section nav for the organizer dashboard. */

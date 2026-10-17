@@ -9,7 +9,7 @@ const PLANS = [
   { Icon: HandHeart, title: "Volunteer sign-ups", text: "Sign up for shifts like cooking, setup and community projects." },
   { Icon: GraduationCap, title: "Learning programs", text: "Join classes and study groups and see your schedule." },
   { Icon: Camera, title: "Photo gallery", text: "Photos from Shabbat dinners and events, shared by organizers." },
-  { Icon: Users, title: "Invitations & friends attending", text: "Invite friends, and optionally see which friends are going (opt-in only)." },
+  { Icon: Users, title: "Friends attending", text: "Optionally see which friends are going (opt-in only). Inviting friends already works — tap “Invite friends” on any event." },
   { Icon: Mail, title: "Email and text reminders", text: "Optional reminders before events you RSVP'd to." },
   { Icon: QrCode, title: "QR check-in & walk-ins", text: "Faster check-in at the door, including guests who didn't RSVP." },
   { Icon: CalendarSync, title: "Calendar subscription", text: "Subscribe once and see every event in your own calendar." },

@@ -170,15 +170,18 @@ create trigger app_settings_set_updated_at
 
 insert into public.app_settings (key, value) values
   ('student_email_domains', '["lehigh.edu"]'),
+  -- Contact details from public listings (Lubavitch.com center directory, Lehigh
+  -- chaplaincy page, Chabad.org / The Brown and White), October 2026. Confirm
+  -- with the Greenbergs; editable any time in Dashboard → Settings.
   ('organization', jsonb_build_object(
     'name', 'Chabad at Lehigh',
-    'contact_name', '',
-    'contact_email', '',
-    'contact_phone', '',
-    'address', '',
-    'directions', '',
+    'contact_name', 'Rabbi Zalman & Dit Greenberg',
+    'contact_email', 'rabbi@chabadlehigh.org',
+    'contact_phone', '(610) 419-9036',
+    'address', E'Joachim Schaufeld Center for Jewish Life\n306 Wyandotte Street\nBethlehem, PA 18015',
+    'directions', 'We''re in the Joachim Schaufeld Center for Jewish Life, a historic mansion on Wyandotte Street in South Bethlehem, close to Lehigh''s campus.',
     'parking', '',
-    'map_query', ''
+    'map_query', '306 Wyandotte Street, Bethlehem, PA 18015'
   ));
 
 -- -----------------------------------------------------------------------------

@@ -55,7 +55,8 @@ who approved it. Nothing here replaces talking directly with people who have ser
 - [ ] Every time someone opens the named dietary report it is recorded in the audit log
       (Dashboard → Audit log, admins only).
 - [ ] People can choose not to share their details with the kitchen, and can delete their
-      dietary information at any time. If they opt out, we will ask them directly.
+      dietary information — or their whole account — at any time from Profile & settings.
+      If they opt out, we will ask them directly.
 - [ ] The privacy page (`/privacy`) matches how we actually handle information.
 
 ## 5. Accounts and roles
@@ -68,7 +69,8 @@ who approved it. Nothing here replaces talking directly with people who have ser
 ## 6. Before launch
 
 - [ ] Demo content removed (`supabase/scripts/remove_demo_data.sql`).
-- [ ] Contact name, email, phone, address, directions and parking filled in (Dashboard → Settings).
+- [ ] Contact name, email, phone, address and directions (pre-filled from public listings) confirmed or
+      corrected, and parking notes added (Dashboard → Settings).
 - [ ] Sign-in emails arrive reliably for a Lehigh address and a Gmail address (custom SMTP is set up).
 - [ ] A dry run of one real Shabbat dinner: create event → publish menu → RSVPs → check-in.
 

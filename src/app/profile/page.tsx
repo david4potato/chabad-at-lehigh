@@ -9,9 +9,10 @@ import { Card, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProfileForm } from "@/components/account/profile-form";
+import { DeleteAccount } from "@/components/account/delete-account";
 import { saveProfile } from "./actions";
 
-export const metadata: Metadata = { title: "Profile" };
+export const metadata: Metadata = { title: "Profile & settings" };
 
 export default async function ProfilePage() {
   const viewer = await requireViewer("/profile");
@@ -36,7 +37,7 @@ export default async function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <PageHeader title={`Hi, ${viewer.displayName}`} description={viewer.email} />
+      <PageHeader eyebrow="Profile & settings" title={`Hi, ${viewer.displayName}`} description={`Signed in as ${viewer.email}`} />
 
       <div className="flex flex-wrap gap-2">
         {viewer.roles.map((r) => (
@@ -80,11 +81,30 @@ export default async function ProfilePage() {
         </div>
       </Card>
 
+      <Card>
+        <CardTitle>Privacy</CardTitle>
+        <p className="mt-1 text-sm text-muted">
+          See exactly who can see what on our{" "}
+          <Link href="/privacy" className="font-semibold text-brand-700 hover:underline">
+            privacy page
+          </Link>
+          . Your dietary information is private and you can delete it any time.
+        </p>
+      </Card>
+
       <form action="/auth/sign-out" method="post">
         <Button type="submit" variant="secondary" className="w-full sm:w-auto">
           <LogOut className="size-4" aria-hidden="true" /> Sign out
         </Button>
       </form>
+
+      <section aria-labelledby="delete-heading" className="border-t border-stone-200 pt-6">
+        <h2 id="delete-heading" className="text-base font-bold text-ink">
+          Delete account
+        </h2>
+        <p className="mb-3 mt-1 text-sm text-muted">Remove your account and everything tied to it.</p>
+        <DeleteAccount />
+      </section>
     </div>
   );
 }

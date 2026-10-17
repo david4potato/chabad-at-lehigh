@@ -9,6 +9,30 @@ import { Card } from "@/components/ui/card";
 
 export const metadata: Metadata = { title: "Audit log" };
 
+// Plain-language names for the most common entries (falls back to the raw action).
+const ACTION_LABELS: Record<string, string> = {
+  "dietary_report.viewed": "Dietary report viewed",
+  "menu.published": "Menu published",
+  "menu_update.urgent": "Urgent menu update posted",
+  "menu_update.posted": "Menu update posted",
+  "user_roles.insert": "Role given",
+  "user_roles.delete": "Role removed",
+  "pending_role_grants.insert": "Role saved for first sign-in",
+  "pending_role_grants.delete": "Pending role removed",
+  "events.insert": "Event created",
+  "events.update": "Event changed",
+  "events.delete": "Event deleted",
+  "rsvp.approve": "RSVP approved",
+  "rsvp.decline": "RSVP declined",
+  "rsvp.guests_approve": "Guests approved",
+  "rsvp.guests_decline": "Guests declined",
+  "announcements.insert": "Announcement posted",
+  "announcements.update": "Announcement changed",
+  "announcements.delete": "Announcement deleted",
+  "app_settings.update": "Settings changed",
+  "account.deleted": "Account deleted",
+};
+
 const TYPES = ["events", "menu_versions", "menu_updates", "rsvps", "user_roles", "pending_role_grants", "announcements", "app_settings"];
 
 export default async function AuditPage({ searchParams }: PageProps<"/admin/audit">) {
@@ -48,7 +72,7 @@ export default async function AuditPage({ searchParams }: PageProps<"/admin/audi
             <li key={row.id} className="grid gap-1 px-4 py-3 text-sm sm:grid-cols-[170px_1fr_1.2fr] sm:gap-4">
               <span className="text-muted">{formatDateTime(row.created_at)}</span>
               <span>
-                <span className="font-semibold text-ink">{row.action}</span>
+                <span className="font-semibold text-ink">{ACTION_LABELS[row.action] ?? row.action}</span>
                 <span className="block text-xs text-muted">{row.actor?.full_name || row.actor?.email || "System"}</span>
               </span>
               <code className="break-all text-xs text-muted">

@@ -91,3 +91,34 @@ test.describe("organizer dashboard", () => {
     expect(logged[0].n).toBeGreaterThan(0);
   });
 });
+
+test.describe("invitations and help", () => {
+  test("organizer invites a member, who sees the invitation; help guide is available", async ({ page, browser }) => {
+    const member = await browser.newPage();
+    const memberEmail = await signInAs(member, "student");
+    const [event] = await db<{ id: string; slug: string; title: string }>(
+      `select id, slug, title from events where slug like 'demo-study-break%' limit 1`,
+    );
+
+    await signInAs(page, "organizer", { next: `/admin/events/${event.id}/attendees` });
+    await page.getByLabel("Email addresses").fill(`${memberEmail}, nobody-${Date.now()}@example.com, oops`);
+    await page.getByLabel("Personal message (optional)").fill("Come play board games!");
+    await page.getByRole("button", { name: "Send invitations" }).click();
+    await expect(page.getByText("1 person invited.")).toBeVisible();
+    await expect(page.getByText(/no account yet/i)).toBeVisible();
+    await expect(page.getByText(/not a valid email/i)).toBeVisible();
+
+    await member.goto("/notifications");
+    await expect(member.getByText(`You're invited: ${event.title}`)).toBeVisible();
+    await expect(member.getByText("Come play board games!")).toBeVisible();
+    await member.getByRole("link", { name: /view details/i }).first().click();
+    await expect(member).toHaveURL(new RegExp(`/events/${event.slug}`));
+    await expect(member.getByRole("button", { name: /invite friends/i })).toBeVisible();
+    await member.close();
+
+    await page.goto("/admin");
+    await page.getByRole("link", { name: "Read the quick guide" }).click();
+    await expect(page.getByRole("heading", { name: "How to use the dashboard" })).toBeVisible();
+    await expect(page.getByText(/your weekly shabbat dinner routine/i).first()).toBeVisible();
+  });
+});

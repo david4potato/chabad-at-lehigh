@@ -69,3 +69,35 @@ export async function setCheckIn(eventId: string, rsvpId: string, checkedIn: boo
   revalidatePath(`/admin/events/${g.data.eventId}/attendees`);
   return { ok: true };
 }
+
+export type InviteResult = ActionResult<{ email: string; result: string }[]>;
+
+/** Send in-app invitations to members by email (organizers/admins). */
+export async function invitePeople(_prev: InviteResult, formData: FormData): Promise<InviteResult> {
+  if (!(await viewerWithRole(ORGANIZERS))) return { ok: false, error: "You don't have permission to do that." };
+  const parsed = z
+    .object({
+      event_id: z.guid(),
+      emails: z.string().trim().min(3, "Add at least one email address.").max(5000),
+      message: z.string().trim().max(500, "Please keep the message under 500 characters.").optional(),
+    })
+    .safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Please check the form." };
+  const emails = parsed.data.emails.split(/[\s,;]+/).filter(Boolean);
+  if (emails.length > 100) return { ok: false, error: "Please invite up to 100 people at a time." };
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("staff_invite_to_event", {
+    p_event_id: parsed.data.event_id,
+    p_emails: emails,
+    p_message: parsed.data.message || undefined,
+  });
+  if (error) {
+    return {
+      ok: false,
+      error: error.message === "event_not_found" ? "Publish the event before inviting people." : dbErrorMessage(error),
+    };
+  }
+  const invited = (data ?? []).filter((r) => r.result === "invited").length;
+  return { ok: true, message: `${invited} ${invited === 1 ? "person" : "people"} invited.`, data: data ?? [] };
+}

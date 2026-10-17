@@ -23,14 +23,28 @@ organizer dashboard.
 | **Menus & allergens** | Every dish shows ingredients and allergens **before** you RSVP: *Contains* (from ingredients) vs *May contain / cross-contact* (kitchen-entered) vs *Related* (sesame seeds ↔ sesame oil, wheat ↔ gluten). Kitchen confirmation date, kitchen notes, version history, urgent updates, disclaimer and organizer contact on every menu. Personal alerts based on your saved allergies (never a "safe" label). |
 | **Voting & suggestions** | Favorite dishes, vote on proposed menu options (advisory only), suggest dishes/ingredients. |
 | **Private dietary profile** | Allergens with severity (sesame seeds and sesame oil listed separately), diets, notes for the kitchen, epinephrine, per-event meal preferences, consent toggle, delete anytime. |
-| **Notifications** | In-app bell with unread count: waitlist promotions, approvals, urgent menu changes. |
-| **Organizer dashboard** | Events (create, edit, duplicate for next week, cancel), attendees with approvals, guests, waitlist, door check-in, email attendees (BCC), CSV export; menus (drafts, dishes, cross-contact, publish with required preparation confirmation, urgent updates, voting options); dish & ingredient library; dietary report (named for kitchen/admin, anonymous counts for organizers); announcements; suggestions; people & roles; settings; audit log. |
+| **Profile & settings** | Edit name, preferred name, student/community status, class year and phone; dietary & allergies; notifications; privacy; sign out; delete your dietary info or your whole account (seats go to the waitlist; the last admin is protected). |
+| **Notifications** | In-app bell with unread count: waitlist promotions, approvals, invitations, urgent menu changes. |
+| **Invitations** | "Invite friends" on every event (share sheet on phones, copy link elsewhere); organizers can invite members by email from the Attendees tab (in-app invitation). |
+| **Organizer dashboard** | Built-in **Help** guide (Dashboard → Help) with the weekly routine and step-by-step how-tos. Events (create, edit, duplicate for next week, cancel), attendees with approvals, guests, waitlist, door check-in, email attendees (BCC), CSV export; menus (drafts, dishes, cross-contact, publish with required preparation confirmation, urgent updates, voting options); dish & ingredient library; dietary report (named for kitchen/admin, anonymous counts for organizers); announcements; suggestions; people & roles; settings; audit log. |
 | **Find Us** | Address, directions, parking, one-tap Google/Apple Maps links, contact buttons. |
 
 **Planned (clearly labelled in the app at `/coming-soon`, not built yet):** volunteer sign-ups,
-learning program sign-ups, photo gallery, invitations and opt-in "friends attending", email/text
-reminders, QR check-in and walk-ins, customized meals and chef integrations. The database already
+learning program sign-ups, photo gallery, opt-in "friends attending", email/text reminders,
+QR check-in and walk-ins, customized meals and chef integrations. The database already
 has tables (with security rules) for volunteer shifts, learning sign-ups and a gallery storage bucket.
+
+## How email works
+
+| Email | Who sends it | Setup needed |
+| --- | --- | --- |
+| **Sign-in emails** (link + 6-digit code) | Supabase Auth, through your email sender (Resend or Gmail SMTP) | SETUP.md steps 10–18. Without custom SMTP, Supabase only delivers to your own team. |
+| **Emailing attendees** | You — "Email everyone going" opens *your* email app with everyone in BCC; "Copy emails" and the CSV export also work | None |
+| **Invitations** | In-app for people with an account; "Copy event link" for everyone else (you paste it into your own email/text) | None |
+| **Contact the organizer** | Visitors, using the contact email/phone in Admin → Settings (mailto/tel links) | Fill in Settings |
+| **Notifications** (waitlist, approvals, invitations, urgent menu changes) | In-app bell only — no automatic emails | None |
+
+Automatic reminder emails are a planned feature (see `/coming-soon`); they would reuse the same Resend account.
 
 ## Roles and permissions (least privilege)
 
@@ -116,8 +130,9 @@ tests and end-to-end tests on every push and pull request.
 Tested against a local Supabase stack (Postgres 17, Auth, Storage, Mailpit) with a production build:
 
 - **Unit tests:** 105 passing (time zones incl. daylight-saving changes, allergen matching incl. sesame seed ↔ oil, safe redirects, menu helpers, error messages).
-- **Database tests (pgTAP):** 94 passing — dietary privacy, roles, audit log, event visibility, RSVP capacity/waitlist/approvals/guests/deadlines/check-in/rate limits, menu drafts/publishing/immutability/snapshots/urgent notifications, votes and suggestions.
-- **End-to-end tests (Playwright):** 24 passing (12 journeys × phone and desktop) using real email-code sign-in.
+- **Database tests (pgTAP):** 111 passing — dietary privacy, roles, audit log, event visibility, RSVP capacity/waitlist/approvals/guests/deadlines/check-in/rate limits, menu drafts/publishing/immutability/snapshots/urgent notifications, votes, suggestions and account deletion and invitations.
+- **End-to-end tests (Playwright):** 28 passing (14 journeys × phone and desktop) using real email-code sign-in, including every account setting.
+- **Link crawl:** every internal link followed as a visitor (42 pages) and as an admin (101 pages): no broken pages, no browser errors.
 - The one-file SQL setup (`supabase/setup/all_migrations.sql`) was verified on an empty database, followed by the seed, `bootstrap_admin.sql` and `remove_demo_data.sql`.
 
 Not yet verified: anything on your hosted Supabase project, Vercel, custom SMTP delivery and your domain — those happen during [SETUP.md](SETUP.md), which ends with a production verification checklist.

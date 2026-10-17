@@ -36,12 +36,15 @@ function Section({ title, children, description }: { title: string; description?
 export function EventForm({
   action,
   event,
+  defaults,
   canDelete,
   onDuplicate,
   onDelete,
 }: {
   action: Action;
   event?: AdminEvent;
+  /** Pre-filled values for a new event (e.g. the usual location). */
+  defaults?: { location_name?: string; location_address?: string };
   canDelete?: boolean;
   onDuplicate?: (id: string) => Promise<ActionResult>;
   onDelete?: (id: string) => Promise<ActionResult>;
@@ -105,10 +108,10 @@ export function EventForm({
             </Field>
           </div>
           <Field label="Place name" htmlFor="location_name" errors={e?.location_name}>
-            <Input id="location_name" name="location_name" maxLength={140} defaultValue={event?.location_name ?? ""} placeholder="Chabad House" />
+            <Input id="location_name" name="location_name" maxLength={140} defaultValue={event?.location_name ?? defaults?.location_name ?? ""} placeholder="Chabad House" />
           </Field>
           <Field label="Street address" htmlFor="location_address" hint="Optional — adds a map link." errors={e?.location_address}>
-            <Input id="location_address" name="location_address" maxLength={280} defaultValue={event?.location_address ?? ""} aria-describedby="location_address-hint" />
+            <Input id="location_address" name="location_address" maxLength={280} defaultValue={event?.location_address ?? defaults?.location_address ?? ""} aria-describedby="location_address-hint" />
           </Field>
         </Section>
 

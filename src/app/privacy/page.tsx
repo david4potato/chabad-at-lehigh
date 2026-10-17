@@ -57,7 +57,13 @@ export default async function PrivacyPage() {
             , or choose not to share it with the kitchen.
           </li>
           <li>Update your details on your profile.</li>
-          <li>To delete your account entirely, contact an organizer and we&apos;ll remove it.</li>
+          <li>
+            Delete your whole account yourself any time on{" "}
+            <Link href="/profile" className="font-semibold text-brand-700 hover:underline">
+              Profile &amp; settings
+            </Link>
+            .
+          </li>
         </ul>
       ),
     },

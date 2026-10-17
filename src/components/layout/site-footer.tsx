@@ -40,8 +40,9 @@ export async function SiteFooter() {
       </div>
       <div className="border-t border-stone-100">
         <p className="mx-auto max-w-6xl px-4 py-4 text-xs text-muted sm:px-6">
-          © {new Date().getFullYear()} {org.name || SITE.name}. Menus and allergen details are provided by our
-          organizers — please contact them directly about serious allergies.
+          © {new Date().getFullYear()} {org.name || SITE.name}. An independent organization, not run by Lehigh
+          University. Menus and allergen details are provided by our organizers — please contact them directly about
+          serious allergies.
         </p>
       </div>
     </footer>

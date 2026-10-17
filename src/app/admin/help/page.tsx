@@ -1,0 +1,229 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import type { ReactNode } from "react";
+import { requireRole } from "@/lib/auth";
+import { PageHeader } from "@/components/ui/page-header";
+import { Badge } from "@/components/ui/badge";
+import { Alert } from "@/components/ui/alert";
+
+export const metadata: Metadata = { title: "Help" };
+
+type Section = { id: string; title: string; who: string; body: ReactNode };
+
+const A = ({ href, children }: { href: string; children: ReactNode }) => (
+  <Link href={href} className="font-semibold text-brand-700 hover:underline">
+    {children}
+  </Link>
+);
+
+const SECTIONS: Section[] = [
+  {
+    id: "weekly",
+    title: "Your weekly Shabbat dinner routine",
+    who: "Organizers",
+    body: (
+      <ol className="list-decimal space-y-2 pl-5">
+        <li>
+          Go to <A href="/admin/events?tab=past">Events → Past</A>, open last week&apos;s dinner, and on the{" "}
+          <strong>Details</strong> tab press <strong>Duplicate for next week</strong>. You get a draft with the same settings.
+        </li>
+        <li>Check the date, time, capacity and guest settings, set <strong>Status</strong> to <strong>Published</strong>, and press <strong>Save event</strong>.</li>
+        <li>
+          On the <strong>Menu</strong> tab press <strong>Start the menu</strong> (or <strong>Start a new version</strong>), add the dishes, tick the
+          preparation confirmation and press <strong>Publish</strong>. (Kitchen staff can do this part.)
+        </li>
+        <li>
+          Spread the word: <strong>Attendees &amp; check-in → Invite people</strong>, <strong>Copy event link</strong> for group chats, or post an{" "}
+          <A href="/admin/announcements">announcement</A>.
+        </li>
+        <li>
+          During the week, check <A href="/admin">Overview</A>. If it shows <strong>RSVPs needing approval</strong>, open the event&apos;s
+          <strong> Attendees</strong> tab → <strong>Needs approval</strong> and approve or decline.
+        </li>
+        <li>On the day: kitchen staff open the <strong>Dietary</strong> tab and press <strong>Print</strong>.</li>
+        <li>At the door: open <strong>Attendees &amp; check-in</strong> on a phone and tap <strong>Check in</strong> as people arrive.</li>
+      </ol>
+    ),
+  },
+  {
+    id: "events",
+    title: "Creating and changing events",
+    who: "Organizers",
+    body: (
+      <ul className="list-disc space-y-2 pl-5">
+        <li>
+          <A href="/admin/events/new">New event</A> starts as a <strong>Draft</strong> (only staff can see it). Set <strong>Published</strong> when ready.
+        </li>
+        <li>
+          <strong>Capacity</strong>: leave blank for unlimited. When it&apos;s full, new RSVPs join the <strong>waitlist</strong> and are confirmed
+          automatically (with a notification) when someone cancels.
+        </li>
+        <li>
+          <strong>Who gets confirmed?</strong> — &ldquo;Confirm everyone&rdquo; is simplest. &ldquo;Guests and community members need approval&rdquo; lets
+          Lehigh students in automatically while you approve plus-ones and community guests. &ldquo;Every RSVP needs approval&rdquo; for special events.
+        </li>
+        <li>To call an event off, set <strong>Status → Cancelled</strong>. People see it marked cancelled. (Only admins can delete events.)</li>
+        <li>Times are always Bethlehem, PA time.</li>
+      </ul>
+    ),
+  },
+  {
+    id: "rsvps",
+    title: "RSVPs, guests, waitlist and check-in",
+    who: "Organizers",
+    body: (
+      <ul className="list-disc space-y-2 pl-5">
+        <li>The tiles at the top of <strong>Attendees &amp; check-in</strong> show your headcount, seats, waitlist and approvals.</li>
+        <li><strong>Approve / Decline</strong> pending RSVPs; <strong>Approve guests / Decline guests</strong> for plus-ones. People get a notification.</li>
+        <li><strong>Confirm anyway (over capacity)</strong> lets someone in from the waitlist even when full.</li>
+        <li><strong>Email everyone going</strong> opens your email app with everyone in BCC. <strong>Download spreadsheet</strong> gives a CSV (no dietary data).</li>
+        <li>Allergy details are on the <strong>Dietary</strong> tab, not here.</li>
+      </ul>
+    ),
+  },
+  {
+    id: "menus",
+    title: "Menus and allergens — the safe way to do it",
+    who: "Kitchen staff & organizers",
+    body: (
+      <ol className="list-decimal space-y-2 pl-5">
+        <li>
+          Add every ingredient in <A href="/admin/ingredients">Ingredients</A> and tick each allergen it contains — check the package label.{" "}
+          <strong>Sesame seeds</strong> and <strong>sesame oil</strong> are separate; so are <strong>wheat</strong> and <strong>gluten</strong>.
+        </li>
+        <li>
+          Build dishes in <A href="/admin/dishes">Dishes</A> from those ingredients (including sauces, dressings, oils and toppings). Mark toppings that are
+          only on some servings as <strong>optional</strong>. Allergens are worked out from the ingredients automatically.
+        </li>
+        <li>
+          On the event&apos;s <strong>Menu</strong> tab, add dishes. For each one, open <strong>Edit course, preparation and cross-contact</strong> and tick what it
+          <strong> may contain</strong> (shared trays, fryer oil, cutting boards, serving spoons) with a short note.
+        </li>
+        <li>Write the <strong>Kitchen note</strong> — a general statement like &ldquo;shared kitchen that also handles sesame and tree nuts&rdquo;.</li>
+        <li>
+          Tick <strong>&ldquo;I confirm the ingredients, allergens and cross-contact notes match how this food will actually be prepared&rdquo;</strong> only after
+          checking, then <strong>Publish</strong>. Everyone can now see the menu, even before they RSVP.
+        </li>
+        <li>
+          Published menus are frozen. To change one, press <strong>Start a new version</strong>, make the change, write <strong>What changed?</strong>, and tick{" "}
+          <strong>urgent</strong> if it affects allergens — everyone who RSVP&apos;d gets notified.
+        </li>
+        <li>
+          Day-of change (e.g. ran out of something)? Use <strong>Post a menu update</strong>; tick <strong>Urgent</strong> if ingredients or allergens changed.
+        </li>
+        <li>
+          Never describe food as &ldquo;safe&rdquo;, &ldquo;allergen-free&rdquo; or guaranteed. Votes and suggestions are only ideas — you choose the menu.
+        </li>
+      </ol>
+    ),
+  },
+  {
+    id: "dietary",
+    title: "Dietary information and privacy",
+    who: "Kitchen staff & admins",
+    body: (
+      <ul className="list-disc space-y-2 pl-5">
+        <li>The <strong>Dietary</strong> tab shows anonymous counts to organizers. Names next to allergies are visible only to kitchen staff and admins.</li>
+        <li>Every time the named report is opened it&apos;s recorded in the audit log. Use it only for preparing food, and don&apos;t share it.</li>
+        <li>People who chose not to share are listed as &ldquo;Not shared&rdquo; — ask them directly. Severe allergies and epinephrine are highlighted.</li>
+        <li>Guests&apos; needs only appear if the person who RSVP&apos;d wrote them in their meal notes.</li>
+      </ul>
+    ),
+  },
+  {
+    id: "voting",
+    title: "Menu voting and suggestions",
+    who: "Kitchen staff & organizers",
+    body: (
+      <ul className="list-disc space-y-2 pl-5">
+        <li>On an event&apos;s <strong>Menu</strong> tab → <strong>Menu voting</strong>, add dish options and press <strong>Open voting</strong> (organizers).</li>
+        <li>Votes are advisory and never mean a dish suits an allergy. Close voting when you decide.</li>
+        <li>
+          <A href="/admin/suggestions">Suggestions</A> collects ideas. Set a status, add a note, or use <strong>Create a dish from this</strong>.
+        </li>
+      </ul>
+    ),
+  },
+  {
+    id: "communicate",
+    title: "Announcements, invitations and notifications",
+    who: "Organizers",
+    body: (
+      <ul className="list-disc space-y-2 pl-5">
+        <li>
+          <A href="/admin/announcements">Announcements</A> show on the home page. <strong>Pin</strong> keeps one on top; <strong>Mark as important</strong> highlights it;
+          <strong> Show from / Hide after</strong> schedules it.
+        </li>
+        <li>
+          <strong>Invite people</strong> (event → Attendees tab): paste email addresses. Members get an in-app invitation; for addresses without an
+          account, use <strong>Copy event link</strong> and email it yourself. Anyone can also tap <strong>Invite friends</strong> on an event page.
+        </li>
+        <li>
+          People get in-app notifications (the bell) when they&apos;re taken off the waitlist, approved or declined, invited, or when an urgent menu
+          update is posted. There are no automatic emails or texts yet — use <strong>Email everyone going</strong> for reminders.
+        </li>
+      </ul>
+    ),
+  },
+  {
+    id: "admin",
+    title: "People, roles, settings and the audit log",
+    who: "Admins",
+    body: (
+      <ul className="list-disc space-y-2 pl-5">
+        <li>
+          <A href="/admin/people">People &amp; roles</A>: type someone&apos;s email and pick a role. It works even before they sign up. Keep{" "}
+          <strong>Kitchen staff</strong> and <strong>Admin</strong> to a small, trusted group, and always have at least two admins.
+        </li>
+        <li>
+          <A href="/admin/settings">Settings</A>: contact name, email, phone, address, directions and parking (used on Find Us, the footer and next to every
+          menu), and which email domains count as students.
+        </li>
+        <li><A href="/admin/audit">Audit log</A>: a permanent record of important changes and every view of the named dietary report.</li>
+      </ul>
+    ),
+  },
+  {
+    id: "help",
+    title: "When someone needs help",
+    who: "Everyone",
+    body: (
+      <ul className="list-disc space-y-2 pl-5">
+        <li><strong>&ldquo;I didn&apos;t get the sign-in email.&rdquo;</strong> Check spam; wait a minute and press Resend; use the code instead of the link.</li>
+        <li><strong>&ldquo;The link says it expired.&rdquo;</strong> Links work once. Use the code from the newest email, or request a new one.</li>
+        <li><strong>&ldquo;I can&apos;t see the dashboard.&rdquo;</strong> An admin needs to give them a role, then they reload the page.</li>
+        <li><strong>&ldquo;I want my data removed.&rdquo;</strong> They can delete dietary info or their whole account in <strong>Profile &amp; settings</strong>.</li>
+      </ul>
+    ),
+  },
+];
+
+export default async function HelpPage() {
+  await requireRole(["organizer", "kitchen_staff", "admin"], "/admin/help");
+  return (
+    <div className="mx-auto max-w-3xl">
+      <PageHeader title="How to use the dashboard" description="Short, practical guides. Tap a topic to open it." />
+      <Alert tone="info" className="mb-6">
+        New here? Start with <strong>Your weekly Shabbat dinner routine</strong>. Anything you can&apos;t see in the menu above needs a role from an admin.
+      </Alert>
+      <nav aria-label="Help topics" className="mb-6 flex flex-wrap gap-2">
+        {SECTIONS.map((s) => (
+          <a key={s.id} href={`#${s.id}`} className="rounded-full border border-stone-300 bg-white px-3 py-1.5 text-sm font-semibold text-ink hover:bg-stone-50">
+            {s.title.split(" — ")[0]}
+          </a>
+        ))}
+      </nav>
+      <div className="space-y-3">
+        {SECTIONS.map((s, i) => (
+          <details key={s.id} id={s.id} open={i === 0} className="scroll-mt-24 rounded-[var(--radius-card)] border border-stone-200 bg-white shadow-sm">
+            <summary className="flex cursor-pointer list-none flex-wrap items-center gap-2 p-4 sm:p-5">
+              <span className="text-base font-bold text-ink">{s.title}</span>
+              <Badge tone="brand" className="ml-auto">{s.who}</Badge>
+            </summary>
+            <div className="border-t border-stone-100 p-4 text-base leading-relaxed text-ink sm:p-5">{s.body}</div>
+          </details>
+        ))}
+      </div>
+    </div>
+  );
+}

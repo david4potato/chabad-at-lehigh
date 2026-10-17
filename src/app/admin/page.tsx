@@ -43,7 +43,13 @@ export default async function AdminHome() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">Hi, {viewer.displayName}</h1>
-        <p className="mt-1 text-muted">Here&apos;s what&apos;s coming up.</p>
+        <p className="mt-1 text-muted">
+          Here&apos;s what&apos;s coming up. New to the dashboard?{" "}
+          <Link href="/admin/help" className="font-semibold text-brand-700 hover:underline">
+            Read the quick guide
+          </Link>
+          .
+        </p>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

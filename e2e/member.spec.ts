@@ -47,6 +47,12 @@ test.describe("students", () => {
       [email, slug],
     );
     expect(rows[0]?.status).toBe("going");
+
+    // Sign out from Profile & settings
+    await page.goto("/profile");
+    await page.getByRole("main").getByRole("button", { name: "Sign out" }).click();
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.getByRole("banner").getByRole("link", { name: "Sign in" })).toBeVisible();
   });
 
   test("saved allergies produce personal menu alerts (never a 'safe' label)", async ({ page }) => {

@@ -29,6 +29,8 @@ export function DietaryForm({ initial, welcome, next }: { initial: Initial; welc
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleteState, setDeleteState] = useState<ActionResult | null>(null);
   const [deleting, startDelete] = useTransition();
+  // Bumped after deleting so the form remounts with the (now empty) saved values.
+  const [formKey, setFormKey] = useState(0);
 
   const toggle = (code: string, on: boolean) =>
     setSelected((prev) => {
@@ -40,7 +42,7 @@ export function DietaryForm({ initial, welcome, next }: { initial: Initial; welc
 
   return (
     <div className="space-y-6">
-      <form action={action} className="space-y-8">
+      <form key={formKey} action={action} className="space-y-8">
         {welcome ? <input type="hidden" name="welcome" value="1" /> : null}
         <input type="hidden" name="next" value={next} />
 
@@ -165,7 +167,9 @@ export function DietaryForm({ initial, welcome, next }: { initial: Initial; welc
                       setDeleteState(result);
                       if (result.ok) {
                         setSelected(new Map());
+                        setShare(true);
                         setConfirmDelete(false);
+                        setFormKey((k) => k + 1);
                       }
                     })
                   }
@@ -178,11 +182,10 @@ export function DietaryForm({ initial, welcome, next }: { initial: Initial; welc
               </div>
             </div>
           )}
-          <div className="mt-3">
-            <FormMessage state={deleteState} />
-          </div>
         </div>
       ) : null}
+      {/* Outside the block above: it disappears once nothing is saved. */}
+      <FormMessage state={deleteState} />
     </div>
   );
 }

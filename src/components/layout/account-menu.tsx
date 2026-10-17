@@ -57,6 +57,8 @@ export function AccountMenu({ displayName, email, staff }: Props) {
       {open ? (
         <div
           id={menuId}
+          role="group"
+          aria-label="Account"
           className="absolute right-0 z-50 mt-2 w-64 rounded-2xl border border-stone-200 bg-white p-2 shadow-lg"
         >
           <div className="px-3 pb-2 pt-1">
@@ -65,7 +67,7 @@ export function AccountMenu({ displayName, email, staff }: Props) {
           </div>
           <div className="my-1 border-t border-stone-100" />
           <Link href="/profile" className={item}>
-            <UserRound className="size-4 text-muted" aria-hidden="true" /> Profile
+            <UserRound className="size-4 text-muted" aria-hidden="true" /> Profile &amp; settings
           </Link>
           <Link href="/profile/dietary" className={item}>
             <Salad className="size-4 text-muted" aria-hidden="true" /> Dietary &amp; allergies

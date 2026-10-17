@@ -12,6 +12,7 @@ import { Alert } from "@/components/ui/alert";
 import { RsvpPanel } from "@/components/events/rsvp-panel";
 import { MealPreferenceForm } from "@/components/events/meal-preference-form";
 import { ContactCard } from "@/components/events/contact-card";
+import { ShareButton } from "@/components/events/share-button";
 import { CATEGORY_LABELS, mapsUrl, paragraphs, rsvpClosedReason } from "@/components/events/event-utils";
 import { EventMenuSection } from "@/components/menu/event-menu-section";
 
@@ -86,12 +87,15 @@ export default async function EventPage({ params, searchParams }: PageProps<"/ev
           ) : null}
         </ul>
         {event.status === "published" ? (
-          <a
-            href={`/events/${event.slug}/calendar.ics`}
-            className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-brand-700 hover:underline"
-          >
-            <CalendarPlus className="size-4" aria-hidden="true" /> Add to calendar
-          </a>
+          <div className="flex flex-wrap gap-x-6">
+            <a
+              href={`/events/${event.slug}/calendar.ics`}
+              className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-brand-700 hover:underline"
+            >
+              <CalendarPlus className="size-4" aria-hidden="true" /> Add to calendar
+            </a>
+            <ShareButton title={event.title} path={`/events/${event.slug}`} />
+          </div>
         ) : null}
       </header>
 
@@ -110,6 +114,9 @@ export default async function EventPage({ params, searchParams }: PageProps<"/ev
             </Card>
           ) : null}
           <EventMenuSection event={event} viewer={viewer} />
+          <div className="lg:hidden">
+            <ContactCard contact={{ name: event.contact_name, email: event.contact_email, phone: event.contact_phone }} />
+          </div>
         </div>
 
         <aside className="order-1 space-y-6 lg:sticky lg:top-24 lg:order-2">
@@ -139,8 +146,10 @@ export default async function EventPage({ params, searchParams }: PageProps<"/ev
               </div>
             </Card>
           ) : null}
-          <ContactCard contact={{ name: event.contact_name, email: event.contact_email, phone: event.contact_phone }} />
-          <p className="text-center text-sm">
+          <div className="hidden lg:block">
+            <ContactCard contact={{ name: event.contact_name, email: event.contact_email, phone: event.contact_phone }} />
+          </div>
+          <p className="hidden text-center text-sm lg:block">
             <Link href="/events" className="font-semibold text-brand-700 hover:underline">
               ← All events
             </Link>

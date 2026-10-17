@@ -6,6 +6,8 @@ import { getEventCounts } from "@/lib/data/events";
 import { EventTabs } from "@/components/admin/event-tabs";
 import { AdminEventHeader } from "@/components/admin/event-header";
 import { AttendeeList } from "@/components/admin/attendee-list";
+import { InvitePeople } from "@/components/admin/invite-people";
+import { Card, CardTitle } from "@/components/ui/card";
 
 export const metadata: Metadata = { title: "Attendees" };
 
@@ -38,6 +40,11 @@ export default async function AttendeesPage({ params }: PageProps<"/admin/events
         ))}
       </dl>
       <AttendeeList eventId={event.id} attendees={attendees} />
+      <Card className="mt-8">
+        <CardTitle>Invite people</CardTitle>
+        <p className="mb-4 mt-1 text-sm text-muted">Send an in-app invitation, or copy the link to share anywhere.</p>
+        <InvitePeople eventId={event.id} eventPath={`/events/${event.slug}`} published={event.status === "published"} />
+      </Card>
       <p className="mt-6 text-sm text-muted">Allergy and dietary details are on the Dietary tab (names are visible to kitchen staff and admins only).</p>
     </div>
   );

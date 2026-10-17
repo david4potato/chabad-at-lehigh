@@ -1,0 +1,76 @@
+"use client";
+
+import { useActionState, useState } from "react";
+import { Check, Copy } from "lucide-react";
+import { invitePeople, type InviteResult } from "@/app/admin/events/[id]/attendees/actions";
+import { Button } from "@/components/ui/button";
+import { Field, Input, Textarea } from "@/components/ui/field";
+import { SubmitButton } from "@/components/ui/submit-button";
+import { FormMessage } from "@/components/ui/form-message";
+
+const LABELS: Record<string, string> = {
+  invited: "Invited — they'll see it in their notifications",
+  already_rsvped: "Already RSVP'd",
+  already_invited: "Already invited (not yet seen)",
+  no_account: "No account yet — send them the link",
+  invalid: "Not a valid email address",
+};
+
+export function InvitePeople({ eventId, eventPath, published }: { eventId: string; eventPath: string; published: boolean }) {
+  const [state, action] = useActionState(invitePeople, { ok: true } as InviteResult);
+  const [copied, setCopied] = useState(false);
+  const results = state.ok ? (state.data ?? []) : [];
+  const noAccount = results.filter((r) => r.result === "no_account").map((r) => r.email);
+
+  async function copyLink() {
+    await navigator.clipboard.writeText(new URL(eventPath, window.location.origin).toString());
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  if (!published) {
+    return <p className="text-sm text-muted">Publish the event first, then you can invite people.</p>;
+  }
+
+  return (
+    <div className="space-y-4">
+      <form action={action} className="space-y-4">
+        <input type="hidden" name="event_id" value={eventId} />
+        <Field
+          label="Email addresses"
+          htmlFor="invite-emails"
+          hint="Separate with commas or new lines. People with an account get an in-app invitation."
+        >
+          <Textarea id="invite-emails" name="emails" rows={3} required placeholder="sarah@lehigh.edu, josh@gmail.com" aria-describedby="invite-emails-hint" />
+        </Field>
+        <Field label="Personal message (optional)" htmlFor="invite-message">
+          <Input id="invite-message" name="message" maxLength={500} placeholder="Hope you can make it!" />
+        </Field>
+        <div className="flex flex-wrap gap-2">
+          <SubmitButton pendingText="Sending…">Send invitations</SubmitButton>
+          <Button variant="secondary" onClick={copyLink}>
+            {copied ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
+            {copied ? "Link copied" : "Copy event link"}
+          </Button>
+        </div>
+        <FormMessage state={state} />
+      </form>
+      {results.length ? (
+        <ul className="divide-y divide-stone-100 rounded-xl border border-stone-200 text-sm">
+          {results.map((r) => (
+            <li key={r.email} className="flex flex-col gap-0.5 px-3 py-2 sm:flex-row sm:justify-between">
+              <span className="break-all font-medium text-ink">{r.email}</span>
+              <span className={r.result === "invited" ? "text-green-800" : "text-muted"}>{LABELS[r.result] ?? r.result}</span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      {noAccount.length ? (
+        <p className="text-sm text-muted">
+          Tip: use <strong>Copy event link</strong> and email it to the {noAccount.length === 1 ? "person" : "people"} without an
+          account. They can sign up in seconds when they RSVP.
+        </p>
+      ) : null}
+    </div>
+  );
+}
