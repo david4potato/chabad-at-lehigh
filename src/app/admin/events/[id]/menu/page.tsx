@@ -24,8 +24,16 @@ export const metadata: Metadata = { title: "Menu" };
 
 const STATUS_TONE = { draft: "brand", published: "green", archived: "neutral" } as const;
 
-export default async function MenuAdminPage({ params }: PageProps<"/admin/events/[id]/menu">) {
-  const { id } = await params;
+const NOTICES: Record<string, string> = {
+  started: "Draft started. Changes stay private until you publish.",
+  discarded: "Draft discarded. The published menu (if any) is unchanged.",
+  published: "Menu published.",
+  published_urgent: "Menu published, and everyone who RSVP'd was notified.",
+};
+
+export default async function MenuAdminPage({ params, searchParams }: PageProps<"/admin/events/[id]/menu">) {
+  const [{ id }, query] = await Promise.all([params, searchParams]);
+  const notice = typeof query.notice === "string" ? NOTICES[query.notice] : undefined;
   const viewer = await requireRole(["organizer", "kitchen_staff", "admin"], `/admin/events/${id}/menu`);
   const event = await getAdminEvent(id);
   const supabase = await createClient();
@@ -59,6 +67,7 @@ export default async function MenuAdminPage({ params }: PageProps<"/admin/events
         <AdminEventHeader event={event} />
         <EventTabs eventId={event.id} active="menu" roles={viewer.roles} />
       </div>
+      {notice ? <Alert tone="success">{notice}</Alert> : null}
       {!event.has_meal ? (
         <Alert tone="info">This event isn&apos;t marked as having a meal, so the menu won&apos;t show on the event page. Turn on &ldquo;This event has a meal&rdquo; in Details.</Alert>
       ) : null}

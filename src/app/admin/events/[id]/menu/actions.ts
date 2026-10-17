@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 import { viewerWithRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -33,7 +34,7 @@ export async function startDraft(eventId: string): Promise<ActionResult> {
   const { error } = await supabase.rpc("create_menu_draft", { p_event_id: eventId, p_copy_published: true });
   if (error) return { ok: false, error: dbErrorMessage(error) };
   await revalidate(eventId);
-  return { ok: true, message: "Draft started. Changes stay private until you publish." };
+  redirect(`/admin/events/${eventId}/menu?notice=started`);
 }
 
 export async function discardDraft(eventId: string, versionId: string): Promise<ActionResult> {
@@ -43,7 +44,7 @@ export async function discardDraft(eventId: string, versionId: string): Promise<
   const { error } = await supabase.from("menu_versions").delete().eq("id", versionId).eq("status", "draft");
   if (error) return { ok: false, error: dbErrorMessage(error) };
   await revalidate(eventId);
-  return { ok: true, message: "Draft discarded." };
+  redirect(`/admin/events/${eventId}/menu?notice=discarded`);
 }
 
 export async function saveDraftDetails(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
@@ -147,10 +148,7 @@ export async function publishMenu(_prev: ActionResult, formData: FormData): Prom
   });
   if (error) return { ok: false, error: dbErrorMessage(error) };
   await revalidate(parsed.data.event_id);
-  return {
-    ok: true,
-    message: formData.get("urgent") === "on" ? "Published, and everyone who RSVP'd was notified." : "Menu published.",
-  };
+  redirect(`/admin/events/${parsed.data.event_id}/menu?notice=${formData.get("urgent") === "on" ? "published_urgent" : "published"}`);
 }
 
 export async function postMenuUpdate(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
