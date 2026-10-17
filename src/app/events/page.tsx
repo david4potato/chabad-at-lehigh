@@ -16,8 +16,8 @@ const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 /** Split upcoming events into "This week" and "Coming up". */
 function groupUpcoming(events: EventSummary[], now = Date.now()) {
   return [
-    { title: "This week", items: events.filter((e) => new Date(e.starts_at).getTime() - now < WEEK_MS) },
-    { title: "Coming up", items: events.filter((e) => new Date(e.starts_at).getTime() - now >= WEEK_MS) },
+    { key: "this-week", title: "This week", items: events.filter((e) => new Date(e.starts_at).getTime() - now < WEEK_MS) },
+    { key: "coming-up", title: "Coming up", items: events.filter((e) => new Date(e.starts_at).getTime() - now >= WEEK_MS) },
   ];
 }
 
@@ -35,7 +35,7 @@ export default async function EventsPage({ searchParams }: PageProps<"/events">)
     viewer?.id,
   );
 
-  const groups = past ? [{ title: "Past events", items: events }] : groupUpcoming(events);
+  const groups = past ? [{ key: "past", title: "Past events", items: events }] : groupUpcoming(events);
 
   const chipHref = (value?: string) => {
     const q = new URLSearchParams();
@@ -46,7 +46,7 @@ export default async function EventsPage({ searchParams }: PageProps<"/events">)
   };
   const chip = (active: boolean) =>
     cn(
-      "inline-flex h-10 items-center rounded-full border px-4 text-sm font-semibold whitespace-nowrap transition-colors",
+      "inline-flex h-11 items-center rounded-full border px-4 text-sm font-semibold whitespace-nowrap transition-colors",
       active ? "border-brand-700 bg-brand-700 text-white" : "border-stone-300 bg-white text-ink hover:bg-stone-50",
     );
 
@@ -60,13 +60,18 @@ export default async function EventsPage({ searchParams }: PageProps<"/events">)
       <nav aria-label="Filter by category" className="-mx-4 mb-6 overflow-x-auto px-4 sm:mx-0 sm:px-0">
         <ul className="flex w-max gap-2">
           <li>
-            <Link href={chipHref()} className={chip(!category)} aria-current={!category ? "page" : undefined}>
+            <Link href={chipHref()} prefetch={false} className={chip(!category)} aria-current={!category ? "page" : undefined}>
               All
             </Link>
           </li>
           {CATEGORY_FILTERS.map((c) => (
             <li key={c.value}>
-              <Link href={chipHref(c.value)} className={chip(category === c.value)} aria-current={category === c.value ? "page" : undefined}>
+              <Link
+                href={chipHref(c.value)}
+                prefetch={false}
+                className={chip(category === c.value)}
+                aria-current={category === c.value ? "page" : undefined}
+              >
                 {c.label}
               </Link>
             </li>
@@ -86,11 +91,11 @@ export default async function EventsPage({ searchParams }: PageProps<"/events">)
           {groups
             .filter((g) => g.items.length > 0)
             .map((g) => (
-              <section key={g.title} aria-labelledby={`group-${g.title}`}>
-                <h2 id={`group-${g.title}`} className="mb-3 text-sm font-bold uppercase tracking-wide text-muted">
+              <section key={g.key} aria-labelledby={`group-${g.key}`}>
+                <h2 id={`group-${g.key}`} className="mb-3 text-sm font-bold uppercase tracking-wide text-muted">
                   {g.title}
                 </h2>
-                <div className="grid gap-3 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                   {g.items.map((e) => (
                     <EventCard key={e.id} event={e} counts={counts.get(e.id)} rsvp={rsvps.get(e.id)} />
                   ))}
@@ -101,7 +106,11 @@ export default async function EventsPage({ searchParams }: PageProps<"/events">)
       )}
 
       <p className="mt-10 text-center text-sm">
-        <Link href={past ? "/events" : "/events?when=past"} className="font-semibold text-brand-700 hover:underline">
+        <Link
+          href={past ? "/events" : "/events?when=past"}
+          prefetch={false}
+          className="inline-flex min-h-11 items-center font-semibold text-brand-700 hover:underline"
+        >
           {past ? "← Back to upcoming events" : "See past events"}
         </Link>
       </p>

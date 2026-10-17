@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Mail, Phone } from "lucide-react";
+import { Mail, MapPin, Phone } from "lucide-react";
 import { FOOTER_NAV, SITE } from "@/config/site";
 import { getOrgSettings } from "@/lib/settings";
 
@@ -14,6 +14,14 @@ export async function SiteFooter() {
             A warm home away from home for Lehigh students and the community. Everyone is welcome.
           </p>
           <div className="flex flex-col gap-2 text-sm">
+            {org.address ? (
+              <address className="not-italic">
+                <Link href="/find-us" className="inline-flex items-start gap-2 font-medium text-brand-700 hover:underline">
+                  <MapPin className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+                  <span className="whitespace-pre-line">{org.address}</span>
+                </Link>
+              </address>
+            ) : null}
             {org.contact_email ? (
               <a href={`mailto:${org.contact_email}`} className="inline-flex items-center gap-2 font-medium text-brand-700 hover:underline">
                 <Mail className="size-4" aria-hidden="true" /> {org.contact_email}
@@ -30,7 +38,7 @@ export async function SiteFooter() {
           <ul className="grid grid-cols-2 gap-x-6 gap-y-2.5 text-sm">
             {FOOTER_NAV.map((item) => (
               <li key={item.href}>
-                <Link href={item.href} className="font-medium text-muted hover:text-ink hover:underline">
+                <Link href={item.href} prefetch={false} className="font-medium text-muted hover:text-ink hover:underline">
                   {item.label}
                 </Link>
               </li>

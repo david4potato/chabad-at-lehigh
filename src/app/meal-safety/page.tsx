@@ -37,9 +37,15 @@ export default function MealSafetyPage() {
       <Card>
         <h2 className="text-lg font-bold text-ink">How menus are published</h2>
         <ul className="mt-2 list-disc space-y-1.5 pl-5 text-base leading-relaxed text-ink">
-          <li>Every dish lists its ingredients and allergens — visible before you RSVP.</li>
+          <li>
+            Once a menu is posted, every dish lists its ingredients and allergens, and you can see it without RSVPing.
+            Menus are often posted after RSVPs open, so check back before the event.
+          </li>
           <li>Staff confirm preparation and cross-contact details before publishing.</li>
-          <li>Changes get a new version with a note; urgent ones notify everyone who RSVP&apos;d.</li>
+          <li>
+            Changes get a new version with a note; urgent ones appear in the in-app notifications of everyone who
+            RSVP&apos;d.
+          </li>
           <li>
             Votes and suggestions are advisory. A popular dish is <strong>never</strong> a sign it suits an allergy, and we
             never label food &ldquo;allergen-free&rdquo;.

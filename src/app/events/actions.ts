@@ -53,7 +53,7 @@ export async function setRsvp(_prev: ActionResult, formData: FormData): Promise<
     waitlist:
       "This event is full right now, so you're on the waitlist. We'll confirm you automatically if a spot opens.",
     pending: "Thanks! An organizer will confirm your RSVP. We'll send you a notification.",
-    not_going: "Thanks for letting us know. You can change your RSVP any time before the event.",
+    not_going: "Thanks for letting us know.",
     declined: "An organizer has already responded to your RSVP. Please contact them with any questions.",
   };
   return { ok: true, message: messages[data.status] ?? "Your RSVP is saved." };
@@ -76,15 +76,26 @@ export async function saveMealPreference(_prev: ActionResult, formData: FormData
   const { event_id, slug: eventSlug, preference, guest_dietary_notes } = parsed.data;
 
   const supabase = await createClient();
-  const { error } =
+  const [{ error }, { data: profile }] = await Promise.all([
     !preference && !guest_dietary_notes
-      ? await supabase.from("event_meal_preferences").delete().eq("event_id", event_id).eq("user_id", viewer.id)
-      : await supabase.from("event_meal_preferences").upsert(
+      ? supabase.from("event_meal_preferences").delete().eq("event_id", event_id).eq("user_id", viewer.id)
+      : supabase.from("event_meal_preferences").upsert(
           { event_id, user_id: viewer.id, preference: preference || null, guest_dietary_notes: guest_dietary_notes || null },
           { onConflict: "event_id,user_id" },
-        );
+        ),
+    supabase.from("dietary_profiles").select("share_with_kitchen").eq("user_id", viewer.id).maybeSingle(),
+  ]);
   if (error) return { ok: false, error: dbErrorMessage(error) };
 
   revalidatePath(`/events/${eventSlug}`);
+  // The kitchen sees the meal note only when profile sharing is on; guests' notes are always shared.
+  if (preference && profile?.share_with_kitchen === false) {
+    return {
+      ok: true,
+      message: `Saved. Sharing with the kitchen is off, so kitchen staff won't see your meal note.${
+        guest_dietary_notes ? " They will see your guests' dietary needs." : ""
+      }`,
+    };
+  }
   return { ok: true, message: "Saved. Only you and our kitchen staff/admins can see this." };
 }

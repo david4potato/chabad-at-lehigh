@@ -12,11 +12,12 @@ Also read `AGENTS.md` (Next.js 16 notes). Docs for this exact Next version live 
   dynamic rendering: pages that read cookies are dynamic automatically). Do not add `"use cache"`.
 - `src/proxy.ts` (Next 16's name for middleware) refreshes the Supabase session and redirects
   signed-out visitors away from `/admin`, `/my-events`, `/profile`, `/notifications`, `/welcome`.
-- Supabase: Auth (email magic link + 6-digit code), Postgres with RLS on every table, Storage.
+- Supabase: Auth (email magic link + 6-digit code; a trigger strips passwords), Postgres with RLS on every table, Storage.
 - **No service-role key anywhere in the app.** All queries run as the signed-in person with the
   publishable key. Privileged operations are SECURITY DEFINER SQL functions that check roles.
-- Business rules (capacity, waitlist, approvals, menu publishing, rate limits) live in SQL
-  (`supabase/migrations/*`). The app calls RPCs; it does not re-implement them.
+- Business rules (capacity, waitlist, approvals, menu publishing, rate limits, event-change notifications)
+  live in SQL (`supabase/migrations/*`). The app calls RPCs; it does not re-implement them. No production
+  database existed before launch, so migrations were edited in place; after launch, add new migration files.
 
 ## Conventions
 

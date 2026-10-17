@@ -21,8 +21,16 @@ export default async function EditEventPage({ params, searchParams }: PageProps<
     <div className="mx-auto max-w-3xl">
       <AdminEventHeader event={event} />
       <EventTabs eventId={event.id} active="details" roles={viewer.roles} />
-      {query.saved ? <Alert tone="success" className="mb-4">Event created. Publish it when you&apos;re ready.</Alert> : null}
-      {query.duplicated ? (
+      {query.saved ? (
+        <Alert tone="success" className="mb-4">
+          {event.status === "draft"
+            ? "Event created as a draft. Set Status to Published when it's ready."
+            : event.status === "published"
+              ? "Event created and published."
+              : "Event created."}
+        </Alert>
+      ) : null}
+      {query.duplicated && event.status === "draft" ? (
         <Alert tone="success" className="mb-4">
           Copied as a draft one week later. Check the details, then set the status to Published.
         </Alert>

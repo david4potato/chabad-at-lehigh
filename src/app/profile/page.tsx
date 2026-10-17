@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, Bell, LayoutDashboard, LogOut, Salad, Ticket } from "lucide-react";
 import { requireViewer } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { getOrgSettings } from "@/lib/settings";
 import { ROLE_LABELS, isStaff } from "@/lib/roles";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardTitle } from "@/components/ui/card";
@@ -17,11 +18,10 @@ export const metadata: Metadata = { title: "Profile & settings" };
 export default async function ProfilePage() {
   const viewer = await requireViewer("/profile");
   const supabase = await createClient();
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("full_name, preferred_name, affiliation, class_year, phone")
-    .eq("id", viewer.id)
-    .single();
+  const [{ data: profile }, org] = await Promise.all([
+    supabase.from("profiles").select("full_name, preferred_name, affiliation, class_year, phone").eq("id", viewer.id).single(),
+    getOrgSettings(),
+  ]);
 
   const links = [
     { href: "/profile/dietary", label: "Dietary & allergies", hint: viewer.hasDietaryInfo ? "Saved — private" : "Not added yet", Icon: Salad },
@@ -70,7 +70,23 @@ export default async function ProfilePage() {
       <Card>
         <CardTitle>Your details</CardTitle>
         <p className="mt-1 text-sm text-muted">
-          Your sign-in email can&apos;t be changed here — ask an organizer if you need to update it.
+          Your sign-in email can&apos;t be changed here. Need a different one?{" "}
+          {org.contact_email ? (
+            <>
+              Email us at{" "}
+              <a href={`mailto:${org.contact_email}`} className="break-all font-semibold text-brand-700 hover:underline">
+                {org.contact_email}
+              </a>
+              .
+            </>
+          ) : (
+            <>
+              <Link href="/find-us" className="font-semibold text-brand-700 hover:underline">
+                Get in touch
+              </Link>
+              .
+            </>
+          )}
         </p>
         <div className="mt-5">
           <ProfileForm

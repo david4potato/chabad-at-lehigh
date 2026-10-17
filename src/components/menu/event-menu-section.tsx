@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AlertTriangle, ChefHat, Info, Vote } from "lucide-react";
+import { AlertTriangle, ChefHat, ChevronDown, Info, Vote } from "lucide-react";
 import type { Viewer } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { matchDishAllergens, type ProfileAllergen, type Severity } from "@/lib/allergens";
@@ -115,6 +115,7 @@ export async function EventMenuSection({ event, viewer }: { event: MenuEvent; vi
       ) : (
         <>
           <Card className="space-y-3 bg-stone-50/70">
+            {version.title ? <p className="text-base font-semibold text-ink">{version.title}</p> : null}
             {version.prep_confirmed_at ? (
               <p className="flex items-start gap-2 text-sm text-ink">
                 <ChefHat className="mt-0.5 size-4 shrink-0 text-gold-700" aria-hidden="true" />
@@ -134,11 +135,12 @@ export async function EventMenuSection({ event, viewer }: { event: MenuEvent; vi
               </p>
             ) : null}
             {otherUpdates.length > 0 ? (
-              <details className="text-sm">
-                <summary className="cursor-pointer font-semibold text-brand-700">
+              <details className="group text-sm">
+                <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1 font-semibold text-brand-700 [&::-webkit-details-marker]:hidden">
                   Menu changes ({otherUpdates.length})
+                  <ChevronDown className="size-4 transition-transform group-open:rotate-180" aria-hidden="true" />
                 </summary>
-                <ul className="mt-2 space-y-1.5 text-muted">
+                <ul className="space-y-1.5 text-muted">
                   {otherUpdates.map((u) => (
                     <li key={u.id}>
                       {u.message} <span className="text-xs">({formatDateTime(u.created_at)})</span>

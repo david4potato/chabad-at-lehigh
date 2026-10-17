@@ -16,11 +16,17 @@ export function getSupabaseConfig() {
   return { url: supabaseUrl, key: supabaseKey };
 }
 
-/** Public site URL without a trailing slash (falls back to Vercel's URL, then localhost). */
+/**
+ * Public site URL without a trailing slash. Falls back to Vercel's production
+ * domain (per-deployment URLs sit behind Vercel's login), then the deployment
+ * URL, then localhost. Adds https:// if the scheme was left off.
+ */
 export function getSiteUrl(): string {
-  const explicit = process.env.NEXT_PUBLIC_SITE_URL;
-  const vercel = process.env.NEXT_PUBLIC_VERCEL_URL ?? process.env.VERCEL_URL;
-  const url = explicit || (vercel ? `https://${vercel}` : "http://localhost:3000");
+  const explicit = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  const prod = process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  const deploy = process.env.NEXT_PUBLIC_VERCEL_URL ?? process.env.VERCEL_URL;
+  let url = explicit || prod || deploy || "http://localhost:3000";
+  if (!/^https?:\/\//i.test(url)) url = `https://${url}`;
   return url.replace(/\/+$/, "");
 }
 

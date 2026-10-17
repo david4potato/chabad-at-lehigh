@@ -22,7 +22,7 @@ export function MobileNav({ signedIn, staff }: { signedIn: boolean; staff: boole
   return (
     <nav
       aria-label="Main"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-stone-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-stone-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden print:hidden"
     >
       <ul className="mx-auto flex max-w-lg items-stretch justify-around">
         {items.map(({ href, label, Icon }) => {

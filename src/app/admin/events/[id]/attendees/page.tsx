@@ -39,7 +39,7 @@ export default async function AttendeesPage({ params }: PageProps<"/admin/events
           </div>
         ))}
       </dl>
-      <AttendeeList eventId={event.id} attendees={attendees} />
+      <AttendeeList eventId={event.id} attendees={attendees} capacity={event.capacity} seatsTaken={c?.seatsTaken ?? 0} />
       <Card className="mt-8">
         <CardTitle>Invite people</CardTitle>
         <p className="mb-4 mt-1 text-sm text-muted">Send an in-app invitation, or copy the link to share anywhere.</p>

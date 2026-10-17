@@ -1,12 +1,13 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState, useTransition } from "react";
+import { useActionState, useState, useTransition } from "react";
 import { saveAnnouncement, deleteAnnouncement } from "@/app/admin/announcements/actions";
 import { initialActionState, type ActionResult } from "@/lib/action-result";
 import { toDateTimeLocalValue } from "@/lib/time";
 import { Checkbox, Field, Input, Select, Textarea } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { SubmitButton } from "@/components/ui/submit-button";
+import { Form } from "@/components/ui/form";
 import { FormMessage } from "@/components/ui/form-message";
 
 export type AnnouncementRow = {
@@ -32,18 +33,13 @@ export function AnnouncementForm({
   onDone?: () => void;
 }) {
   const [state, action] = useActionState(saveAnnouncement, initialActionState);
-  const formRef = useRef<HTMLFormElement>(null);
   const [del, setDel] = useState<ActionResult | null>(null);
   const [deleting, startDelete] = useTransition();
   const e = state.ok ? undefined : state.fieldErrors;
   const p = announcement?.id ?? "new";
 
-  useEffect(() => {
-    if (state.ok && state.message && !announcement) formRef.current?.reset();
-  }, [state, announcement]);
-
   return (
-    <form ref={formRef} action={action} className="space-y-4">
+    <Form action={action} state={state} resetOnSuccess={!announcement} className="space-y-4">
       <input type="hidden" name="id" value={announcement?.id ?? ""} />
       <Field label="Title" htmlFor={`title-${p}`} errors={e?.title} required>
         <Input id={`title-${p}`} name="title" required minLength={3} maxLength={140} defaultValue={announcement?.title ?? ""} />
@@ -109,6 +105,6 @@ export function AnnouncementForm({
       </div>
       <FormMessage state={state} />
       <FormMessage state={del} />
-    </form>
+    </Form>
   );
 }

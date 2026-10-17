@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { formatLongDate, formatTimeRange } from "@/lib/time";
+import { formatEventWhen } from "@/lib/time";
 import { Badge } from "@/components/ui/badge";
 import type { AdminEvent } from "@/lib/data/admin";
 
@@ -16,7 +16,7 @@ export function AdminEventHeader({ event }: { event: AdminEvent }) {
         <Badge tone={STATUS_TONE[event.status]}>{event.status[0].toUpperCase() + event.status.slice(1)}</Badge>
       </div>
       <p className="mt-1 text-muted">
-        {formatLongDate(event.starts_at)} · {formatTimeRange(event.starts_at, event.ends_at)}
+        {formatEventWhen(event.starts_at, event.ends_at)}
         {event.status !== "draft" ? (
           <>
             {" · "}

@@ -17,7 +17,7 @@ export async function SiteHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-stone-200/80 bg-cream/90 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-stone-200/80 bg-cream/90 backdrop-blur print:hidden">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
           <Logo />
           <nav aria-label="Main" className="hidden md:block">
@@ -28,7 +28,7 @@ export async function SiteHeader() {
               <>
                 <Link
                   href="/notifications"
-                  className="relative flex size-10 items-center justify-center rounded-full text-muted hover:bg-stone-100 hover:text-ink"
+                  className="relative flex size-11 items-center justify-center rounded-full text-muted hover:bg-stone-100 hover:text-ink"
                   aria-label={unread > 0 ? `Notifications, ${unread} unread` : "Notifications"}
                 >
                   <Bell className="size-5" aria-hidden="true" />
@@ -41,7 +41,7 @@ export async function SiteHeader() {
                 <AccountMenu displayName={viewer.displayName} email={viewer.email} staff={staff} />
               </>
             ) : (
-              <Link href="/sign-in" className={buttonClasses("primary", "sm")}>
+              <Link href="/sign-in" className={buttonClasses("primary", "md")}>
                 Sign in
               </Link>
             )}

@@ -7,12 +7,13 @@ import { Bell, ChevronDown, LayoutDashboard, LogOut, Salad, UserRound } from "lu
 
 type Props = { displayName: string; email: string; staff: boolean };
 
-/** Account dropdown: closes on outside click, Escape, and navigation. */
+/** Account dropdown: closes on outside click, Escape, focus leaving it, and navigation. */
 export function AccountMenu({ displayName, email, staff }: Props) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const menuId = useId();
   const ref = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const [lastPath, setLastPath] = useState(pathname);
 
   if (pathname !== lastPath) {
@@ -26,7 +27,10 @@ export function AccountMenu({ displayName, email, staff }: Props) {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        setOpen(false);
+        buttonRef.current?.focus();
+      }
     };
     document.addEventListener("mousedown", onClick);
     document.addEventListener("keydown", onKey);
@@ -37,16 +41,24 @@ export function AccountMenu({ displayName, email, staff }: Props) {
   }, [open]);
 
   const initial = displayName.trim().charAt(0).toUpperCase() || "?";
-  const item = "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-ink hover:bg-stone-100";
+  const item = "flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-ink hover:bg-stone-100";
 
   return (
-    <div className="relative" ref={ref}>
+    <div
+      className="relative"
+      ref={ref}
+      onBlur={(e) => {
+        // Close when Tab moves focus outside. A null target (e.g. Safari clicks) is left to the mousedown handler.
+        if (e.relatedTarget && !ref.current?.contains(e.relatedTarget as Node)) setOpen(false);
+      }}
+    >
       <button
+        ref={buttonRef}
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        aria-controls={menuId}
-        className="flex items-center gap-1.5 rounded-full p-1 pr-2 hover:bg-stone-100"
+        aria-controls={open ? menuId : undefined}
+        className="flex min-h-11 items-center gap-1.5 rounded-full p-1 pr-2 hover:bg-stone-100"
       >
         <span className="flex size-8 items-center justify-center rounded-full bg-brand-700 text-sm font-bold text-white">
           {initial}

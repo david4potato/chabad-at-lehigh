@@ -3,7 +3,7 @@ import { ArrowRight, Clock, Flame, MapPin, Phone, Salad, Mail, Navigation } from
 import { getViewer } from "@/lib/auth";
 import { getOrgSettings } from "@/lib/settings";
 import { safeNextPath } from "@/lib/safe-redirect";
-import { formatLongDate, formatTimeRange, relativeDay } from "@/lib/time";
+import { formatLongDate, formatTimeRange, relativeDay, spansDays } from "@/lib/time";
 import {
   getEventsMeta,
   getNextShabbatDinner,
@@ -92,10 +92,14 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
               <ul className="mt-3 space-y-1 text-base text-ink">
                 <li className="flex items-center gap-2">
                   <Clock className="size-4 shrink-0 text-gold-700" aria-hidden="true" />
-                  <span>
-                    <span className="font-semibold">{formatLongDate(shabbat.starts_at)}</span> ·{" "}
-                    {formatTimeRange(shabbat.starts_at, shabbat.ends_at)}
-                  </span>
+                  {spansDays(shabbat.starts_at, shabbat.ends_at) ? (
+                    <span className="font-semibold">{formatTimeRange(shabbat.starts_at, shabbat.ends_at)}</span>
+                  ) : (
+                    <span>
+                      <span className="font-semibold">{formatLongDate(shabbat.starts_at)}</span> ·{" "}
+                      {formatTimeRange(shabbat.starts_at, shabbat.ends_at)}
+                    </span>
+                  )}
                 </li>
                 {shabbat.location_name ? (
                   <li className="flex items-center gap-2">
@@ -140,7 +144,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
         )}
       </section>
 
-      <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr]">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <section aria-labelledby="upcoming-heading">
           <div className="mb-3 flex items-center justify-between">
             <h2 id="upcoming-heading" className="text-lg font-bold text-ink">
@@ -151,7 +155,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
             </Link>
           </div>
           {others.length === 0 ? (
-            <EmptyState title="No other events this week" />
+            <EmptyState title="No other upcoming events yet">New events are added every week.</EmptyState>
           ) : (
             <div className="space-y-3">
               {others.map((e) => (

@@ -62,6 +62,60 @@ begin
 end;
 $$;
 
+-- Remove everything the DEMO seed created (is_demo rows, demo ingredients no
+-- dish uses any more). Used by the dashboard button and
+-- supabase/scripts/remove_demo_data.sql. Real content is never touched.
+create or replace function private.remove_demo_data()
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  -- Events cascade to their RSVPs, menus, menu items, updates and options.
+  delete from public.events where is_demo;
+
+  -- Demo dishes (only if no real menu still uses them).
+  delete from public.dishes d
+  where d.is_demo
+    and not exists (select 1 from public.menu_items mi where mi.dish_id = d.id);
+
+  -- Demo ingredients that are no longer used by any dish.
+  delete from public.ingredients i
+  where i.created_by is null
+    and not exists (select 1 from public.dish_ingredients di where di.ingredient_id = i.id)
+    and i.name in (
+      'All-purpose flour', 'Eggs', 'Sesame seeds', 'Sugar', 'Canola oil', 'Yeast', 'Salt', 'Honey',
+      'Chicken', 'Carrots', 'Celery', 'Onion', 'Garlic', 'Fresh dill', 'Fresh parsley', 'Matzo meal',
+      'Tahini', 'Chickpeas', 'Lemon juice', 'Olive oil', 'Toasted sesame oil', 'Soy sauce', 'Rice vinegar',
+      'Green cabbage', 'Potatoes', 'Cucumbers', 'Tomatoes', 'Panko breadcrumbs', 'Dijon mustard',
+      'Pareve chocolate chips', 'Pareve margarine', 'Walnuts', 'White rice', 'Zucchini', 'Bell peppers',
+      'Apples', 'Cinnamon', 'Rolled oats', 'Egg noodles', 'Paprika', 'Grape juice'
+    );
+
+  delete from public.announcements where is_demo;
+  delete from public.volunteer_shifts where is_demo;
+  delete from public.learning_programs where is_demo;
+end;
+$$;
+
+create or replace function public.admin_remove_demo_data()
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if not public.is_admin() then
+    raise exception 'forbidden';
+  end if;
+  perform private.remove_demo_data();
+  perform private.log_audit('demo.removed', 'app_settings', null, '{}');
+end;
+$$;
+
 revoke execute on all functions in schema private from public, anon, authenticated;
 revoke execute on function public.mark_notifications_read(uuid[]) from public, anon;
 grant execute on function public.mark_notifications_read(uuid[]) to authenticated;
+revoke execute on function public.admin_remove_demo_data() from public, anon;
+grant execute on function public.admin_remove_demo_data() to authenticated;

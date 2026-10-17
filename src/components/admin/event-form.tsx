@@ -7,6 +7,7 @@ import { cn } from "@/lib/cn";
 import { Checkbox, Field, Input, Select, Textarea } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { SubmitButton } from "@/components/ui/submit-button";
+import { Form } from "@/components/ui/form";
 import { FormMessage } from "@/components/ui/form-message";
 import type { AdminEvent } from "@/lib/data/admin";
 
@@ -58,7 +59,7 @@ export function EventForm({
 
   return (
     <div className="space-y-5">
-      <form action={formAction} className="space-y-5">
+      <Form action={formAction} className="space-y-5">
         {event ? <input type="hidden" name="id" value={event.id} /> : null}
 
         <Section title="Basics">
@@ -66,7 +67,7 @@ export function EventForm({
             <Input id="title" name="title" required minLength={3} maxLength={140} defaultValue={event?.title ?? ""} placeholder="Shabbat Dinner" />
           </Field>
           <Field label="Short summary" htmlFor="summary" hint="One sentence shown on event cards." errors={e?.summary}>
-            <Input id="summary" name="summary" maxLength={280} defaultValue={event?.summary ?? ""} aria-describedby="summary-hint" />
+            <Input id="summary" name="summary" maxLength={280} defaultValue={event?.summary ?? ""} />
           </Field>
           <Field label="Description" htmlFor="description" errors={e?.description}>
             <Textarea id="description" name="description" rows={5} maxLength={5000} defaultValue={event?.description ?? ""} />
@@ -82,8 +83,13 @@ export function EventForm({
                 <option value="other">Other</option>
               </Select>
             </Field>
-            <Field label="Status" htmlFor="status" hint="Drafts are only visible to staff." errors={e?.status}>
-              <Select id="status" name="status" defaultValue={event?.status ?? "draft"} aria-describedby="status-hint">
+            <Field
+              label="Status"
+              htmlFor="status"
+              hint="Drafts are only visible to staff. Choosing Cancelled notifies everyone who RSVP'd in the app."
+              errors={e?.status}
+            >
+              <Select id="status" name="status" defaultValue={event?.status ?? "draft"}>
                 <option value="draft">Draft (hidden)</option>
                 <option value="published">Published</option>
                 <option value="cancelled">Cancelled (shown as cancelled)</option>
@@ -98,7 +104,10 @@ export function EventForm({
           </Field>
         </Section>
 
-        <Section title="When and where" description="Times are in Bethlehem, PA time.">
+        <Section
+          title="When and where"
+          description="Times are in Bethlehem, PA time. Once published, changing the start time or place notifies everyone who RSVP'd in the app."
+        >
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Starts" htmlFor="starts_at" errors={e?.starts_at} required>
               <Input id="starts_at" name="starts_at" type="datetime-local" required defaultValue={toDateTimeLocalValue(event?.starts_at)} />
@@ -111,7 +120,7 @@ export function EventForm({
             <Input id="location_name" name="location_name" maxLength={140} defaultValue={event?.location_name ?? defaults?.location_name ?? ""} placeholder="Chabad House" />
           </Field>
           <Field label="Street address" htmlFor="location_address" hint="Optional — adds a map link." errors={e?.location_address}>
-            <Input id="location_address" name="location_address" maxLength={280} defaultValue={event?.location_address ?? defaults?.location_address ?? ""} aria-describedby="location_address-hint" />
+            <Input id="location_address" name="location_address" maxLength={280} defaultValue={event?.location_address ?? defaults?.location_address ?? ""} />
           </Field>
         </Section>
 
@@ -119,10 +128,10 @@ export function EventForm({
           <Checkbox name="rsvp_enabled" label="Accept RSVPs" defaultChecked={event?.rsvp_enabled ?? true} />
           <div className="grid gap-4 sm:grid-cols-3">
             <Field label="Capacity" htmlFor="capacity" hint="Blank = unlimited" errors={e?.capacity}>
-              <Input id="capacity" name="capacity" inputMode="numeric" defaultValue={event?.capacity ?? ""} aria-describedby="capacity-hint" />
+              <Input id="capacity" name="capacity" type="number" min={1} max={5000} defaultValue={event?.capacity ?? ""} />
             </Field>
             <Field label="Guests per person" htmlFor="max_guests_per_rsvp" hint="0 = no plus-ones" errors={e?.max_guests_per_rsvp}>
-              <Input id="max_guests_per_rsvp" name="max_guests_per_rsvp" type="number" min={0} max={10} defaultValue={event?.max_guests_per_rsvp ?? 0} aria-describedby="max_guests_per_rsvp-hint" />
+              <Input id="max_guests_per_rsvp" name="max_guests_per_rsvp" type="number" min={0} max={10} defaultValue={event?.max_guests_per_rsvp ?? 0} />
             </Field>
             <Field label="RSVP deadline" htmlFor="rsvp_deadline" hint="Optional" errors={e?.rsvp_deadline}>
               <Input id="rsvp_deadline" name="rsvp_deadline" type="datetime-local" defaultValue={toDateTimeLocalValue(event?.rsvp_deadline)} />
@@ -182,20 +191,24 @@ export function EventForm({
           <Field
             label="Web address"
             htmlFor="slug"
-            hint="Leave blank to create one from the title and date."
+            hint={
+              event && event.status !== "draft"
+                ? "Changing this breaks links already shared and in people's notifications."
+                : "Leave blank to create one from the title and date."
+            }
             errors={e?.slug}
           >
-            <Input id="slug" name="slug" maxLength={80} defaultValue={event?.slug ?? ""} placeholder="shabbat-dinner-2026-10-23" aria-describedby="slug-hint" />
+            <Input id="slug" name="slug" maxLength={80} defaultValue={event?.slug ?? ""} placeholder="shabbat-dinner-2026-10-23" />
           </Field>
         </Section>
 
-        <div className="sticky bottom-20 z-10 flex flex-wrap items-center gap-3 rounded-2xl border border-stone-200 bg-white/95 p-3 shadow-lg backdrop-blur md:bottom-4">
+        <div className="sticky bottom-[calc(5rem+env(safe-area-inset-bottom))] z-10 flex flex-wrap items-center gap-3 rounded-2xl border border-stone-200 bg-white/95 p-3 shadow-lg backdrop-blur md:bottom-4">
           <SubmitButton size="lg">{event ? "Save event" : "Create event"}</SubmitButton>
           <div className="min-w-0 flex-1">
             <FormMessage state={state} />
           </div>
         </div>
-      </form>
+      </Form>
 
       {event && (onDuplicate || onDelete) ? (
         <div className="space-y-3 rounded-[var(--radius-card)] border border-stone-200 bg-white p-5">

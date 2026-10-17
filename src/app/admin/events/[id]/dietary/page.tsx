@@ -141,11 +141,20 @@ export default async function DietaryReportPage({ params }: PageProps<"/admin/ev
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="font-bold text-ink">{p.full_name}</p>
                       <Badge>{STATUS_LABEL[p.rsvp_status] ?? p.rsvp_status}</Badge>
-                      {p.guest_count > 0 ? <Badge tone="gold">+{p.guest_count} guest{p.guest_count === 1 ? "" : "s"}</Badge> : null}
+                      {p.guest_count > 0 ? (
+                        <Badge tone={p.guest_status === "approved" ? "gold" : "neutral"}>
+                          +{p.guest_count} guest{p.guest_count === 1 ? "" : "s"}
+                          {p.guest_status === "approved" ? "" : ` (${p.guest_status})`}
+                        </Badge>
+                      ) : null}
                       {p.carries_epinephrine ? <Badge tone="red">Carries epinephrine</Badge> : null}
                     </div>
                     {!p.shared ? (
-                      <p className="mt-1 text-sm font-semibold text-amber-900">Not shared — please contact them directly.</p>
+                      <div className="mt-1 space-y-1 text-sm">
+                        <p className="font-semibold text-amber-900">Not shared — please contact them directly.</p>
+                        {/* Notes about guests are written for the kitchen, so they show even when the person's own profile isn't shared. */}
+                        {p.guest_dietary_notes ? <p className="text-ink"><span className="font-semibold">Guests:</span> {p.guest_dietary_notes}</p> : null}
+                      </div>
                     ) : !hasInfo ? (
                       <p className="mt-1 text-sm text-muted">No dietary needs listed.</p>
                     ) : (

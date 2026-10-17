@@ -26,27 +26,54 @@ const ACTION_LABELS: Record<string, string> = {
   "rsvp.decline": "RSVP declined",
   "rsvp.guests_approve": "Guests approved",
   "rsvp.guests_decline": "Guests declined",
+  "rsvp.staff_cancel": "RSVP cancelled by staff",
+  "event.invites_sent": "Invitations sent",
+  "menu_versions.insert": "Menu draft started",
+  "menu_versions.update": "Menu version changed",
+  "menu_versions.delete": "Menu version deleted",
+  "menu_items.insert": "Dish added to menu",
+  "menu_items.update": "Menu dish changed",
+  "menu_items.delete": "Dish removed from menu",
   "announcements.insert": "Announcement posted",
   "announcements.update": "Announcement changed",
   "announcements.delete": "Announcement deleted",
+  "app_settings.insert": "Settings changed",
   "app_settings.update": "Settings changed",
   "account.deleted": "Account deleted",
+  "demo.removed": "Demo content removed",
 };
 
-const TYPES = ["events", "menu_versions", "menu_updates", "rsvps", "user_roles", "pending_role_grants", "announcements", "app_settings"];
+// Filter chips. Most match entity_type; "dietary" picks out views of the named dietary report.
+const FILTERS = [
+  { value: "dietary", label: "dietary report views" },
+  ...["events", "menu_versions", "menu_updates", "rsvps", "user_roles", "pending_role_grants", "announcements", "app_settings"].map((t) => ({
+    value: t,
+    label: t.replace(/_/g, " "),
+  })),
+  { value: "profiles", label: "account deletions" },
+];
 
 export default async function AuditPage({ searchParams }: PageProps<"/admin/audit">) {
   await requireRole(["admin"], "/admin/audit");
   const params = await searchParams;
-  const type = typeof params.type === "string" && TYPES.includes(params.type) ? params.type : null;
+  const type = FILTERS.find((f) => f.value === params.type)?.value ?? null;
   const supabase = await createClient();
   let query = supabase
     .from("audit_events")
-    .select("id, action, entity_type, entity_id, details, created_at, actor:profiles(full_name, email)")
+    .select("id, action, entity_type, entity_id, details, created_at, actor_ref, actor:profiles(full_name, email)")
     .order("created_at", { ascending: false })
     .limit(200);
-  if (type) query = query.eq("entity_type", type);
+  if (type === "dietary") query = query.eq("action", "dietary_report.viewed");
+  else if (type) query = query.eq("entity_type", type);
   const { data } = await query;
+  const rows = data ?? [];
+
+  // Event titles for event rows, in one query (deleted events fall back to the id).
+  const eventIds = [...new Set(rows.filter((r) => r.entity_type === "events" && r.entity_id).map((r) => r.entity_id!))];
+  const { data: events } = eventIds.length
+    ? await supabase.from("events").select("id, title").in("id", eventIds)
+    : { data: [] as { id: string; title: string }[] };
+  const titles = new Map((events ?? []).map((e) => [e.id, e.title]));
   const chip = (active: boolean) =>
     cn("inline-flex h-9 items-center rounded-full border px-3 text-xs font-semibold whitespace-nowrap", active ? "border-brand-700 bg-brand-700 text-white" : "border-stone-300 bg-white text-ink");
 
@@ -59,30 +86,39 @@ export default async function AuditPage({ searchParams }: PageProps<"/admin/audi
       <nav aria-label="Filter by type" className="-mx-4 mb-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
         <div className="flex w-max gap-2">
           <Link href="/admin/audit" className={chip(!type)}>All</Link>
-          {TYPES.map((t) => (
-            <Link key={t} href={`/admin/audit?type=${t}`} className={chip(type === t)}>
-              {t.replace(/_/g, " ")}
+          {FILTERS.map((f) => (
+            <Link key={f.value} href={`/admin/audit?type=${f.value}`} className={chip(type === f.value)}>
+              {f.label}
             </Link>
           ))}
         </div>
       </nav>
       <Card className="p-0 sm:p-0">
         <ul className="divide-y divide-stone-100">
-          {(data ?? []).map((row) => (
-            <li key={row.id} className="grid gap-1 px-4 py-3 text-sm sm:grid-cols-[170px_1fr_1.2fr] sm:gap-4">
-              <span className="text-muted">{formatDateTime(row.created_at)}</span>
-              <span>
-                <span className="font-semibold text-ink">{ACTION_LABELS[row.action] ?? row.action}</span>
-                <span className="block text-xs text-muted">{row.actor?.full_name || row.actor?.email || "System"}</span>
-              </span>
-              <code className="break-all text-xs text-muted">
-                {row.entity_type}
-                {row.entity_id ? ` ${row.entity_id.slice(0, 8)}…` : ""}{" "}
-                {row.details && Object.keys(row.details as object).length ? JSON.stringify(row.details) : ""}
-              </code>
-            </li>
-          ))}
-          {(data ?? []).length === 0 ? <li className="px-4 py-6 text-sm text-muted">Nothing recorded yet.</li> : null}
+          {rows.map((row) => {
+            const title = row.entity_type === "events" && row.entity_id ? titles.get(row.entity_id) : undefined;
+            return (
+              <li key={row.id} className="grid gap-1 px-4 py-3 text-sm sm:grid-cols-[170px_1fr_1.2fr] sm:gap-4">
+                <span className="text-muted">{formatDateTime(row.created_at)}</span>
+                <span>
+                  <span className="font-semibold text-ink">{ACTION_LABELS[row.action] ?? row.action}</span>
+                  <span className="block text-xs text-muted">
+                    {/* actor_ref keeps the id after the person deletes their account. */}
+                    {row.actor?.full_name || row.actor?.email || (row.actor_ref ? `Deleted account ${row.actor_ref.slice(0, 8)}…` : "System")}
+                  </span>
+                </span>
+                <span className="text-xs text-muted">
+                  {title ? <span className="block font-semibold text-ink">{title}</span> : null}
+                  <code className="break-all">
+                    {row.entity_type}
+                    {row.entity_id && !title ? ` ${row.entity_id.slice(0, 8)}…` : ""}{" "}
+                    {row.details && Object.keys(row.details as object).length ? JSON.stringify(row.details) : ""}
+                  </code>
+                </span>
+              </li>
+            );
+          })}
+          {rows.length === 0 ? <li className="px-4 py-6 text-sm text-muted">Nothing recorded yet.</li> : null}
         </ul>
       </Card>
     </div>

@@ -10,8 +10,10 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
   const viewer = await requireRole(["organizer", "kitchen_staff", "admin"], "/admin");
   return (
     <div>
-      <p className="mb-2 text-sm font-semibold text-gold-700">Organizer dashboard</p>
-      <AdminNav roles={viewer.roles} />
+      <div className="print:hidden">
+        <p className="mb-2 text-sm font-semibold text-gold-700">Organizer dashboard</p>
+        <AdminNav roles={viewer.roles} />
+      </div>
       {children}
     </div>
   );

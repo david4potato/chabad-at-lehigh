@@ -135,7 +135,12 @@ export async function saveDietary(_prev: ActionResult, formData: FormData): Prom
   revalidatePath("/", "layout");
   const next = formData.get("next");
   if (formData.get("welcome") === "1" && typeof next === "string") redirect(safeNextPath(next, "/"));
-  return { ok: true, message: "Saved. Only you — and kitchen staff/admins for events you RSVP to — can see this." };
+  return {
+    ok: true,
+    message: d.share_with_kitchen
+      ? "Saved. Only you — and kitchen staff/admins for events you RSVP to — can see this."
+      : "Saved. Only you can see this. Please tell the organizer directly about anything the kitchen needs to know.",
+  };
 }
 
 /** Permanently delete the viewer's dietary profile, allergens and per-event meal notes. */

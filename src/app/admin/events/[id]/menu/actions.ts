@@ -173,7 +173,12 @@ export async function postMenuUpdate(_prev: ActionResult, formData: FormData): P
   });
   if (error) return { ok: false, error: dbErrorMessage(error) };
   await revalidate(parsed.data.event_id);
-  return { ok: true, message: urgent ? "Posted. Everyone who RSVP'd has been notified." : "Update posted on the event page." };
+  return {
+    ok: true,
+    message: urgent
+      ? "Posted. Everyone who RSVP'd has been notified in the app (no email or text) — contact anyone with a related allergy directly."
+      : "Update posted on the event page.",
+  };
 }
 
 export async function addOption(_prev: ActionResult, formData: FormData): Promise<ActionResult> {

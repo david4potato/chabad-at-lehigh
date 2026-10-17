@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Field, Input, Textarea } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { FormMessage } from "@/components/ui/form-message";
+import { Form } from "@/components/ui/form";
 
 const LABELS: Record<string, string> = {
   invited: "Invited — they'll see it in their notifications",
@@ -34,14 +35,14 @@ export function InvitePeople({ eventId, eventPath, published }: { eventId: strin
 
   return (
     <div className="space-y-4">
-      <form action={action} className="space-y-4">
+      <Form action={action} state={state} resetOnSuccess className="space-y-4">
         <input type="hidden" name="event_id" value={eventId} />
         <Field
           label="Email addresses"
           htmlFor="invite-emails"
-          hint="Separate with commas or new lines. People with an account get an in-app invitation."
+          hint="Separate with commas or new lines, or paste from an email's To line. People with an account get an in-app invitation."
         >
-          <Textarea id="invite-emails" name="emails" rows={3} required placeholder="sarah@lehigh.edu, josh@gmail.com" aria-describedby="invite-emails-hint" />
+          <Textarea id="invite-emails" name="emails" rows={3} required placeholder="sarah@lehigh.edu, josh@gmail.com" />
         </Field>
         <Field label="Personal message (optional)" htmlFor="invite-message">
           <Input id="invite-message" name="message" maxLength={500} placeholder="Hope you can make it!" />
@@ -54,7 +55,7 @@ export function InvitePeople({ eventId, eventPath, published }: { eventId: strin
           </Button>
         </div>
         <FormMessage state={state} />
-      </form>
+      </Form>
       {results.length ? (
         <ul className="divide-y divide-stone-100 rounded-xl border border-stone-200 text-sm">
           {results.map((r) => (

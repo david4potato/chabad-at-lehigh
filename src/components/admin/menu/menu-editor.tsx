@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useEffect, useRef, useState, useTransition } from "react";
+import { useActionState, useState, useTransition } from "react";
 import { AlertTriangle, Trash2 } from "lucide-react";
 import {
   addMenuItem,
@@ -22,6 +22,7 @@ import { COURSE_LABELS, COURSE_ORDER, optionalOnlyAllergens, type MenuItem } fro
 import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Input, Select, Textarea } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
+import { Form } from "@/components/ui/form";
 import { FormMessage } from "@/components/ui/form-message";
 import { AllergenBadges } from "@/components/menu/allergen-badges";
 
@@ -51,7 +52,7 @@ export function StartDraftButton({ eventId, hasPublished }: { eventId: string; h
 export function DraftDetailsForm({ eventId, versionId, title, kitchenNotes }: { eventId: string; versionId: string; title: string | null; kitchenNotes: string | null }) {
   const [state, action] = useActionState(saveDraftDetails, initialActionState);
   return (
-    <form action={action} className="space-y-4">
+    <Form action={action} className="space-y-4">
       <input type="hidden" name="event_id" value={eventId} />
       <input type="hidden" name="version_id" value={versionId} />
       <Field label="Menu title" htmlFor="menu-title" hint="Optional, e.g. “Shabbat Dinner Menu”">
@@ -62,11 +63,11 @@ export function DraftDetailsForm({ eventId, versionId, title, kitchenNotes }: { 
         htmlFor="kitchen-notes"
         hint="A general cross-contact statement, e.g. “Prepared in a shared kitchen that also handles sesame, tree nuts, eggs, wheat and soy.”"
       >
-        <Textarea id="kitchen-notes" name="kitchen_notes" rows={3} maxLength={2000} defaultValue={kitchenNotes ?? ""} aria-describedby="kitchen-notes-hint" />
+        <Textarea id="kitchen-notes" name="kitchen_notes" rows={3} maxLength={2000} defaultValue={kitchenNotes ?? ""} />
       </Field>
       <SubmitButton variant="secondary">Save</SubmitButton>
       <FormMessage state={state} />
-    </form>
+    </Form>
   );
 }
 
@@ -80,7 +81,18 @@ export function MenuItemEditor({ eventId, item }: { eventId: string; item: MenuI
         <div className="min-w-0">
           <p className="font-bold text-ink">{item.dish.name}</p>
           <div className="mt-1.5">
-            {item.dish.allergens.length ? (
+            {item.dish.ingredients.length === 0 ? (
+              <p className="flex items-start gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1.5 text-sm font-medium text-amber-900">
+                <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+                <span>
+                  This dish has no ingredients yet — add them under{" "}
+                  <Link href={`/admin/dishes/${item.dish.id}`} className="underline">
+                    Dishes
+                  </Link>{" "}
+                  before publishing.
+                </span>
+              </p>
+            ) : item.dish.allergens.length ? (
               <AllergenBadges codes={item.dish.allergens} optionalOnly={optionalOnly} label="From ingredients:" />
             ) : (
               <p className="text-xs text-muted">No allergens listed in its ingredients. Double-check the dish&apos;s ingredients.</p>
@@ -101,7 +113,7 @@ export function MenuItemEditor({ eventId, item }: { eventId: string; item: MenuI
       </div>
       <details className="mt-3">
         <summary className="cursor-pointer text-sm font-semibold text-brand-700">Edit course, preparation and cross-contact</summary>
-        <form action={action} className="mt-3 space-y-4">
+        <Form action={action} className="mt-3 space-y-4">
           <input type="hidden" name="event_id" value={eventId} />
           <input type="hidden" name="item_id" value={item.id} />
           <div className="grid gap-3 sm:grid-cols-2">
@@ -135,7 +147,7 @@ export function MenuItemEditor({ eventId, item }: { eventId: string; item: MenuI
           </Field>
           <SubmitButton variant="secondary">Save dish details</SubmitButton>
           <FormMessage state={state} />
-        </form>
+        </Form>
       </details>
       <FormMessage state={remove.result} />
     </li>
@@ -146,7 +158,7 @@ export function AddDishForm({ eventId, versionId, dishes }: { eventId: string; v
   const [state, action] = useActionState(addMenuItem, initialActionState);
   const byCategory = COURSE_ORDER.map((c) => ({ c, list: dishes.filter((d) => d.category === c) })).filter((g) => g.list.length);
   return (
-    <form action={action} className="space-y-3">
+    <Form action={action} state={state} resetOnSuccess className="space-y-3">
       <input type="hidden" name="event_id" value={eventId} />
       <input type="hidden" name="version_id" value={versionId} />
       <Field label="Add a dish" htmlFor="add-dish">
@@ -173,7 +185,7 @@ export function AddDishForm({ eventId, versionId, dishes }: { eventId: string; v
         </Link>
       </div>
       <FormMessage state={state} />
-    </form>
+    </Form>
   );
 }
 
@@ -182,7 +194,7 @@ export function PublishForm({ eventId, versionId, hasPublished, itemCount }: { e
   const discard = useAction();
   return (
     <div className="space-y-4">
-      <form action={action} className="space-y-4">
+      <Form action={action} className="space-y-4">
         <input type="hidden" name="event_id" value={eventId} />
         <input type="hidden" name="version_id" value={versionId} />
         {hasPublished ? (
@@ -191,7 +203,7 @@ export function PublishForm({ eventId, versionId, hasPublished, itemCount }: { e
             htmlFor="change-summary"
             hint="Required. People with allergies use this to review changes, e.g. “Swapped rice for roasted potatoes; slaw dressing now uses sesame oil.”"
           >
-            <Textarea id="change-summary" name="change_summary" rows={2} maxLength={1000} required aria-describedby="change-summary-hint" />
+            <Textarea id="change-summary" name="change_summary" rows={2} maxLength={1000} required />
           </Field>
         ) : null}
         <div className="rounded-xl border border-amber-300 bg-amber-50 p-3">
@@ -205,7 +217,8 @@ export function PublishForm({ eventId, versionId, hasPublished, itemCount }: { e
         {hasPublished ? (
           <Checkbox
             name="urgent"
-            label="This change affects allergens — mark it urgent and notify everyone who RSVP'd"
+            label="This change affects allergens — mark it urgent and notify everyone who RSVP'd in the app"
+            hint="In-app notification only (no email or text)."
           />
         ) : null}
         <SubmitButton size="lg" disabled={itemCount === 0} pendingText="Publishing…">
@@ -213,7 +226,7 @@ export function PublishForm({ eventId, versionId, hasPublished, itemCount }: { e
         </SubmitButton>
         {itemCount === 0 ? <p className="text-sm text-muted">Add at least one dish first.</p> : null}
         <FormMessage state={state} />
-      </form>
+      </Form>
       <div className="border-t border-stone-100 pt-3">
         <Button
           variant="ghost"
@@ -234,24 +247,24 @@ export function PublishForm({ eventId, versionId, hasPublished, itemCount }: { e
 
 export function MenuUpdateForm({ eventId, versionId }: { eventId: string; versionId: string | null }) {
   const [state, action] = useActionState(postMenuUpdate, initialActionState);
-  const formRef = useRef<HTMLFormElement>(null);
-  useEffect(() => {
-    if (state.ok && state.message) formRef.current?.reset();
-  }, [state]);
   return (
-    <form ref={formRef} action={action} className="space-y-3">
+    <Form action={action} state={state} resetOnSuccess className="space-y-3">
       <input type="hidden" name="event_id" value={eventId} />
       <input type="hidden" name="version_id" value={versionId ?? ""} />
-      <Field label="Message" htmlFor="update-message" hint="e.g. “We ran out of rice pilaf; serving roasted potatoes (no allergens added).”">
-        <Textarea id="update-message" name="message" rows={2} minLength={3} maxLength={1000} required aria-describedby="update-message-hint" />
+      <Field label="Message" htmlFor="update-message" hint="e.g. “We ran out of rice pilaf; serving roasted potatoes instead — see the menu for its ingredients.”">
+        <Textarea id="update-message" name="message" rows={2} minLength={3} maxLength={1000} required />
       </Field>
       <div className="flex gap-2 rounded-xl border border-amber-300 bg-amber-50 p-3">
         <AlertTriangle className="mt-1 size-4 shrink-0 text-amber-800" aria-hidden="true" />
-        <Checkbox name="urgent" label="Urgent — notify everyone who RSVP'd now" hint="Use for any change involving ingredients or allergens." />
+        <Checkbox
+          name="urgent"
+          label="Urgent — notify everyone who RSVP'd in the app now"
+          hint="In-app notification only (no email or text). Use for any change involving ingredients or allergens."
+        />
       </div>
       <SubmitButton variant="secondary">Post update</SubmitButton>
       <FormMessage state={state} />
-    </form>
+    </Form>
   );
 }
 
@@ -306,7 +319,7 @@ export function VotingOptions({
         <p className="text-sm text-muted">No options yet.</p>
       )}
       <FormMessage state={remove.result} />
-      <form action={action} className="flex flex-col gap-2 sm:flex-row sm:items-end">
+      <Form action={action} state={state} resetOnSuccess className="flex flex-col gap-2 sm:flex-row sm:items-end">
         <input type="hidden" name="event_id" value={eventId} />
         <Field label="Add an option" htmlFor="option-dish" className="flex-1">
           <Select id="option-dish" name="dish_id" required defaultValue="">
@@ -321,7 +334,7 @@ export function VotingOptions({
           </Select>
         </Field>
         <SubmitButton variant="secondary">Add</SubmitButton>
-      </form>
+      </Form>
       <FormMessage state={state} />
     </div>
   );

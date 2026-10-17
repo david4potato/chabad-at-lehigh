@@ -23,10 +23,25 @@ export const formatTime = (d: DateInput) => timeOnly.format(toDate(d));
 /** "Fri, Oct 23, 6:30 PM" */
 export const formatDateTime = (d: DateInput) => fullDateTime.format(toDate(d));
 
-/** "6:30 – 9:00 PM" style range (falls back to start time only). */
+/**
+ * "6:30 PM – 9:00 PM" (falls back to start time only). When the end is on a
+ * different day in site time: "Fri, Oct 23, 6:00 PM – Sat, Oct 24, 9:00 PM".
+ */
 export function formatTimeRange(start: DateInput, end?: DateInput | null): string {
   if (!end) return formatTime(start);
+  if (spansDays(start, end)) return `${formatDateTime(start)} – ${formatDateTime(end)}`;
   return `${formatTime(start)} – ${formatTime(end)}`;
+}
+
+/** True when the end falls on a later calendar day than the start, in site time. */
+export function spansDays(start: DateInput, end?: DateInput | null): boolean {
+  return Boolean(end) && toDateTimeLocalValue(start).slice(0, 10) !== toDateTimeLocalValue(end).slice(0, 10);
+}
+
+/** "Friday, October 23 · 6:30 PM – 9:00 PM", or just the range when it spans days (it has the dates). */
+export function formatEventWhen(start: DateInput, end?: DateInput | null): string {
+  const range = formatTimeRange(start, end);
+  return spansDays(start, end) ? range : `${formatLongDate(start)} · ${range}`;
 }
 
 function zonedParts(d: Date) {

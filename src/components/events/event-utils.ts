@@ -80,8 +80,14 @@ export const CLOSED_MESSAGES: Record<Exclude<RsvpClosedReason, null>, string> = 
   cancelled: "This event has been cancelled.",
   ended: "This event has ended.",
   closed: "RSVPs are closed for this event. Questions? Contact the organizer.",
-  deadline: "The RSVP deadline has passed. Please contact the organizer if your plans change.",
+  deadline: "The RSVP deadline has passed. Questions? Contact the organizer.",
 };
+
+/**
+ * After the deadline (or when RSVPs are closed) people can still cancel, so
+ * those with a spot see this with an "I can't make it" button.
+ */
+export const CANCEL_AFTER_CLOSE_MESSAGE = "New RSVPs are closed. If you can't make it, please let us know below.";
 
 export type CapacityInfo = { text: string; tone: "muted" | "gold" | "amber" } | null;
 

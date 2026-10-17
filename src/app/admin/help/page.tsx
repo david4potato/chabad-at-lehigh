@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { requireRole } from "@/lib/auth";
+import { isAdmin } from "@/lib/roles";
 import { PageHeader } from "@/components/ui/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Alert } from "@/components/ui/alert";
+import { OpenHashDetails } from "@/components/admin/open-hash-details";
 
 export const metadata: Metadata = { title: "Help" };
 
@@ -56,13 +58,16 @@ const SECTIONS: Section[] = [
         </li>
         <li>
           <strong>Capacity</strong>: leave blank for unlimited. When it&apos;s full, new RSVPs join the <strong>waitlist</strong> and are confirmed
-          automatically (with a notification) when someone cancels.
+          automatically (with a notification) when someone cancels or you raise the capacity.
         </li>
         <li>
           <strong>Who gets confirmed?</strong> &ldquo;Confirm everyone&rdquo; is simplest; the approval options let you check plus-ones, community
           guests, or everyone.
         </li>
-        <li>To call an event off, set <strong>Status → Cancelled</strong>. People see it marked cancelled. (Only admins can delete events.)</li>
+        <li>
+          To call an event off, set <strong>Status → Cancelled</strong>. Everyone who RSVP&apos;d gets an urgent in-app notification. Changing the time or
+          place of a published event notifies them too. (Only admins can delete events.)
+        </li>
         <li>Times are always Bethlehem, PA time.</li>
       </ul>
     ),
@@ -76,6 +81,9 @@ const SECTIONS: Section[] = [
         <li>The tiles at the top of <strong>Attendees &amp; check-in</strong> show your headcount, seats, waitlist and approvals.</li>
         <li><strong>Approve / Decline</strong> pending RSVPs; <strong>Approve guests / Decline guests</strong> for plus-ones. People get a notification.</li>
         <li><strong>Confirm anyway (over capacity)</strong> lets someone in from the waitlist even when full.</li>
+        <li>
+          Someone tells you they can&apos;t come? <strong>Cancel RSVP</strong> frees their seat. They get a notification and the waitlist moves up.
+        </li>
         <li><strong>Email everyone going</strong> opens your email app with everyone in BCC. <strong>Download spreadsheet</strong> gives a CSV (no dietary data).</li>
         <li>Allergy details are on the <strong>Dietary</strong> tab, not here.</li>
       </ul>
@@ -126,7 +134,7 @@ const SECTIONS: Section[] = [
         <li>The <strong>Dietary</strong> tab shows anonymous counts to organizers. Names next to allergies are visible only to kitchen staff and admins.</li>
         <li>Every time the named report is opened it&apos;s recorded in the audit log. Use it only for preparing food, and don&apos;t share it.</li>
         <li>People who chose not to share are listed as &ldquo;Not shared&rdquo; — ask them directly. Severe allergies and epinephrine are highlighted.</li>
-        <li>Guests&apos; needs only appear if the person who RSVP&apos;d wrote them in their meal notes.</li>
+        <li>Guests&apos; needs only appear if the person who RSVP&apos;d wrote them in their meal notes. Those notes show even when the person doesn&apos;t share their own profile.</li>
       </ul>
     ),
   },
@@ -159,7 +167,8 @@ const SECTIONS: Section[] = [
           account, use <strong>Copy event link</strong> and email it yourself. Anyone can also tap <strong>Invite friends</strong> on an event page.
         </li>
         <li>
-          The bell notifies people about waitlist spots, approvals, invitations and urgent menu updates. No automatic emails or texts yet — use{" "}
+          The bell notifies people about waitlist spots, approvals, invitations, urgent menu updates, and cancelled or changed events. No automatic
+          emails or texts yet — use{" "}
           <strong>Email everyone going</strong> for reminders.
         </li>
       </ul>
@@ -193,28 +202,35 @@ const SECTIONS: Section[] = [
         <li><strong>&ldquo;The link says it expired.&rdquo;</strong> Links work once. Use the code from the newest email, or request a new one.</li>
         <li><strong>&ldquo;I can&apos;t see the dashboard.&rdquo;</strong> An admin needs to give them a role, then they reload the page.</li>
         <li><strong>&ldquo;I want my data removed.&rdquo;</strong> They can delete dietary info or their whole account in <strong>Profile &amp; settings</strong>.</li>
+        <li>
+          <strong>&ldquo;I want to change my sign-in email.&rdquo;</strong> Only the site owner can, in Supabase → Authentication → Users. If the new
+          address is a Lehigh one, an admin then gives them the <strong>Student</strong> role again in People &amp; roles.
+        </li>
       </ul>
     ),
   },
 ];
 
 export default async function HelpPage() {
-  await requireRole(["organizer", "kitchen_staff", "admin"], "/admin/help");
+  const viewer = await requireRole(["organizer", "kitchen_staff", "admin"], "/admin/help");
+  // Admin-only pages would just send others back to the dashboard.
+  const sections = isAdmin(viewer.roles) ? SECTIONS : SECTIONS.filter((s) => s.who !== "Admins");
   return (
     <div className="mx-auto max-w-3xl">
+      <OpenHashDetails />
       <PageHeader title="How to use the dashboard" description="Short, practical guides. Tap a topic to open it." />
       <Alert tone="info" className="mb-6">
         New here? Start with <strong>Your weekly Shabbat dinner routine</strong>. Anything you can&apos;t see in the menu above needs a role from an admin.
       </Alert>
       <nav aria-label="Help topics" className="mb-6 flex flex-wrap gap-2">
-        {SECTIONS.map((s) => (
+        {sections.map((s) => (
           <a key={s.id} href={`#${s.id}`} className="rounded-full border border-stone-300 bg-white px-3 py-1.5 text-sm font-semibold text-ink hover:bg-stone-50">
             {s.title.split(" — ")[0]}
           </a>
         ))}
       </nav>
       <div className="space-y-3">
-        {SECTIONS.map((s, i) => (
+        {sections.map((s, i) => (
           <details key={s.id} id={s.id} open={i === 0} className="scroll-mt-24 rounded-[var(--radius-card)] border border-stone-200 bg-white shadow-sm">
             <summary className="flex cursor-pointer list-none flex-wrap items-center gap-2 p-4 sm:p-5">
               <span className="text-base font-bold text-ink">{s.title}</span>

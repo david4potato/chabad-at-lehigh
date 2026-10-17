@@ -181,16 +181,17 @@ create trigger app_settings_set_updated_at
 
 insert into public.app_settings (key, value) values
   ('student_email_domains', '["lehigh.edu"]'),
-  -- Contact details from public listings (Lubavitch.com center directory, Lehigh
-  -- chaplaincy page, Chabad.org / The Brown and White), October 2026. Confirm
-  -- with the Greenbergs; editable any time in Dashboard → Settings.
+  -- Contact details from public sources (Lehigh chaplaincy page, Lubavitch.com,
+  -- The Brown and White), October 2026. The phone is left blank because no
+  -- public source confirmed one; it is shown as the allergy contact, so admins
+  -- add it in Dashboard → Settings after confirming with the Greenbergs.
   ('organization', jsonb_build_object(
     'name', 'Chabad at Lehigh',
     'contact_name', 'Rabbi Zalman & Dit Greenberg',
     'contact_email', 'rabbi@chabadlehigh.org',
-    'contact_phone', '(610) 419-9036',
+    'contact_phone', '',
     'address', E'Joachim Schaufeld Center for Jewish Life\n306 Wyandotte Street\nBethlehem, PA 18015',
-    'directions', 'We''re in the Joachim Schaufeld Center for Jewish Life, a historic mansion on Wyandotte Street in South Bethlehem, close to Lehigh''s campus.',
+    'directions', 'Most students know it as the Chabad House: the Joachim Schaufeld Center for Jewish Life, a historic mansion at 306 Wyandotte Street (PA Route 378) in South Bethlehem, close to Lehigh''s campus. Everyone is welcome.',
     'parking', '',
     'map_query', '306 Wyandotte Street, Bethlehem, PA 18015'
   ));
@@ -201,6 +202,9 @@ insert into public.app_settings (key, value) values
 create table public.audit_events (
   id bigint generated always as identity primary key,
   actor_id uuid references public.profiles (id) on delete set null,
+  -- Bare id with no foreign key, so entries stay attributable (as "deleted
+  -- account") after the actor deletes their account. No personal data.
+  actor_ref uuid,
   action text not null,
   entity_type text not null,
   entity_id text,
@@ -229,8 +233,8 @@ begin
   if v_actor is not null and not exists (select 1 from public.profiles where id = v_actor) then
     v_actor := null;
   end if;
-  insert into public.audit_events (actor_id, action, entity_type, entity_id, details)
-  values (v_actor, p_action, p_entity_type, p_entity_id, coalesce(p_details, '{}'));
+  insert into public.audit_events (actor_id, actor_ref, action, entity_type, entity_id, details)
+  values (v_actor, v_actor, p_action, p_entity_type, p_entity_id, coalesce(p_details, '{}'));
 end;
 $$;
 
@@ -424,6 +428,25 @@ $$;
 create trigger on_auth_user_email_changed
   after update of email on auth.users
   for each row execute function private.handle_user_email_change();
+
+-- Sign-in is passwordless (email link or code). Never store a password, so
+-- nobody can pre-register someone else's email with a password and use it
+-- once the real owner confirms the address.
+create or replace function private.strip_password()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  new.encrypted_password := '';
+  return new;
+end;
+$$;
+
+create trigger auth_users_passwordless
+  before insert or update of encrypted_password on auth.users
+  for each row execute function private.strip_password();
 
 -- -----------------------------------------------------------------------------
 -- Admin helper: grant / revoke roles by email (works before or after sign-up)
@@ -807,14 +830,8 @@ begin
   if not found or v_event.status <> 'published' then
     raise exception 'event_not_found';
   end if;
-  if not v_event.rsvp_enabled then
-    raise exception 'rsvp_closed';
-  end if;
   if coalesce(v_event.ends_at, v_event.starts_at + interval '3 hours') < now() then
     raise exception 'event_ended';
-  end if;
-  if v_event.rsvp_deadline is not null and now() > v_event.rsvp_deadline then
-    raise exception 'rsvp_deadline_passed';
   end if;
 
   select * into v_existing from public.rsvps
@@ -845,8 +862,21 @@ begin
   end if;
 
   -- ---------------- Going ----------------
+  -- (Cancelling stays possible after the deadline or when RSVPs are closed.)
+  if not v_event.rsvp_enabled then
+    raise exception 'rsvp_closed';
+  end if;
+  if v_event.rsvp_deadline is not null and now() > v_event.rsvp_deadline then
+    raise exception 'rsvp_deadline_passed';
+  end if;
   if v_guest_count < 0 or v_guest_count > v_event.max_guests_per_rsvp then
     raise exception 'too_many_guests';
+  end if;
+  -- Approved guests share one approval; adding more would send the whole party
+  -- back for approval and give their seats away.
+  if v_event.approval_mode <> 'auto' and v_has_existing and v_existing.guest_status = 'approved'
+     and v_guest_count > v_existing.guest_count then
+    raise exception 'guest_increase_needs_organizer';
   end if;
   if v_guest_count = 0 then
     v_guest_names := null;
@@ -870,11 +900,17 @@ begin
   v_taken := private.event_seats_taken(p_event_id, case when v_has_existing then v_existing.id end);
 
   if v_has_existing and v_existing.status = 'going' then
-    -- Already confirmed: keep the seat; a change must still fit.
-    if v_event.capacity is not null and v_taken + v_need > v_event.capacity then
+    -- Already confirmed: keep the seat. Only a change that needs more seats
+    -- must fit (edits that free seats work even when over capacity).
+    if v_event.capacity is not null
+       and v_need > private.rsvp_seats(v_existing.status, v_existing.guest_count, v_existing.guest_status)
+       and v_taken + v_need > v_event.capacity then
       raise exception 'not_enough_capacity';
     end if;
     v_status := 'going';
+  elsif v_needs_approval and v_has_existing and v_existing.status = 'waitlist' then
+    -- Already approved and waiting for a seat: keep their place in line.
+    v_status := 'waitlist';
   elsif v_needs_approval then
     v_status := 'pending';
   elsif v_event.capacity is null or v_taken + v_need <= v_event.capacity then
@@ -1088,6 +1124,105 @@ begin
 end;
 $$;
 
+-- Staff cancel an RSVP on someone's behalf (e.g. they texted that they can't come).
+create or replace function public.staff_cancel_rsvp(p_rsvp_id uuid)
+returns public.rsvps
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_event public.events;
+  v_rsvp public.rsvps;
+  v_result public.rsvps;
+begin
+  if not public.can_manage_events() then
+    raise exception 'forbidden';
+  end if;
+
+  select e.* into v_event from public.events e
+  join public.rsvps r on r.event_id = e.id
+  where r.id = p_rsvp_id
+  for update of e;
+  if not found then
+    raise exception 'rsvp_not_found';
+  end if;
+
+  select * into v_rsvp from public.rsvps where id = p_rsvp_id for update;
+  if v_rsvp.status not in ('going', 'waitlist', 'pending') then
+    raise exception 'invalid_state';
+  end if;
+
+  update public.rsvps set
+    status = 'not_going', guest_count = 0, guest_names = null, guest_status = 'none',
+    waitlisted_at = null, checked_in_at = null, checked_in_by = null,
+    status_changed_at = now(), decided_by = auth.uid(), decided_at = now()
+  where id = p_rsvp_id
+  returning * into v_result;
+
+  perform private.notify_user(v_rsvp.user_id, v_event.id, 'rsvp_cancelled',
+    'Your RSVP was cancelled',
+    'An organizer marked you as not going to ' || v_event.title || '. If that''s a mistake, you can RSVP again on the event page.',
+    '/events/' || v_event.slug, false);
+  perform private.promote_waitlist(v_event.id);
+  perform private.log_audit('rsvp.staff_cancel', 'rsvps', p_rsvp_id::text, jsonb_build_object('event_id', v_event.id));
+  return v_result;
+end;
+$$;
+
+-- -----------------------------------------------------------------------------
+-- Event changes: fill seats freed by a capacity change, and tell everyone who
+-- RSVP'd (urgent, in-app) when an event is cancelled, rescheduled or moved.
+-- -----------------------------------------------------------------------------
+create or replace function private.after_event_update()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_when text := to_char(new.starts_at at time zone 'America/New_York', 'FMDay, FMMonth FMDD "at" FMHH12:MI AM');
+  v_kind text;
+  v_title text;
+  v_body text;
+begin
+  if new.status = 'published' and (new.capacity is distinct from old.capacity or old.status <> 'published') then
+    perform private.promote_waitlist(new.id);
+  end if;
+
+  -- Edits to events that are already over don't notify anyone.
+  if coalesce(old.ends_at, old.starts_at + interval '3 hours') < now() then
+    return null;
+  end if;
+
+  if old.status = 'published' and new.status = 'cancelled' then
+    v_kind := 'event_cancelled';
+    v_title := 'Cancelled: ' || new.title;
+    v_body := new.title || ' on ' || v_when || ' has been cancelled. Please contact the organizer with any questions.';
+  elsif old.status = 'published' and new.status = 'published'
+        and (new.starts_at is distinct from old.starts_at
+             or new.location_name is distinct from old.location_name
+             or new.location_address is distinct from old.location_address) then
+    v_kind := 'event_changed';
+    v_title := 'Updated: ' || new.title;
+    v_body := new.title || ' is now ' || v_when || coalesce(' at ' || nullif(new.location_name, ''), '')
+      || '. See the event page for details.';
+  else
+    return null;
+  end if;
+
+  insert into public.notifications (user_id, event_id, kind, title, body, link, is_urgent)
+  select r.user_id, new.id, v_kind, left(v_title, 200), left(v_body, 2000), '/events/' || new.slug, true
+  from public.rsvps r
+  where r.event_id = new.id and r.status in ('going', 'waitlist', 'pending');
+  return null;
+end;
+$$;
+
+create trigger events_after_update
+  after update of status, capacity, starts_at, location_name, location_address on public.events
+  for each row execute function private.after_event_update();
+
 -- -----------------------------------------------------------------------------
 -- Aggregate counts (safe to show publicly; no names)
 -- -----------------------------------------------------------------------------
@@ -1106,22 +1241,25 @@ stable
 security definer
 set search_path = ''
 as $$
-  select
-    e.id,
-    count(*) filter (where r.status = 'going')::integer,
-    coalesce(sum(r.guest_count) filter (where r.status = 'going' and r.guest_status = 'approved'), 0)::integer,
-    coalesce(sum(private.rsvp_seats(r.status, r.guest_count, r.guest_status)), 0)::integer,
-    count(*) filter (where r.status = 'waitlist')::integer,
-    count(*) filter (where r.status = 'pending' or r.guest_status = 'pending')::integer,
-    count(*) filter (where r.checked_in_at is not null)::integer
+  -- Per-event aggregate so each event uses the rsvps (event_id, status) index
+  -- instead of scanning every RSVP ever made. Seats = going + approved guests.
+  select e.id, c.going, c.guests, c.going + c.guests, c.waitlist, c.pending, c.checked_in
   from public.events e
-  left join public.rsvps r on r.event_id = e.id
+  cross join lateral (
+    select
+      count(*) filter (where r.status = 'going')::integer as going,
+      coalesce(sum(r.guest_count) filter (where r.status = 'going' and r.guest_status = 'approved'), 0)::integer as guests,
+      count(*) filter (where r.status = 'waitlist')::integer as waitlist,
+      count(*) filter (where r.status = 'pending' or r.guest_status = 'pending')::integer as pending,
+      count(*) filter (where r.checked_in_at is not null)::integer as checked_in
+    from public.rsvps r
+    where r.event_id = e.id
+  ) c
   where e.id = any (p_event_ids)
     and (
       (e.status in ('published', 'cancelled') and (e.visibility = 'public' or auth.uid() is not null))
       or public.is_staff()
-    )
-  group by e.id;
+    );
 $$;
 
 -- -----------------------------------------------------------------------------
@@ -1195,11 +1333,13 @@ revoke execute on function public.set_rsvp(uuid, text, integer, text, text) from
 revoke execute on function public.staff_decide_rsvp(uuid, text, boolean) from public, anon;
 revoke execute on function public.staff_decide_guests(uuid, text, boolean) from public, anon;
 revoke execute on function public.staff_set_check_in(uuid, boolean) from public, anon;
+revoke execute on function public.staff_cancel_rsvp(uuid) from public, anon;
 revoke execute on function public.mark_notifications_read(uuid[]) from public, anon;
 grant execute on function public.set_rsvp(uuid, text, integer, text, text) to authenticated;
 grant execute on function public.staff_decide_rsvp(uuid, text, boolean) to authenticated;
 grant execute on function public.staff_decide_guests(uuid, text, boolean) to authenticated;
 grant execute on function public.staff_set_check_in(uuid, boolean) to authenticated;
+grant execute on function public.staff_cancel_rsvp(uuid) to authenticated;
 grant execute on function public.mark_notifications_read(uuid[]) to authenticated;
 grant execute on function public.get_event_counts(uuid[]) to anon, authenticated;
 
@@ -1461,6 +1601,9 @@ declare
   v_status public.menu_status;
 begin
   if tg_table_name = 'menu_items' then
+    if tg_op = 'UPDATE' and new.menu_version_id is distinct from old.menu_version_id then
+      raise exception 'menu_locked' using hint = 'Menu items cannot be moved between versions.';
+    end if;
     v_version_id := case when tg_op = 'DELETE' then old.menu_version_id else new.menu_version_id end;
   else
     select mi.menu_version_id into v_version_id from public.menu_items mi
@@ -1616,6 +1759,14 @@ begin
   end if;
   if not exists (select 1 from public.menu_items where menu_version_id = v_version.id) then
     raise exception 'menu_empty';
+  end if;
+  -- A dish with no ingredients would look allergen-free on the public menu.
+  if exists (
+    select 1 from public.menu_items mi
+    where mi.menu_version_id = v_version.id
+      and not exists (select 1 from public.dish_ingredients di where di.dish_id = mi.dish_id)
+  ) then
+    raise exception 'dish_missing_ingredients' using hint = 'Add ingredients to every dish before publishing.';
   end if;
 
   select * into v_previous from public.menu_versions
@@ -1775,6 +1926,7 @@ create table public.dish_votes (
 create unique index dish_votes_general_key on public.dish_votes (user_id, dish_id) where event_id is null;
 create unique index dish_votes_event_key on public.dish_votes (user_id, dish_id, event_id) where event_id is not null;
 create index dish_votes_dish_idx on public.dish_votes (dish_id);
+create index dish_votes_event_idx on public.dish_votes (event_id, dish_id) where event_id is not null;
 
 create or replace function private.rate_limit_votes()
 returns trigger
@@ -1798,7 +1950,7 @@ stable
 security definer
 set search_path = ''
 as $$
-  select v.dish_id, count(*)::integer, bool_or(v.user_id = auth.uid())
+  select v.dish_id, count(*)::integer, bool_or(v.user_id = (select auth.uid()))
   from public.dish_votes v
   where (p_event_id is null and v.event_id is null)
      or (p_event_id is not null and v.event_id = p_event_id
@@ -1943,7 +2095,9 @@ begin
     case when coalesce(dp.share_with_kitchen, true) then dp.notes_for_kitchen else null end,
     case when coalesce(dp.share_with_kitchen, true) then coalesce(dp.carries_epinephrine, false) else null end,
     case when coalesce(dp.share_with_kitchen, true) then mp.preference else null end,
-    case when coalesce(dp.share_with_kitchen, true) then mp.guest_dietary_notes else null end
+    -- Guests' needs are written for the kitchen and aren't covered by the
+    -- RSVPer's choice not to share their own profile.
+    mp.guest_dietary_notes
   from public.rsvps r
   join public.profiles p on p.id = r.user_id
   left join public.dietary_profiles dp on dp.user_id = r.user_id
@@ -1985,7 +2139,7 @@ begin
     'approved_guests', (select coalesce(sum(guest_count), 0) from attendees where status = 'going' and guest_status = 'approved'),
     'not_shared', (select count(*) from attendees where not shared),
     'with_notes', (select count(*) from attendees where shared and has_notes),
-    'with_guest_notes', (select count(*) from attendees where shared and has_guest_notes),
+    'with_guest_notes', (select count(*) from attendees where has_guest_notes),
     'carries_epinephrine', (select count(*) from attendees where shared and carries_epinephrine),
     'allergens', coalesce((
       select jsonb_agg(jsonb_build_object(
@@ -2086,8 +2240,9 @@ create policy "dish_ingredients: menu staff delete" on public.dish_ingredients f
 -- Menus: published/archived visible with the event; drafts only to menu staff.
 grant select on public.menu_versions, public.menu_items, public.menu_item_cross_contact,
   public.menu_updates, public.event_menu_options to anon, authenticated;
-grant insert, update, delete on public.menu_items, public.menu_item_cross_contact,
-  public.event_menu_options to authenticated;
+grant insert, delete on public.menu_items to authenticated;
+grant update (course, sort_order, preparation_notes, cross_contact_notes) on public.menu_items to authenticated;
+grant insert, update, delete on public.menu_item_cross_contact, public.event_menu_options to authenticated;
 grant insert, delete on public.menu_versions to authenticated;
 grant update (title, kitchen_notes) on public.menu_versions to authenticated;
 grant insert on public.menu_updates to authenticated;
@@ -2559,9 +2714,63 @@ begin
 end;
 $$;
 
+-- Remove everything the DEMO seed created (is_demo rows, demo ingredients no
+-- dish uses any more). Used by the dashboard button and
+-- supabase/scripts/remove_demo_data.sql. Real content is never touched.
+create or replace function private.remove_demo_data()
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  -- Events cascade to their RSVPs, menus, menu items, updates and options.
+  delete from public.events where is_demo;
+
+  -- Demo dishes (only if no real menu still uses them).
+  delete from public.dishes d
+  where d.is_demo
+    and not exists (select 1 from public.menu_items mi where mi.dish_id = d.id);
+
+  -- Demo ingredients that are no longer used by any dish.
+  delete from public.ingredients i
+  where i.created_by is null
+    and not exists (select 1 from public.dish_ingredients di where di.ingredient_id = i.id)
+    and i.name in (
+      'All-purpose flour', 'Eggs', 'Sesame seeds', 'Sugar', 'Canola oil', 'Yeast', 'Salt', 'Honey',
+      'Chicken', 'Carrots', 'Celery', 'Onion', 'Garlic', 'Fresh dill', 'Fresh parsley', 'Matzo meal',
+      'Tahini', 'Chickpeas', 'Lemon juice', 'Olive oil', 'Toasted sesame oil', 'Soy sauce', 'Rice vinegar',
+      'Green cabbage', 'Potatoes', 'Cucumbers', 'Tomatoes', 'Panko breadcrumbs', 'Dijon mustard',
+      'Pareve chocolate chips', 'Pareve margarine', 'Walnuts', 'White rice', 'Zucchini', 'Bell peppers',
+      'Apples', 'Cinnamon', 'Rolled oats', 'Egg noodles', 'Paprika', 'Grape juice'
+    );
+
+  delete from public.announcements where is_demo;
+  delete from public.volunteer_shifts where is_demo;
+  delete from public.learning_programs where is_demo;
+end;
+$$;
+
+create or replace function public.admin_remove_demo_data()
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if not public.is_admin() then
+    raise exception 'forbidden';
+  end if;
+  perform private.remove_demo_data();
+  perform private.log_audit('demo.removed', 'app_settings', null, '{}');
+end;
+$$;
+
 revoke execute on all functions in schema private from public, anon, authenticated;
 revoke execute on function public.mark_notifications_read(uuid[]) from public, anon;
 grant execute on function public.mark_notifications_read(uuid[]) to authenticated;
+revoke execute on function public.admin_remove_demo_data() from public, anon;
+grant execute on function public.admin_remove_demo_data() to authenticated;
 
 
 -- >>>>>>>>>>>>>>>>>>>> 20261017000700_account_deletion.sql <<<<<<<<<<<<<<<<<<<<

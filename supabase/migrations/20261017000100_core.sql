@@ -170,16 +170,17 @@ create trigger app_settings_set_updated_at
 
 insert into public.app_settings (key, value) values
   ('student_email_domains', '["lehigh.edu"]'),
-  -- Contact details from public listings (Lubavitch.com center directory, Lehigh
-  -- chaplaincy page, Chabad.org / The Brown and White), October 2026. Confirm
-  -- with the Greenbergs; editable any time in Dashboard → Settings.
+  -- Contact details from public sources (Lehigh chaplaincy page, Lubavitch.com,
+  -- The Brown and White), October 2026. The phone is left blank because no
+  -- public source confirmed one; it is shown as the allergy contact, so admins
+  -- add it in Dashboard → Settings after confirming with the Greenbergs.
   ('organization', jsonb_build_object(
     'name', 'Chabad at Lehigh',
     'contact_name', 'Rabbi Zalman & Dit Greenberg',
     'contact_email', 'rabbi@chabadlehigh.org',
-    'contact_phone', '(610) 419-9036',
+    'contact_phone', '',
     'address', E'Joachim Schaufeld Center for Jewish Life\n306 Wyandotte Street\nBethlehem, PA 18015',
-    'directions', 'We''re in the Joachim Schaufeld Center for Jewish Life, a historic mansion on Wyandotte Street in South Bethlehem, close to Lehigh''s campus.',
+    'directions', 'Most students know it as the Chabad House: the Joachim Schaufeld Center for Jewish Life, a historic mansion at 306 Wyandotte Street (PA Route 378) in South Bethlehem, close to Lehigh''s campus. Everyone is welcome.',
     'parking', '',
     'map_query', '306 Wyandotte Street, Bethlehem, PA 18015'
   ));
@@ -190,6 +191,9 @@ insert into public.app_settings (key, value) values
 create table public.audit_events (
   id bigint generated always as identity primary key,
   actor_id uuid references public.profiles (id) on delete set null,
+  -- Bare id with no foreign key, so entries stay attributable (as "deleted
+  -- account") after the actor deletes their account. No personal data.
+  actor_ref uuid,
   action text not null,
   entity_type text not null,
   entity_id text,
@@ -218,8 +222,8 @@ begin
   if v_actor is not null and not exists (select 1 from public.profiles where id = v_actor) then
     v_actor := null;
   end if;
-  insert into public.audit_events (actor_id, action, entity_type, entity_id, details)
-  values (v_actor, p_action, p_entity_type, p_entity_id, coalesce(p_details, '{}'));
+  insert into public.audit_events (actor_id, actor_ref, action, entity_type, entity_id, details)
+  values (v_actor, v_actor, p_action, p_entity_type, p_entity_id, coalesce(p_details, '{}'));
 end;
 $$;
 
@@ -413,6 +417,25 @@ $$;
 create trigger on_auth_user_email_changed
   after update of email on auth.users
   for each row execute function private.handle_user_email_change();
+
+-- Sign-in is passwordless (email link or code). Never store a password, so
+-- nobody can pre-register someone else's email with a password and use it
+-- once the real owner confirms the address.
+create or replace function private.strip_password()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  new.encrypted_password := '';
+  return new;
+end;
+$$;
+
+create trigger auth_users_passwordless
+  before insert or update of encrypted_password on auth.users
+  for each row execute function private.strip_password();
 
 -- -----------------------------------------------------------------------------
 -- Admin helper: grant / revoke roles by email (works before or after sign-up)

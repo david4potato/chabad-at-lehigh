@@ -86,7 +86,10 @@ export function matchDishAllergens(
 
   for (const { code, severity } of profile) {
     if (contains.has(code)) {
-      matches.push({ code, severity, kind: optionalOnly.has(code) ? "contains_optional" : "contains" });
+      const opt = optionalOnly.has(code);
+      matches.push({ code, severity, kind: opt ? "contains_optional" : "contains" });
+      // Skipping an optional ingredient doesn't help if the rest may contain it too.
+      if (opt && cross.has(code)) matches.push({ code, severity, kind: "cross_contact" });
     } else if (cross.has(code)) {
       matches.push({ code, severity, kind: "cross_contact" });
     }

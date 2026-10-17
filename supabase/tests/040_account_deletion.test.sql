@@ -30,6 +30,10 @@ select tests.as_user((select id from ids where name = 'kitchen'));
 select public.create_menu_draft((select id from ids where name = 'event'));
 reset role;
 insert into public.dishes (name, category) values ('Deletion test dish', 'main');
+insert into public.ingredients (name) values ('Deletion test rice');
+insert into public.dish_ingredients (dish_id, ingredient_id)
+  select d.id, i.id from public.dishes d, public.ingredients i
+  where d.name = 'Deletion test dish' and i.name = 'Deletion test rice';
 insert into public.menu_items (menu_version_id, dish_id)
   select v.id, d.id from public.menu_versions v, public.dishes d
   where v.event_id = (select id from ids where name = 'event') and d.name = 'Deletion test dish';

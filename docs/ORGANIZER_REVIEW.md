@@ -9,8 +9,9 @@ serious allergies.
 - [ ] Default confirmation per kind of event: automatic, guests/community need approval, or every RSVP needs approval.
 - [ ] Capacity and waitlist: when someone cancels, the next person is confirmed and notified in the app.
 - [ ] Plus-one limits (0–10) and RSVP deadlines are used the way we want.
-- [ ] We know how to approve/decline people and guests, confirm over capacity, and check people in
-      (Dashboard → Event → Attendees & check-in).
+- [ ] We know how to approve/decline people and guests, confirm over capacity, cancel an RSVP for someone who
+      can't come, and check people in (Dashboard → Event → Attendees & check-in).
+- [ ] Cancelling an event, or changing its time or place, sends everyone who RSVP'd an urgent in-app notification.
 - [ ] We know **Email everyone going** (opens your email app, BCC) and the CSV export (no dietary data).
 
 ## 2. Meals and allergens
@@ -43,8 +44,8 @@ serious allergies.
 
 ## 5. Before launch
 
-- [ ] Demo content removed (`supabase/scripts/remove_demo_data.sql`).
-- [ ] Contact details (pre-filled from public listings) confirmed, parking added (Settings).
+- [ ] Demo content removed (Dashboard → Getting started → **Remove demo content**).
+- [ ] Contact details (pre-filled from public sources) confirmed, the phone number and parking added (Settings).
 - [ ] Sign-in emails arrive at a Lehigh and a Gmail address.
 - [ ] One dry run: create event → publish menu → RSVPs → check-in.
 

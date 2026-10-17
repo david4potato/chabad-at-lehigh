@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Heart, Plus } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { COURSE_LABELS } from "@/lib/menu";
@@ -80,7 +80,11 @@ export default async function DishesPage({ searchParams }: PageProps<"/admin/dis
               <Link href={`/admin/dishes/${d.id}`} className="block h-full rounded-[var(--radius-card)] border border-stone-200 bg-white p-4 shadow-sm hover:border-brand-200">
                 <div className="flex items-start justify-between gap-2">
                   <p className="font-bold text-ink">{d.name}</p>
-                  <span className="shrink-0 text-xs text-muted">♥ {favorites.get(d.id) ?? 0}</span>
+                  <span className="inline-flex shrink-0 items-center gap-1 text-xs text-muted">
+                    <Heart className="size-3.5" aria-hidden="true" />
+                    {favorites.get(d.id) ?? 0}
+                    <span className="sr-only"> favorites</span>
+                  </span>
                 </div>
                 <div className="mt-1 flex flex-wrap gap-1.5">
                   <Badge>{COURSE_LABELS[d.category] ?? d.category}</Badge>

@@ -2,7 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { ROLES, type Role } from "@/lib/roles";
+import { ROLES, isStaff, type Role } from "@/lib/roles";
 
 export type Viewer = {
   id: string;
@@ -69,11 +69,14 @@ export async function requireViewer(nextPath: string): Promise<Viewer> {
 
 /**
  * Require one of the given roles. Use in every staff page AND every staff
- * server action (layouts alone do not protect server actions).
+ * server action (layouts alone do not protect server actions). Staff who lack
+ * the role go back to the dashboard; everyone else goes home.
  */
 export async function requireRole(allowed: readonly Role[], nextPath = "/admin"): Promise<Viewer> {
   const viewer = await requireViewer(nextPath);
-  if (!viewer.roles.some((r) => allowed.includes(r))) redirect("/?denied=1");
+  if (!viewer.roles.some((r) => allowed.includes(r))) {
+    redirect(isStaff(viewer.roles) ? "/admin?denied=1" : "/?denied=1");
+  }
   return viewer;
 }
 

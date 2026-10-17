@@ -3,7 +3,8 @@
 --
 -- Everything here is clearly marked "[DEMO]" and flagged is_demo = true.
 -- It is NOT real Chabad at Lehigh information. Remove it before real use with:
---   supabase/remove_demo_data.sql
+--   Dashboard → Overview → Getting started → Remove demo content, or
+--   supabase/scripts/remove_demo_data.sql in the SQL Editor.
 --
 -- Dates are relative to "now" so the demo always shows upcoming events.
 -- Dishes and ingredients are realistic examples for testing the allergen
@@ -44,7 +45,7 @@ begin
   -- ---------------------------------------------------------------------------
   insert into public.events (slug, title, summary, description, category, status, visibility,
     starts_at, ends_at, location_name, capacity, rsvp_enabled, rsvp_deadline, approval_mode,
-    max_guests_per_rsvp, has_meal, menu_voting_open, contact_name, contact_email, is_demo)
+    max_guests_per_rsvp, has_meal, menu_voting_open, is_demo)
   values (
     'demo-shabbat-dinner-' || to_char(v_fri, 'YYYY-MM-DD'),
     '[DEMO] Shabbat Dinner',
@@ -55,8 +56,7 @@ begin
     (v_fri + time '21:00') at time zone 'America/New_York',
     'Chabad House', 60, true,
     (v_fri + time '12:00') at time zone 'America/New_York',
-    'guests_need_approval', 2, true, false,
-    '[DEMO] Organizer', 'organizer@example.com', true
+    'guests_need_approval', 2, true, false, true
   ) returning id into e_shabbat;
 
   insert into public.events (slug, title, summary, description, category, status, visibility,
@@ -220,7 +220,7 @@ begin
     ('Chicken soup with matzo balls', 'Classic chicken soup with carrots, celery and dill.', 'soup', 'meat', '{}', 'active', true),
     ('Herb roasted chicken', 'Roasted chicken with garlic, parsley and paprika.', 'main', 'meat', '{}', 'active', true),
     ('Hummus with tahini', 'Creamy chickpea dip made with tahini (sesame seed paste).', 'appetizer', 'pareve', '{vegetarian,vegan}', 'active', true),
-    ('Asian cabbage slaw', 'Crunchy slaw with a toasted sesame OIL and soy dressing (no sesame seeds).', 'salad', 'pareve', '{vegetarian,vegan}', 'active', true),
+    ('Asian cabbage slaw', 'Crunchy slaw with a toasted sesame oil and soy dressing.', 'salad', 'pareve', '{vegetarian,vegan}', 'active', true),
     ('Israeli salad', 'Diced cucumber, tomato, onion and parsley with lemon and olive oil.', 'salad', 'pareve', '{vegetarian,vegan}', 'active', true),
     ('Potato kugel', 'Baked potato pudding.', 'side', 'pareve', '{vegetarian}', 'active', true),
     ('Chicken schnitzel', 'Breaded, pan-fried chicken cutlets.', 'main', 'meat', '{}', 'active', true),

@@ -14,7 +14,7 @@ export default async function AnnouncementsPage() {
       {items.length === 0 ? (
         <EmptyState title="No announcements right now">Check back soon.</EmptyState>
       ) : (
-        <AnnouncementList items={items} />
+        <AnnouncementList items={items} headingLevel={2} />
       )}
     </div>
   );

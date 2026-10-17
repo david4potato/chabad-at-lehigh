@@ -11,9 +11,11 @@ import { cn } from "@/lib/cn";
 import { Button, buttonClasses } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
 import { FormMessage } from "@/components/ui/form-message";
+import { SubmitButton } from "@/components/ui/submit-button";
 import { Input, Label, Textarea } from "@/components/ui/field";
 import type { ApprovalMode, EventCounts, EventStatus, MyRsvp } from "@/lib/data/events";
 import {
+  CANCEL_AFTER_CLOSE_MESSAGE,
   CLOSED_MESSAGES,
   approvalNote,
   capacityInfo,
@@ -90,13 +92,23 @@ function ResponseButton({ value, children, active }: { value: "going" | "not_goi
 
 export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: Props) {
   const closed = rsvpClosedReason(event);
+  const hasSpot = rsvp?.status === "going" || rsvp?.status === "pending" || rsvp?.status === "waitlist";
   const [editing, setEditing] = useState(!rsvp || rsvp.status === "not_going");
-  const [guests, setGuests] = useState(rsvp?.status === "going" || rsvp?.status === "pending" || rsvp?.status === "waitlist" ? rsvp.guest_count : 0);
+  // Declined guests start at 0 so a note-only edit doesn't ask for them again,
+  // and a count above a newly lowered limit is clamped so saving still works.
+  const [guests, setGuests] = useState(
+    hasSpot && rsvp.guest_status !== "declined" ? Math.min(rsvp.guest_count, event.max_guests_per_rsvp) : 0,
+  );
   const [state, formAction] = useActionState(async (prev: typeof initialActionState, formData: FormData) => {
     const result = await setRsvp(prev, formData);
     if (result.ok) setEditing(false);
     return result;
   }, initialActionState);
+
+  // Confirmed guests share one approval, so adding more needs the organizer.
+  const guestsConfirmed = hasSpot && event.approval_mode !== "auto" && rsvp.guest_status === "approved";
+  const guestLimit = guestsConfirmed ? Math.min(rsvp.guest_count, event.max_guests_per_rsvp) : event.max_guests_per_rsvp;
+  const overGuestLimit = hasSpot && rsvp.guest_count > event.max_guests_per_rsvp;
 
   const capacity = capacityInfo(event.capacity, counts, !closed);
   const note = approvalNote(event.approval_mode, isMember, event.max_guests_per_rsvp);
@@ -115,10 +127,25 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
 
   // ---- Closed (cancelled / ended / closed / deadline) ----
   if (closed) {
+    // New RSVPs are closed, but people can still cancel so their seat can go to someone else.
+    const canCancel = hasSpot && (closed === "closed" || closed === "deadline");
     return (
       <div className="space-y-3">
         {rsvp && rsvp.status !== "not_going" ? <StatusSummary rsvp={rsvp} /> : null}
-        <Alert tone={closed === "cancelled" ? "warning" : "info"}>{CLOSED_MESSAGES[closed]}</Alert>
+        {canCancel ? (
+          <form action={formAction} className="space-y-3">
+            <input type="hidden" name="event_id" value={event.id} />
+            <input type="hidden" name="slug" value={event.slug} />
+            <input type="hidden" name="guest_count" value={0} />
+            <Alert tone="info">{CANCEL_AFTER_CLOSE_MESSAGE}</Alert>
+            <SubmitButton name="response" value="not_going" variant="secondary" className="w-full">
+              I can&apos;t make it
+            </SubmitButton>
+          </form>
+        ) : (
+          <Alert tone={closed === "cancelled" ? "warning" : "info"}>{CLOSED_MESSAGES[closed]}</Alert>
+        )}
+        <FormMessage state={state} />
       </div>
     );
   }
@@ -192,8 +219,8 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
                   </output>
                   <button
                     type="button"
-                    onClick={() => setGuests((g) => Math.min(event.max_guests_per_rsvp, g + 1))}
-                    disabled={guests >= event.max_guests_per_rsvp}
+                    onClick={() => setGuests((g) => Math.min(guestLimit, g + 1))}
+                    disabled={guests >= guestLimit}
                     className="flex size-11 items-center justify-center rounded-full border border-stone-300 bg-white text-ink disabled:opacity-40"
                     aria-label="One more guest"
                   >
@@ -201,6 +228,14 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
                   </button>
                 </div>
               </div>
+              {rsvp?.guest_status === "declined" && rsvp.guest_count > 0 ? (
+                <p className="text-sm text-muted">Your guests weren&apos;t confirmed by the organizer.</p>
+              ) : null}
+              {guestsConfirmed && guestLimit < event.max_guests_per_rsvp ? (
+                <p className="text-sm text-muted">
+                  Your guests are already confirmed. To bring more, please contact the organizer.
+                </p>
+              ) : null}
               {guests > 0 ? (
                 <div className="space-y-1.5">
                   <Label htmlFor={`guest-names-${event.id}`}>Guest names (optional)</Label>
@@ -236,6 +271,13 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
             </div>
           </details>
 
+          {overGuestLimit ? (
+            <p className="text-sm text-muted">
+              {event.max_guests_per_rsvp === 0
+                ? "This event no longer allows guests."
+                : `This event now allows up to ${plural(event.max_guests_per_rsvp, "guest")}.`}
+            </p>
+          ) : null}
           {note ? <p className="text-sm text-muted">{note}</p> : null}
           {event.rsvp_deadline ? (
             <p className="text-sm text-muted">Please RSVP by {formatDateTime(event.rsvp_deadline)}.</p>

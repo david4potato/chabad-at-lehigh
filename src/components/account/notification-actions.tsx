@@ -1,39 +1,32 @@
 "use client";
 
-import { useEffect, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { startTransition, useEffect, useTransition } from "react";
 import { Trash2 } from "lucide-react";
 import { deleteNotification, markAllNotificationsRead } from "@/app/profile/actions";
 import { Button } from "@/components/ui/button";
 
-/** Marks everything as read once the page is shown, so the bell count clears. */
+/**
+ * Marks everything as read once the page is shown, so the bell count clears.
+ * The action revalidates the layout, so its response already carries the
+ * updated bell and list; no extra router.refresh() is needed.
+ */
 export function MarkReadOnView({ hasUnread }: { hasUnread: boolean }) {
-  const router = useRouter();
   useEffect(() => {
     if (!hasUnread) return;
-    const t = setTimeout(async () => {
-      const result = await markAllNotificationsRead();
-      if (result.ok) router.refresh();
-    }, 1500);
+    const t = setTimeout(() => startTransition(async () => void (await markAllNotificationsRead())), 1500);
     return () => clearTimeout(t);
-  }, [hasUnread, router]);
+  }, [hasUnread]);
   return null;
 }
 
 export function MarkAllReadButton() {
-  const router = useRouter();
   const [pending, start] = useTransition();
   return (
     <Button
       variant="secondary"
       size="sm"
       disabled={pending}
-      onClick={() =>
-        start(async () => {
-          await markAllNotificationsRead();
-          router.refresh();
-        })
-      }
+      onClick={() => start(async () => void (await markAllNotificationsRead()))}
     >
       Mark all as read
     </Button>

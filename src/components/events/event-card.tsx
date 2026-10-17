@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { MapPin } from "lucide-react";
-import { formatTimeRange, relativeDay } from "@/lib/time";
+import { formatLongDate, formatTimeRange, relativeDay } from "@/lib/time";
 import { cn } from "@/lib/cn";
 import { Badge } from "@/components/ui/badge";
 import type { EventCounts, EventSummary, MyRsvp } from "@/lib/data/events";
@@ -52,6 +52,8 @@ export function EventCard({
         </div>
         <h3 className="text-base font-bold leading-snug text-ink group-hover:text-brand-800">{event.title}</h3>
         <p className="text-sm text-muted">
+          {/* The date block is hidden from screen readers, so say the date here. */}
+          <span className="sr-only">{formatLongDate(event.starts_at)}, </span>
           {when ? <span className="font-semibold text-ink">{when} · </span> : null}
           {formatTimeRange(event.starts_at, event.ends_at)}
         </p>

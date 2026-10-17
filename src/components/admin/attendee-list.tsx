@@ -2,9 +2,10 @@
 
 import { useState, useTransition } from "react";
 import { Check, Copy, Mail, Search } from "lucide-react";
-import { decideGuests, decideRsvp, setCheckIn } from "@/app/admin/events/[id]/attendees/actions";
+import { cancelRsvp, decideGuests, decideRsvp, setCheckIn } from "@/app/admin/events/[id]/attendees/actions";
 import type { ActionResult } from "@/lib/action-result";
 import type { Attendee } from "@/lib/data/attendees";
+import { GUEST_STATUS_LABEL, MEMBER_LABEL, RSVP_STATUS_LABEL } from "@/lib/rsvp-labels";
 import { formatDateTime } from "@/lib/time";
 import { cn } from "@/lib/cn";
 import { Badge } from "@/components/ui/badge";
@@ -24,10 +25,19 @@ type FilterKey = (typeof FILTERS)[number]["key"];
 const matches = (a: Attendee, f: FilterKey) =>
   f === "approval" ? a.status === "pending" || (a.guest_status === "pending" && a.guest_count > 0 && a.status !== "not_going") : a.status === f;
 
-const STATUS_LABEL = { going: "Going", waitlist: "Waitlist", pending: "Needs approval", not_going: "Not going", declined: "Declined" } as const;
 const STATUS_TONE = { going: "green", waitlist: "amber", pending: "brand", not_going: "neutral", declined: "red" } as const;
 
-export function AttendeeList({ eventId, attendees }: { eventId: string; attendees: Attendee[] }) {
+export function AttendeeList({
+  eventId,
+  attendees,
+  capacity,
+  seatsTaken,
+}: {
+  eventId: string;
+  attendees: Attendee[];
+  capacity: number | null;
+  seatsTaken: number;
+}) {
   const approvals = attendees.filter((a) => matches(a, "approval")).length;
   const [filter, setFilter] = useState<FilterKey>(approvals > 0 ? "approval" : "going");
   const [query, setQuery] = useState("");
@@ -37,6 +47,11 @@ export function AttendeeList({ eventId, attendees }: { eventId: string; attendee
   const [, start] = useTransition();
 
   const goingEmails = attendees.filter((a) => a.status === "going" && a.email).map((a) => a.email);
+  // Encode each address but keep the commas: long mailto links get cut off by some mail apps.
+  const mailto = `mailto:?bcc=${goingEmails.map(encodeURIComponent).join(",")}`;
+  const tooManyForMailto = mailto.length > 1900;
+  const mailDisabled = goingEmails.length === 0 || tooManyForMailto;
+  const fits = (seats: number) => capacity === null || seatsTaken + seats <= capacity;
   const q = query.trim().toLowerCase();
   const visible = attendees.filter(
     (a) => matches(a, filter) && (!q || a.name.toLowerCase().includes(q) || a.email.toLowerCase().includes(q)),
@@ -53,9 +68,9 @@ export function AttendeeList({ eventId, attendees }: { eventId: string; attendee
     <div className="space-y-4">
       <div className="flex flex-col gap-2 sm:flex-row">
         <a
-          href={`mailto:?bcc=${encodeURIComponent(goingEmails.join(","))}`}
-          className={cn(buttonClasses("secondary", "md"), goingEmails.length === 0 && "pointer-events-none opacity-50")}
-          aria-disabled={goingEmails.length === 0}
+          href={mailDisabled ? undefined : mailto}
+          className={cn(buttonClasses("secondary", "md"), mailDisabled && "pointer-events-none opacity-50")}
+          aria-disabled={mailDisabled}
         >
           <Mail className="size-4" aria-hidden="true" /> Email everyone going
         </a>
@@ -75,6 +90,9 @@ export function AttendeeList({ eventId, attendees }: { eventId: string; attendee
           Download spreadsheet (CSV)
         </a>
       </div>
+      {tooManyForMailto ? (
+        <p className="-mt-2 text-sm text-muted">Too many people for one email link. Use Copy emails and paste them into BCC.</p>
+      ) : null}
 
       <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
         <div className="flex w-max gap-2" role="tablist" aria-label="Filter attendees">
@@ -121,14 +139,18 @@ export function AttendeeList({ eventId, attendees }: { eventId: string; attendee
           {visible.map((a) => {
             const busy = pendingId === a.id;
             const guestsPending = a.guest_count > 0 && a.guest_status === "pending";
+            // Seats this person needs if confirmed now (approved guests count too).
+            const needed = 1 + (a.guest_status === "approved" ? a.guest_count : 0);
+            // Their own seat is already counted when they're going.
+            const guestsFit = a.status !== "going" || fits(a.guest_count);
             return (
               <li key={a.id} className={cn("rounded-2xl border bg-white p-4 shadow-sm", a.checked_in_at ? "border-green-300" : "border-stone-200")}>
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="font-bold text-ink">{a.name}</p>
-                      <Badge tone={STATUS_TONE[a.status]}>{STATUS_LABEL[a.status]}</Badge>
-                      <Badge>{a.member === "student" ? "Student" : "Community"}</Badge>
+                      <Badge tone={STATUS_TONE[a.status]}>{RSVP_STATUS_LABEL[a.status]}</Badge>
+                      <Badge>{MEMBER_LABEL[a.member]}</Badge>
                     </div>
                     <p className="truncate text-sm text-muted">{a.email}</p>
                     {a.guest_count > 0 ? (
@@ -136,7 +158,7 @@ export function AttendeeList({ eventId, attendees }: { eventId: string; attendee
                         +{a.guest_count} guest{a.guest_count === 1 ? "" : "s"}
                         {a.guest_names ? ` (${a.guest_names})` : ""} ·{" "}
                         <span className={cn("font-semibold", guestsPending ? "text-brand-800" : a.guest_status === "declined" ? "text-red-700" : "text-green-800")}>
-                          {a.guest_status === "pending" ? "needs approval" : a.guest_status}
+                          {GUEST_STATUS_LABEL[a.guest_status].toLowerCase()}
                         </span>
                       </p>
                     ) : null}
@@ -147,17 +169,21 @@ export function AttendeeList({ eventId, attendees }: { eventId: string; attendee
                   <div className="flex flex-wrap gap-2 md:justify-end">
                     {a.status === "pending" ? (
                       <>
-                        <Button size="sm" disabled={busy} onClick={() => run(a.id, () => decideRsvp(eventId, a.id, "approve"))}>
+                        <Button disabled={busy} onClick={() => run(a.id, () => decideRsvp(eventId, a.id, "approve"))}>
                           Approve
                         </Button>
-                        <Button size="sm" variant="secondary" disabled={busy} onClick={() => run(a.id, () => decideRsvp(eventId, a.id, "decline"))}>
+                        <Button variant="secondary" disabled={busy} onClick={() => run(a.id, () => decideRsvp(eventId, a.id, "decline"))}>
                           Decline
                         </Button>
                       </>
                     ) : null}
-                    {a.status === "waitlist" ? (
+                    {a.status === "waitlist" && fits(needed) ? (
+                      <Button variant="secondary" disabled={busy} onClick={() => run(a.id, () => decideRsvp(eventId, a.id, "approve"))}>
+                        Confirm
+                      </Button>
+                    ) : null}
+                    {a.status === "waitlist" && !fits(needed) ? (
                       <Button
-                        size="sm"
                         variant="secondary"
                         disabled={busy}
                         onClick={() => {
@@ -169,13 +195,37 @@ export function AttendeeList({ eventId, attendees }: { eventId: string; attendee
                     ) : null}
                     {guestsPending && a.status !== "not_going" && a.status !== "declined" ? (
                       <>
-                        <Button size="sm" variant="secondary" disabled={busy} onClick={() => run(a.id, () => decideGuests(eventId, a.id, "approve"))}>
-                          Approve guests
-                        </Button>
-                        <Button size="sm" variant="ghost" disabled={busy} onClick={() => run(a.id, () => decideGuests(eventId, a.id, "decline"))}>
+                        {guestsFit ? (
+                          <Button variant="secondary" disabled={busy} onClick={() => run(a.id, () => decideGuests(eventId, a.id, "approve"))}>
+                            Approve guests
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="secondary"
+                            disabled={busy}
+                            onClick={() => {
+                              if (confirm(`Approve ${a.name}'s guests even though there aren't enough seats?`))
+                                run(a.id, () => decideGuests(eventId, a.id, "approve", true));
+                            }}
+                          >
+                            Approve guests anyway (over capacity)
+                          </Button>
+                        )}
+                        <Button variant="ghost" disabled={busy} onClick={() => run(a.id, () => decideGuests(eventId, a.id, "decline"))}>
                           Decline guests
                         </Button>
                       </>
+                    ) : null}
+                    {(a.status === "going" || a.status === "waitlist" || a.status === "pending") && !a.checked_in_at ? (
+                      <Button
+                        variant="ghost"
+                        disabled={busy}
+                        onClick={() => {
+                          if (confirm(`Cancel ${a.name}'s RSVP? They'll be marked as not going and notified.`)) run(a.id, () => cancelRsvp(eventId, a.id));
+                        }}
+                      >
+                        Cancel RSVP
+                      </Button>
                     ) : null}
                     {a.status === "going" ? (
                       <Button

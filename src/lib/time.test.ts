@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   SITE_TIME_ZONE,
   formatDateTime,
+  formatEventWhen,
   formatLongDate,
   formatShortDate,
   formatTime,
@@ -9,6 +10,7 @@ import {
   isPast,
   relativeDay,
   siteLocalToUtcIso,
+  spansDays,
   toDateTimeLocalValue,
 } from "./time";
 
@@ -127,6 +129,28 @@ describe("formatting in Bethlehem time", () => {
     expect(plain(formatTimeRange("2026-10-23T22:30:00Z", "2026-10-24T01:00:00Z"))).toBe("6:30 PM – 9:00 PM");
     expect(plain(formatTimeRange("2026-10-23T22:30:00Z", null))).toBe("6:30 PM");
     expect(plain(formatTimeRange("2026-10-23T22:30:00Z"))).toBe("6:30 PM");
+  });
+
+  it("shows both dates when an event ends on another day in Bethlehem", () => {
+    // Shabbaton: Friday 6 PM to Saturday 9 PM.
+    expect(plain(formatTimeRange("2026-10-23T22:00:00Z", "2026-10-25T01:00:00Z"))).toBe(
+      "Fri, Oct 23, 6:00 PM – Sat, Oct 24, 9:00 PM",
+    );
+    // Overnight program that ends after midnight local time.
+    expect(plain(formatTimeRange("2026-10-24T01:00:00Z", "2026-10-24T05:00:00Z"))).toBe(
+      "Fri, Oct 23, 9:00 PM – Sat, Oct 24, 1:00 AM",
+    );
+    expect(spansDays("2026-10-23T22:30:00Z", "2026-10-24T01:00:00Z")).toBe(false);
+    expect(spansDays("2026-10-23T22:30:00Z", null)).toBe(false);
+  });
+
+  it("formats the date and time line for an event", () => {
+    expect(plain(formatEventWhen("2026-10-23T22:30:00Z", "2026-10-24T01:00:00Z"))).toBe(
+      "Friday, October 23 · 6:30 PM – 9:00 PM",
+    );
+    expect(plain(formatEventWhen("2026-10-23T22:00:00Z", "2026-10-25T01:00:00Z"))).toBe(
+      "Fri, Oct 23, 6:00 PM – Sat, Oct 24, 9:00 PM",
+    );
   });
 
   it("accepts strings, numbers and Dates", () => {

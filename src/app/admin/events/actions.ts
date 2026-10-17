@@ -110,11 +110,12 @@ export async function createEvent(_prev: ActionResult, formData: FormData): Prom
   const { slug, ...values } = parsed.data;
 
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("events")
-    .insert({ ...values, starts_at: values.starts_at!, slug: slug || slugify(values.title, values.starts_at!) })
-    .select("id")
-    .single();
+  const base = slug || slugify(values.title, values.starts_at!);
+  const insert = (s: string) => supabase.from("events").insert({ ...values, starts_at: values.starts_at!, slug: s }).select("id").single();
+  let result = await insert(base);
+  // Same title on the same day: the address was made for them, so find a free one.
+  if (result.error?.code === "23505" && !slug) result = await insert(`${base}-${Math.random().toString(36).slice(2, 6)}`);
+  const { data, error } = result;
   if (error) {
     if (error.code === "23505") return { ok: false, error: "That web address is already used. Please change it.", fieldErrors: { slug: ["Already in use."] } };
     return { ok: false, error: dbErrorMessage(error) };
@@ -132,16 +133,18 @@ export async function updateEvent(_prev: ActionResult, formData: FormData): Prom
   const { slug, ...values } = parsed.data;
 
   const supabase = await createClient();
-  const finalSlug = slug || slugify(values.title, values.starts_at!);
-  const { error } = await supabase
+  // A blank web address keeps the current one: shared links and notifications point to it.
+  const { data, error } = await supabase
     .from("events")
-    .update({ ...values, starts_at: values.starts_at!, slug: finalSlug })
-    .eq("id", id);
+    .update({ ...values, starts_at: values.starts_at!, ...(slug ? { slug } : {}) })
+    .eq("id", id)
+    .select("slug")
+    .single();
   if (error) {
     if (error.code === "23505") return { ok: false, error: "That web address is already used. Please change it.", fieldErrors: { slug: ["Already in use."] } };
     return { ok: false, error: dbErrorMessage(error) };
   }
-  revalidateEvents(finalSlug);
+  revalidateEvents(data.slug);
   return { ok: true, message: "Event saved." };
 }
 

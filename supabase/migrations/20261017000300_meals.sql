@@ -253,6 +253,9 @@ declare
   v_status public.menu_status;
 begin
   if tg_table_name = 'menu_items' then
+    if tg_op = 'UPDATE' and new.menu_version_id is distinct from old.menu_version_id then
+      raise exception 'menu_locked' using hint = 'Menu items cannot be moved between versions.';
+    end if;
     v_version_id := case when tg_op = 'DELETE' then old.menu_version_id else new.menu_version_id end;
   else
     select mi.menu_version_id into v_version_id from public.menu_items mi
@@ -408,6 +411,14 @@ begin
   end if;
   if not exists (select 1 from public.menu_items where menu_version_id = v_version.id) then
     raise exception 'menu_empty';
+  end if;
+  -- A dish with no ingredients would look allergen-free on the public menu.
+  if exists (
+    select 1 from public.menu_items mi
+    where mi.menu_version_id = v_version.id
+      and not exists (select 1 from public.dish_ingredients di where di.dish_id = mi.dish_id)
+  ) then
+    raise exception 'dish_missing_ingredients' using hint = 'Add ingredients to every dish before publishing.';
   end if;
 
   select * into v_previous from public.menu_versions
@@ -567,6 +578,7 @@ create table public.dish_votes (
 create unique index dish_votes_general_key on public.dish_votes (user_id, dish_id) where event_id is null;
 create unique index dish_votes_event_key on public.dish_votes (user_id, dish_id, event_id) where event_id is not null;
 create index dish_votes_dish_idx on public.dish_votes (dish_id);
+create index dish_votes_event_idx on public.dish_votes (event_id, dish_id) where event_id is not null;
 
 create or replace function private.rate_limit_votes()
 returns trigger
@@ -590,7 +602,7 @@ stable
 security definer
 set search_path = ''
 as $$
-  select v.dish_id, count(*)::integer, bool_or(v.user_id = auth.uid())
+  select v.dish_id, count(*)::integer, bool_or(v.user_id = (select auth.uid()))
   from public.dish_votes v
   where (p_event_id is null and v.event_id is null)
      or (p_event_id is not null and v.event_id = p_event_id
@@ -735,7 +747,9 @@ begin
     case when coalesce(dp.share_with_kitchen, true) then dp.notes_for_kitchen else null end,
     case when coalesce(dp.share_with_kitchen, true) then coalesce(dp.carries_epinephrine, false) else null end,
     case when coalesce(dp.share_with_kitchen, true) then mp.preference else null end,
-    case when coalesce(dp.share_with_kitchen, true) then mp.guest_dietary_notes else null end
+    -- Guests' needs are written for the kitchen and aren't covered by the
+    -- RSVPer's choice not to share their own profile.
+    mp.guest_dietary_notes
   from public.rsvps r
   join public.profiles p on p.id = r.user_id
   left join public.dietary_profiles dp on dp.user_id = r.user_id
@@ -777,7 +791,7 @@ begin
     'approved_guests', (select coalesce(sum(guest_count), 0) from attendees where status = 'going' and guest_status = 'approved'),
     'not_shared', (select count(*) from attendees where not shared),
     'with_notes', (select count(*) from attendees where shared and has_notes),
-    'with_guest_notes', (select count(*) from attendees where shared and has_guest_notes),
+    'with_guest_notes', (select count(*) from attendees where has_guest_notes),
     'carries_epinephrine', (select count(*) from attendees where shared and carries_epinephrine),
     'allergens', coalesce((
       select jsonb_agg(jsonb_build_object(
@@ -878,8 +892,9 @@ create policy "dish_ingredients: menu staff delete" on public.dish_ingredients f
 -- Menus: published/archived visible with the event; drafts only to menu staff.
 grant select on public.menu_versions, public.menu_items, public.menu_item_cross_contact,
   public.menu_updates, public.event_menu_options to anon, authenticated;
-grant insert, update, delete on public.menu_items, public.menu_item_cross_contact,
-  public.event_menu_options to authenticated;
+grant insert, delete on public.menu_items to authenticated;
+grant update (course, sort_order, preparation_notes, cross_contact_notes) on public.menu_items to authenticated;
+grant insert, update, delete on public.menu_item_cross_contact, public.event_menu_options to authenticated;
 grant insert, delete on public.menu_versions to authenticated;
 grant update (title, kitchen_notes) on public.menu_versions to authenticated;
 grant insert on public.menu_updates to authenticated;

@@ -5,13 +5,16 @@ From zero to a live site in about an hour. Do the steps in order.
 | Piece | Service | Cost |
 | --- | --- | --- |
 | Website | Vercel (Hobby) | Free |
-| Database + sign-in | Supabase (Free) | Free |
+| Database + sign-in | Supabase | Free, or Pro ($25/mo per organization: never pauses, daily backups) |
 | Sign-in emails | Resend (Free) — or Gmail | Free |
-| Domain DNS | Cloudflare (Free) | Free (domain itself, if you buy one) |
+| Custom address (optional) | A subdomain of chabadlehigh.org, or a domain you buy | Free / domain price |
 | Code | GitHub | Free |
+
+Nothing else is needed — no Neon, Loops or Mailchimp.
 
 > **Before real use:** organizers review the workflow and the meal/allergy process with
 > [docs/ORGANIZER_REVIEW.md](docs/ORGANIZER_REVIEW.md). Dish votes are never proof that food is safe.
+> Send the people who run Chabad [docs/ORGANIZER_QUICKSTART.md](docs/ORGANIZER_QUICKSTART.md).
 
 ## Environment variables (Vercel → Settings → Environment Variables)
 
@@ -19,8 +22,8 @@ From zero to a live site in about an hour. Do the steps in order.
 | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Project Settings → Data API → Project URL |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase → Project Settings → API Keys → Publishable key (`sb_publishable_…`) |
-| `NEXT_PUBLIC_SITE_URL` | Your site address, no trailing slash (Vercel URL first, custom domain later) |
-| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Optional — step 20 |
+| `NEXT_PUBLIC_SITE_URL` | Your site address with `https://`, no trailing slash (Vercel URL first, custom address later) |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Optional — step 21 |
 
 Never add the Supabase **secret / service_role** key anywhere — the app doesn't use it.
 
@@ -28,83 +31,95 @@ Dashboard links below use `/project/_/`, which opens your project.
 
 ## Part A — Supabase
 
-1. <https://supabase.com> → **New project**: name `chabad-at-lehigh`, generate and save a database
-   password, region **East US (North Virginia)** → **Create**. (Free plan: 2 active projects per organization.)
+1. <https://supabase.com> → **New project**: name `chabad-at-lehigh`, generate and save a database password,
+   region **East US (North Virginia)**, compute **Micro** → **Create**. Free plan: 2 active projects per person,
+   and idle projects pause after a week (the site pings it daily to prevent that). Pro never pauses.
 2. **SQL Editor → New query** (<https://supabase.com/dashboard/project/_/sql/new>) → paste **all** of
    `supabase/setup/all_migrations.sql` → **Run**. Expect *Success*. Run once, on a new project.
-3. *Optional:* new query → paste `supabase/seed.sql` → **Run** for **[DEMO]** events and dishes (removed in step 23).
+3. *Optional:* new query → paste `supabase/seed.sql` → **Run** for **[DEMO]** events and dishes (removed in step 24).
 4. Check: **Table Editor** shows `events`, `rsvps`, `dishes`… and **Advisors → Security Advisor** shows no
    red errors. (Yellow warnings about public functions like `get_event_menu` are expected.)
 5. Copy the **Project URL** (<https://supabase.com/dashboard/project/_/settings/api>) and the
    **Publishable key** (<https://supabase.com/dashboard/project/_/settings/api-keys>).
-6. **Authentication → Email Templates** (<https://supabase.com/dashboard/project/_/auth/templates>):
+6. **Project Settings → JWT Keys** (<https://supabase.com/dashboard/project/_/settings/jwt>): the current key should
+   be **ECC (P-256)** or RSA. If it says *Legacy JWT secret*, click **Migrate**, then **Rotate** to the new key
+   (do this before launch). This lets pages check sign-ins without an extra call to Supabase.
+7. **Authentication → Email Templates** (<https://supabase.com/dashboard/project/_/auth/templates>):
    - **Magic Link** — subject `Your Chabad at Lehigh sign-in link`, body = `supabase/templates/magic_link.html` → Save.
    - **Confirm signup** — subject `Welcome to Chabad at Lehigh — confirm your email`, body = `supabase/templates/confirmation.html` → Save.
-7. **Authentication → Providers → Email** (<https://supabase.com/dashboard/project/_/auth/providers>): Email enabled,
-   *Confirm email* on.
+8. **Authentication → Providers → Email** (<https://supabase.com/dashboard/project/_/auth/providers>): Email enabled,
+   **Confirm email on** (required — it's part of what keeps accounts from being claimed by someone else).
 
 ## Part B — Email sender (required)
 
-Supabase's built-in email only reaches your own team, so students need a real sender. You need **one**
-SMTP sender — nothing else (no Loops/Mailchimp). Resend's free plan (3,000/month, 100/day) is plenty.
+Supabase's built-in email only reaches your own team, so students need a real sender. You need **one** SMTP sender.
 
-8. <https://resend.com> → **Domains → Add Domain** (e.g. `chabadlehigh.org`) → add the DNS records it shows in
-   **Cloudflare → DNS → Records** (or use its *Sign in to Cloudflare* button) → **Verify** → **API Keys → Create** (Sending access).
-9. Supabase → **Authentication → SMTP Settings** (<https://supabase.com/dashboard/project/_/auth/smtp>) → enable custom SMTP:
-   sender `no-reply@chabadlehigh.org`, name `Chabad at Lehigh`, host `smtp.resend.com`, port `465`,
-   username `resend`, password = Resend API key → Save.
-   *No domain yet?* Use Gmail: turn on 2-Step Verification, create an App password, then host
-   `smtp.gmail.com`, port `587`, username/sender = the Gmail address, password = the app password.
-10. **Authentication → Rate Limits** (<https://supabase.com/dashboard/project/_/auth/rate-limits>): raise the email
+9. **Resend** (free: 3,000/month, 100/day, **one sending domain per account**). If your Resend account already
+   uses its free domain for another project, create a separate free account for Chabad (ideally with a Chabad email,
+   so they own it). <https://resend.com> → **Domains → Add Domain**. Use a subdomain such as `mail.chabadlehigh.org`
+   (ask whoever manages chabadlehigh.org's DNS to add the records Resend shows — this doesn't affect their website or
+   email) or a domain you own → **Verify** → **API Keys → Create** (Sending access).
+10. Supabase → **Authentication → SMTP Settings** (<https://supabase.com/dashboard/project/_/auth/smtp>) → enable custom SMTP:
+    sender `no-reply@mail.chabadlehigh.org` (your verified domain), name `Chabad at Lehigh`, host `smtp.resend.com`,
+    port `465`, username `resend`, password = Resend API key → Save.
+    *No domain yet?* Use Gmail: turn on 2-Step Verification, create an App password, then host
+    `smtp.gmail.com`, port `587`, username/sender = the Gmail address, password = the app password.
+11. **Authentication → Rate Limits** (<https://supabase.com/dashboard/project/_/auth/rate-limits>): raise the email
     limit from 30 to about `100` per hour.
 
-## Part C — First admin
+## Part C — Admins
 
-11. SQL Editor → paste `supabase/scripts/bootstrap_admin.sql`, put **your** email in → **Run**. You become admin
-    when you sign in. Manage everyone else in the app: **Dashboard → People & roles**.
+12. SQL Editor → paste `supabase/scripts/bootstrap_admin.sql`, put **your** email in → **Run**. You become admin
+    when you sign in.
+13. After the site is live (step 23): **Dashboard → People & roles** → add the Greenbergs (and one more trusted
+    person) as **Admin**. It works before they've signed in. Keep at least two admins.
 
 ## Part D — GitHub
 
-12. If `chabad-at-lehigh` isn't in your GitHub yet: <https://github.com/new> → private, no README → create → push
+14. If `chabad-at-lehigh` isn't in your GitHub yet: <https://github.com/new> → private, no README → create → push
     (`git remote add origin https://github.com/<you>/chabad-at-lehigh.git && git push -u origin main`).
 
 ## Part E — Vercel
 
-13. <https://vercel.com> (sign in with GitHub) → **Add New → Project** → import `chabad-at-lehigh`
+15. <https://vercel.com> (sign in with GitHub) → **Add New → Project** → import `chabad-at-lehigh`
     (not listed? *Adjust GitHub App Permissions*).
-14. Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` → **Deploy** → copy your
+16. Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` → **Deploy** → copy your
     address (e.g. `https://chabad-at-lehigh.vercel.app`).
-15. Supabase → **Authentication → URL Configuration** (<https://supabase.com/dashboard/project/_/auth/url-configuration>):
+17. Supabase → **Authentication → URL Configuration** (<https://supabase.com/dashboard/project/_/auth/url-configuration>):
     Site URL = your Vercel address; Redirect URLs → add `https://your-address/**` (and `http://localhost:3000/**`
     for local development) → Save.
-16. Vercel → add `NEXT_PUBLIC_SITE_URL` = your Vercel address → **Deployments → ⋯ → Redeploy**
+18. Vercel → add `NEXT_PUBLIC_SITE_URL` = your Vercel address → **Deployments → ⋯ → Redeploy**
     (variable changes need a redeploy).
 
-## Part F — Custom domain (Cloudflare, optional)
+## Part F — Custom address (optional)
 
-17. Vercel → **Settings → Domains → Add** your domain (+ `www` redirect). Note the DNS records it shows.
-18. Cloudflare → **DNS → Records** → add exactly those records with **Proxy status: DNS only** (grey cloud).
-    Wait for **Valid Configuration** in Vercel.
-19. Switch to the domain: Vercel `NEXT_PUBLIC_SITE_URL` = `https://yourdomain` → Redeploy; Supabase Site URL =
-    `https://yourdomain` and add Redirect URL `https://yourdomain/**`.
-20. *Optional bot check:* Cloudflare **Turnstile → Add widget** (your hostnames) → put the **Secret key** in
+chabadlehigh.org is Chabad's existing website and email. **Don't change its nameservers or its main/www/MX records** —
+that would take down the current site and rabbi@ email. Use a subdomain instead, such as `app.chabadlehigh.org`.
+
+19. Vercel → **Settings → Domains → Add** `app.chabadlehigh.org` (only that). Vercel shows one CNAME record. Ask whoever
+    manages chabadlehigh.org's DNS to add it. (For a domain you own in Cloudflare, add it there yourself with
+    **Proxy status: DNS only**.) Wait for **Valid Configuration**.
+20. Switch to the new address: Vercel `NEXT_PUBLIC_SITE_URL` = `https://app.chabadlehigh.org` → Redeploy; Supabase
+    Site URL = the same, and add Redirect URL `https://app.chabadlehigh.org/**`.
+21. *Optional bot check:* Cloudflare **Turnstile → Add widget** (your hostnames) → put the **Secret key** in
     Supabase **Authentication → Attack Protection** (CAPTCHA: Turnstile) and the **Site key** in Vercel as
     `NEXT_PUBLIC_TURNSTILE_SITE_KEY` → Redeploy. Do both together or sign-in fails.
 
 ## Part G — Check it works
 
-21. Open the site on a phone and a computer: home, Events, Find Us and footer links load.
-22. **Sign in** → email arrives with a button and a code → welcome form → you see **Dashboard**.
-23. **Dashboard → Settings**: confirm the pre-filled contact details with the Greenbergs (from public listings:
-    Rabbi Zalman & Dit Greenberg, rabbi@chabadlehigh.org, (610) 419-9036, 306 Wyandotte Street) and add parking.
-    If you loaded demo data, run `supabase/scripts/remove_demo_data.sql`.
-24. Create and publish a test event; from a second account try **Going / Not going / Change RSVP**, the
+22. Open the site on a phone and a computer: home, Events, Find Us and footer links load.
+23. **Sign in** → email arrives with a button and a code → welcome form → you see **Dashboard**, with a
+    **Getting started** checklist. Do step 13 now.
+24. Follow the checklist: **Settings** — confirm the contact details with the Greenbergs (pre-filled from public
+    sources: Rabbi Zalman & Dit Greenberg, rabbi@chabadlehigh.org, 306 Wyandotte Street), **add their phone number**
+    (shown as the allergy contact) and parking. Then **Remove demo content** if you loaded it.
+25. Create and publish a test event; from a second account try **Going / Not going / Change RSVP**, the
     waitlist (small capacity) and **Invite friends**.
-25. Add a dish with ingredients → event **Menu** → tick the preparation confirmation → **Publish**. Signed out,
+26. Add a dish with ingredients → event **Menu** → tick the preparation confirmation → **Publish**. Signed out,
     the menu and allergens show; dietary data doesn't.
-26. Post an **urgent** menu update → the second account's bell shows it.
-27. Give someone **Kitchen staff** → only kitchen/admins see names on the **Dietary** tab.
-28. On a throwaway account: **Profile & settings → Delete account** works. Then have organizers sign off on
+27. Post an **urgent** menu update → the second account's bell shows it.
+28. Give someone **Kitchen staff** → only kitchen/admins see names on the **Dietary** tab.
+29. On a throwaway account: **Profile & settings → Delete account** works. Then have organizers sign off on
     [docs/ORGANIZER_REVIEW.md](docs/ORGANIZER_REVIEW.md).
 
 ## Troubleshooting
@@ -113,9 +128,11 @@ SMTP sender — nothing else (no Loops/Mailchimp). Resend's free plan (3,000/mon
 | --- | --- |
 | No sign-in email / "Email address not authorized" | Part B isn't done. Check spam. |
 | "Link expired" | Links work once (1 hour). Use the code from the newest email. |
-| Link opens `localhost` or the wrong site | Fix Site URL / Redirect URLs (step 15/19) and `NEXT_PUBLIC_SITE_URL`, then redeploy. |
+| Link opens `localhost` or the wrong site | Fix Site URL / Redirect URLs (step 17/20) and `NEXT_PUBLIC_SITE_URL`, then redeploy. |
 | "Missing Supabase settings" | Add the environment variables in Vercel and redeploy. |
-| No Dashboard | Run step 11 with the exact email you sign in with, then sign out and in. |
+| No Dashboard | Run step 12 with the exact email you sign in with, then sign out and in. |
+| Someone needs a different sign-in email | Project owner: Supabase → **Authentication → Users** → the user → change email. If it's a Lehigh address, give them **Student** in People & roles. |
+| Site down, Supabase says "paused" (Free plan) | Supabase dashboard → the project → **Restore**. |
 
 ## Local development
 
@@ -129,5 +146,7 @@ cp .env.example .env.local  # paste the local URL + publishable key from `npx su
 npm run dev                 # http://localhost:3000 — emails appear at http://127.0.0.1:54324
 ```
 
-Later database changes: run only the new files in `supabase/migrations/` in the SQL Editor, in order —
-or `npx supabase link --project-ref <ref>` then `npx supabase db push`.
+**Later database changes:** run only the new files in `supabase/migrations/` in the SQL Editor, in order. To use the
+CLI instead: `npx supabase login`, `npx supabase link --project-ref <ref>`, then once (the SQL Editor setup records no
+migration history) `npx supabase migration repair --status applied $(ls supabase/migrations | cut -c1-14)` for the
+files already applied, check with `npx supabase migration list`, then `npx supabase db push`.

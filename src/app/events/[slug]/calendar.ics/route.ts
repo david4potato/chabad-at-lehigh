@@ -1,30 +1,7 @@
 import { NextResponse } from "next/server";
 import { getEventBySlug } from "@/lib/data/events";
 import { getSiteUrl } from "@/lib/env";
-
-// RFC 5545 text escaping and 75-octet line folding.
-const escape = (s: string) => s.replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
-const stamp = (d: Date) => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
-
-function fold(line: string): string {
-  const bytes = new TextEncoder().encode(line);
-  if (bytes.length <= 75) return line;
-  const parts: string[] = [];
-  let current = "";
-  let size = 0;
-  for (const ch of line) {
-    const n = new TextEncoder().encode(ch).length;
-    if (size + n > (parts.length === 0 ? 75 : 74)) {
-      parts.push(current);
-      current = "";
-      size = 0;
-    }
-    current += ch;
-    size += n;
-  }
-  parts.push(current);
-  return parts.join("\r\n ");
-}
+import { icsEscape, icsFold, icsStamp } from "@/lib/ics";
 
 export async function GET(_request: Request, ctx: RouteContext<"/events/[slug]/calendar.ics">) {
   const { slug } = await ctx.params;
@@ -45,18 +22,18 @@ export async function GET(_request: Request, ctx: RouteContext<"/events/[slug]/c
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",
     `UID:${event.id}@chabad-at-lehigh`,
-    `DTSTAMP:${stamp(new Date())}`,
-    `DTSTART:${stamp(start)}`,
-    `DTEND:${stamp(end)}`,
-    `SUMMARY:${escape(event.title)}`,
-    ...(location ? [`LOCATION:${escape(location)}`] : []),
-    `DESCRIPTION:${escape(description)}`,
+    `DTSTAMP:${icsStamp(new Date())}`,
+    `DTSTART:${icsStamp(start)}`,
+    `DTEND:${icsStamp(end)}`,
+    `SUMMARY:${icsEscape(event.title)}`,
+    ...(location ? [`LOCATION:${icsEscape(location)}`] : []),
+    `DESCRIPTION:${icsEscape(description)}`,
     `URL:${url}`,
     "END:VEVENT",
     "END:VCALENDAR",
   ];
 
-  return new NextResponse(lines.map(fold).join("\r\n") + "\r\n", {
+  return new NextResponse(lines.map(icsFold).join("\r\n") + "\r\n", {
     headers: {
       "Content-Type": "text/calendar; charset=utf-8",
       "Content-Disposition": `attachment; filename="${event.slug}.ics"`,

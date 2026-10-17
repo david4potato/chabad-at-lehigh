@@ -30,6 +30,19 @@ describe("matchDishAllergens", () => {
     ).toEqual([{ code: "tree_nuts", severity: "severe", kind: "contains_optional" }]);
   });
 
+  it("keeps cross-contact when the same allergen is also in an optional ingredient", () => {
+    const profile: ProfileAllergen[] = [{ code: "tree_nuts", severity: "severe" }];
+    expect(
+      matchDishAllergens(
+        dish({ allergens: ["tree_nuts"], optionalOnly: ["tree_nuts"], crossContact: ["tree_nuts"] }),
+        profile,
+      ),
+    ).toEqual([
+      { code: "tree_nuts", severity: "severe", kind: "contains_optional" },
+      { code: "tree_nuts", severity: "severe", kind: "cross_contact" },
+    ]);
+  });
+
   it("flags kitchen-entered cross-contact", () => {
     const profile: ProfileAllergen[] = [{ code: "peanuts", severity: "severe" }];
     expect(matchDishAllergens(dish({ crossContact: ["peanuts"] }), profile)).toEqual([

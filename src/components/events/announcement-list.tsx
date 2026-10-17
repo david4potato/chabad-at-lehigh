@@ -6,7 +6,17 @@ import { Badge } from "@/components/ui/badge";
 import type { AnnouncementItem } from "@/lib/data/events";
 import { paragraphs } from "./event-utils";
 
-export function AnnouncementList({ items, compact = false }: { items: AnnouncementItem[]; compact?: boolean }) {
+export function AnnouncementList({
+  items,
+  compact = false,
+  headingLevel = 3,
+}: {
+  items: AnnouncementItem[];
+  compact?: boolean;
+  /** 3 under a section heading (Home); 2 directly under the page title. */
+  headingLevel?: 2 | 3;
+}) {
+  const Heading = headingLevel === 2 ? "h2" : "h3";
   return (
     <ul className="space-y-3">
       {items.map((a) => (
@@ -26,10 +36,10 @@ export function AnnouncementList({ items, compact = false }: { items: Announceme
             ) : null}
             <span className="text-xs text-muted">{formatShortDate(a.publish_at)}</span>
           </div>
-          <h3 className="mt-1.5 flex items-start gap-2 text-base font-bold text-ink">
+          <Heading className="mt-1.5 flex items-start gap-2 text-base font-bold text-ink">
             {!compact ? <Megaphone className="mt-0.5 size-4 shrink-0 text-gold-700" aria-hidden="true" /> : null}
             {a.title}
-          </h3>
+          </Heading>
           {a.body ? (
             <div className={cn("prose-simple mt-1 text-sm leading-relaxed text-muted", compact && "line-clamp-3")}>
               {paragraphs(a.body).map((p, i) => (

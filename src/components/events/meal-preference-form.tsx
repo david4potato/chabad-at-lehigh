@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { Lock } from "lucide-react";
 import { saveMealPreference } from "@/app/events/actions";
 import { initialActionState } from "@/lib/action-result";
+import { Alert } from "@/components/ui/alert";
 import { Field, Textarea } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { FormMessage } from "@/components/ui/form-message";
@@ -14,9 +15,11 @@ type Props = {
   slug: string;
   initial: { preference: string | null; guest_dietary_notes: string | null } | null;
   allowsGuests: boolean;
+  /** The person's dietary profile setting. When off, the kitchen doesn't see their meal note. */
+  shareWithKitchen: boolean;
 };
 
-export function MealPreferenceForm({ eventId, slug, initial, allowsGuests }: Props) {
+export function MealPreferenceForm({ eventId, slug, initial, allowsGuests, shareWithKitchen }: Props) {
   const [state, action] = useActionState(saveMealPreference, initialActionState);
   const errors = state.ok ? undefined : state.fieldErrors;
   return (
@@ -31,6 +34,17 @@ export function MealPreferenceForm({ eventId, slug, initial, allowsGuests }: Pro
         </Link>
         .
       </p>
+      {!shareWithKitchen ? (
+        <Alert tone="warning" role="note" title="Sharing with the kitchen is off">
+          Kitchen staff won&apos;t see your meal note.{" "}
+          {allowsGuests ? "Your guests' dietary needs are still shared with them. " : null}
+          Turn sharing on in your{" "}
+          <Link href="/profile/dietary" className="font-semibold underline underline-offset-2">
+            dietary profile
+          </Link>
+          , or contact the organizer directly.
+        </Alert>
+      ) : null}
       <Field label="Anything the kitchen should know for this meal?" htmlFor="meal-preference" errors={errors?.preference}>
         <Textarea
           id="meal-preference"

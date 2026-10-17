@@ -75,7 +75,7 @@ export default async function FindUsPage() {
         <Card>
           <CardTitle>Need help finding us?</CardTitle>
           <p className="mt-1 text-sm text-muted">
-            {org.contact_name ? `${org.contact_name} is happy to help.` : "We're happy to help."}
+            {org.contact_name ? `Reach out to ${org.contact_name} — we're happy to help.` : "We're happy to help."}
           </p>
           <div className="mt-4 flex flex-col gap-2 sm:flex-row">
             {org.contact_phone ? (

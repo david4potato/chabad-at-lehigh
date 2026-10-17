@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: { default: SITE.name, template: `%s · ${SITE.name}` },
   description: SITE.description,
   applicationName: SITE.name,
-  openGraph: { title: SITE.name, description: SITE.description, type: "website" },
+  openGraph: { title: SITE.name, description: SITE.description, type: "website", siteName: SITE.name, locale: "en_US" },
 };
 
 export const viewport: Viewport = {
@@ -34,7 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <main id="main" className="flex-1">
           <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8">{children}</div>
         </main>
-        <div className="pb-safe-nav">
+        <div className="pb-safe-nav print:hidden">
           <SiteFooter />
         </div>
       </body>

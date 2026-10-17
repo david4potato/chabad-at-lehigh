@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import type { PostgrestError } from "@supabase/supabase-js";
 import { getViewer } from "@/lib/auth";
@@ -10,8 +9,11 @@ import { dbErrorMessage, validationError, type ActionResult } from "@/lib/action
 // Favorites (event_id null) and per-event option votes live in dish_votes.
 // RLS makes sure people only add/remove their own votes, only on active or
 // proposed dishes, and only while an event's voting is open.
+//
+// No revalidatePath here: the vote buttons and suggestion form keep their own
+// state, and nothing is cached on the server, so re-rendering the page would
+// only add database calls.
 
-const EVENT_PAGE = "/events/[slug]";
 const id = z.guid();
 
 type VoteResult = ActionResult<{ active: boolean }>;
@@ -40,7 +42,6 @@ async function toggleVote(dishId: string, eventId: string | null, closedMessage:
     active = true;
   }
 
-  revalidatePath(EVENT_PAGE, "page");
   return { ok: true, data: { active } };
 }
 
@@ -93,6 +94,5 @@ export async function submitSuggestion(_prev: ActionResult, formData: FormData):
   const { error } = await supabase.from("dish_suggestions").insert({ event_id, kind, title, details });
   if (error) return { ok: false, error: dbErrorMessage(error) };
 
-  revalidatePath("/admin/suggestions");
   return { ok: true, message: "Thanks! Our team reviews every suggestion." };
 }

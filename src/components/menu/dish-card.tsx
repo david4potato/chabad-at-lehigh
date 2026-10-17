@@ -1,4 +1,4 @@
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, ChevronDown } from "lucide-react";
 import { allergenLabel, type AllergenMatch } from "@/lib/allergens";
 import { optionalOnlyAllergens, type MenuItem } from "@/lib/menu";
 import { Badge } from "@/components/ui/badge";
@@ -59,6 +59,10 @@ export function DishCard({ item, matches, favorite }: Props) {
       <div className="mt-3 space-y-2">
         {dish.allergens.length > 0 ? (
           <AllergenBadges codes={dish.allergens} optionalOnly={optionalOnly} />
+        ) : dish.ingredients.length === 0 ? (
+          <p className="text-sm font-medium text-amber-950">
+            Ingredients not listed yet — if you have an allergy, ask the organizer before eating this.
+          </p>
         ) : (
           <p className="text-xs text-muted">No allergens listed in the ingredients.</p>
         )}
@@ -80,11 +84,12 @@ export function DishCard({ item, matches, favorite }: Props) {
       </div>
 
       {dish.ingredients.length > 0 ? (
-        <details className="mt-3 rounded-xl bg-stone-50 px-3 py-2 text-sm">
-          <summary className="cursor-pointer py-1 font-semibold text-brand-700">
+        <details className="group mt-3 rounded-xl bg-stone-50 px-3 py-0.5 text-sm">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1 font-semibold text-brand-700 [&::-webkit-details-marker]:hidden">
             Ingredients ({dish.ingredients.length})
+            <ChevronDown className="size-4 transition-transform group-open:rotate-180" aria-hidden="true" />
           </summary>
-          <ul className="mt-2 space-y-1.5 pb-1">
+          <ul className="space-y-1.5 pb-2.5">
             {dish.ingredients.map((ing) => (
               <li key={ing.name} className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                 <span className="font-medium text-ink">

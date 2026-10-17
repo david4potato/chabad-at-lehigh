@@ -14,7 +14,10 @@ import { postSignInDestination } from "./actions";
 declare global {
   interface Window {
     turnstile?: {
-      render: (el: HTMLElement, opts: { sitekey: string; callback: (token: string) => void }) => string;
+      render: (
+        el: HTMLElement,
+        opts: { sitekey: string; callback: (token: string) => void; "expired-callback"?: () => void },
+      ) => string;
       reset: (id?: string) => void;
     };
   }
@@ -22,15 +25,24 @@ declare global {
 
 const RESEND_SECONDS = 60;
 
-function authErrorMessage(err: { message?: string; status?: number; code?: string } | null): string {
+function authErrorMessage(
+  err: { message?: string; status?: number; code?: string } | null,
+  step: "send" | "verify",
+): string {
   if (!err) return "Something went wrong. Please try again.";
   if (err.status === 429 || err.code === "over_email_send_rate_limit" || err.code === "over_request_rate_limit") {
     return "Too many attempts. Please wait a minute and try again.";
   }
+  if (err.code === "captcha_failed") return "The bot check failed. Please try again.";
+  if (step === "send") {
+    if (err.code === "validation_failed" || err.code === "email_address_invalid") {
+      return "That email address doesn't look right. Check it for typos and try again.";
+    }
+    return "We couldn't send the sign-in email. Please try again.";
+  }
   if (err.code === "otp_expired" || /expired|invalid/i.test(err.message ?? "")) {
     return "That code is incorrect or has expired. Check the latest email, or send a new code.";
   }
-  if (err.code === "captcha_failed") return "The bot check failed. Please try again.";
   return "We couldn't sign you in. Please try again.";
 }
 
@@ -43,6 +55,7 @@ export function SignInForm({ next }: { next: string }) {
   const [cooldown, setCooldown] = useState(0);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const captchaRef = useRef<HTMLDivElement>(null);
+  const widgetId = useRef<string | null>(null);
   const codeRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -55,16 +68,26 @@ export function SignInForm({ next }: { next: string }) {
     if (step === "code") codeRef.current?.focus();
   }, [step]);
 
+  // One widget, drawn once into a container that stays mounted on both steps,
+  // so "Resend code" and "Use a different email" get a fresh token after reset.
   function renderCaptcha() {
     if (!turnstileSiteKey || !captchaRef.current || !window.turnstile) return;
     captchaRef.current.innerHTML = "";
-    window.turnstile.render(captchaRef.current, { sitekey: turnstileSiteKey, callback: setCaptchaToken });
+    widgetId.current = window.turnstile.render(captchaRef.current, {
+      sitekey: turnstileSiteKey,
+      callback: setCaptchaToken,
+      "expired-callback": () => setCaptchaToken(null),
+    });
   }
 
   async function sendCode(e?: React.FormEvent) {
     e?.preventDefault();
     setError(null);
-    const address = email.trim().toLowerCase();
+    // Drop trailing punctuation picked up when copying an address.
+    const address = email
+      .trim()
+      .toLowerCase()
+      .replace(/[.,;]+$/, "");
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(address)) {
       setError("Please enter a valid email address.");
       return;
@@ -88,10 +111,10 @@ export function SignInForm({ next }: { next: string }) {
     setBusy(false);
     if (turnstileSiteKey) {
       setCaptchaToken(null);
-      window.turnstile?.reset();
+      window.turnstile?.reset(widgetId.current ?? undefined);
     }
     if (err) {
-      setError(authErrorMessage(err));
+      setError(authErrorMessage(err, "send"));
       return;
     }
     setEmail(address);
@@ -112,7 +135,7 @@ export function SignInForm({ next }: { next: string }) {
     const { error: err } = await supabase.auth.verifyOtp({ email, token, type: "email" });
     if (err) {
       setBusy(false);
-      setError(authErrorMessage(err));
+      setError(authErrorMessage(err, "verify"));
       return;
     }
     const destination = await postSignInDestination(next);
@@ -132,6 +155,8 @@ export function SignInForm({ next }: { next: string }) {
 
       {error ? <Alert tone="danger">{error}</Alert> : null}
 
+      {turnstileSiteKey ? <div ref={captchaRef} className="min-h-16" /> : null}
+
       {step === "email" ? (
         <form onSubmit={sendCode} className="space-y-4" noValidate>
           <Field label="Email address" htmlFor="email" hint="Lehigh students: use your @lehigh.edu address.">
@@ -150,7 +175,6 @@ export function SignInForm({ next }: { next: string }) {
               aria-describedby="email-hint"
             />
           </Field>
-          {turnstileSiteKey ? <div ref={captchaRef} className="min-h-16" /> : null}
           <Button type="submit" size="lg" className="w-full" disabled={busy}>
             <Mail className="size-5" aria-hidden="true" />
             {busy ? "Sending…" : "Email me a sign-in link"}
@@ -184,7 +208,7 @@ export function SignInForm({ next }: { next: string }) {
           <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
             <button
               type="button"
-              className="font-semibold text-brand-700 hover:underline disabled:text-muted disabled:no-underline"
+              className="inline-flex min-h-11 items-center font-semibold text-brand-700 hover:underline disabled:text-muted disabled:no-underline"
               onClick={() => sendCode()}
               disabled={busy || cooldown > 0}
             >
@@ -192,7 +216,7 @@ export function SignInForm({ next }: { next: string }) {
             </button>
             <button
               type="button"
-              className="font-semibold text-muted hover:text-ink hover:underline"
+              className="inline-flex min-h-11 items-center font-semibold text-muted hover:text-ink hover:underline"
               onClick={() => {
                 setStep("email");
                 setCode("");

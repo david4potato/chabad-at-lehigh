@@ -7,13 +7,14 @@ import { initialActionState, type ActionResult } from "@/lib/action-result";
 import { ROLES, ROLE_LABELS, type Role } from "@/lib/roles";
 import { Field, Input, Select } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
+import { Form } from "@/components/ui/form";
 import { FormMessage } from "@/components/ui/form-message";
 
 export function GrantRoleForm() {
   const [state, action] = useActionState(grantRole, initialActionState);
   const e = state.ok ? undefined : state.fieldErrors;
   return (
-    <form action={action} className="space-y-4">
+    <Form action={action} state={state} resetOnSuccess className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-[1fr_200px]">
         <Field label="Email" htmlFor="grant-email" errors={e?.email} required>
           <Input id="grant-email" name="email" type="email" required placeholder="name@lehigh.edu" />
@@ -30,7 +31,7 @@ export function GrantRoleForm() {
       </div>
       <SubmitButton>Give role</SubmitButton>
       <FormMessage state={state} />
-    </form>
+    </Form>
   );
 }
 

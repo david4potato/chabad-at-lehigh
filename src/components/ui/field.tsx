@@ -1,4 +1,4 @@
-import type { ComponentProps, ReactNode } from "react";
+import { cloneElement, isValidElement, type AriaAttributes, type ComponentProps, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 const control =
@@ -51,7 +51,16 @@ export function FieldError({ errors, id }: { errors?: string[]; id?: string }) {
   );
 }
 
-/** Label + control + hint + error, with ids wired up for screen readers. */
+/** Joins aria-describedby ids, skipping blanks and repeats. */
+function describedBy(...ids: (string | undefined)[]) {
+  const list = ids.flatMap((v) => v?.split(/\s+/) ?? []).filter(Boolean);
+  return [...new Set(list)].join(" ") || undefined;
+}
+
+/**
+ * Label + control + hint + error, with ids wired up for screen readers: the single child control gets
+ * aria-describedby (hint and error) and aria-invalid when there's an error.
+ */
 export function Field({
   label,
   htmlFor,
@@ -69,6 +78,14 @@ export function Field({
   children: ReactNode;
   className?: string;
 }) {
+  const hintId = hint ? `${htmlFor}-hint` : undefined;
+  const errorId = errors?.length ? `${htmlFor}-error` : undefined;
+  const child = isValidElement<{ "aria-describedby"?: string; "aria-invalid"?: AriaAttributes["aria-invalid"] }>(children)
+    ? cloneElement(children, {
+        "aria-describedby": describedBy(children.props["aria-describedby"], hintId, errorId),
+        "aria-invalid": errorId ? true : children.props["aria-invalid"],
+      })
+    : children;
   return (
     <div className={cn("space-y-1.5", className)}>
       <Label htmlFor={htmlFor}>
@@ -80,9 +97,9 @@ export function Field({
           </span>
         ) : null}
       </Label>
-      {children}
-      {hint ? <Hint id={`${htmlFor}-hint`}>{hint}</Hint> : null}
-      <FieldError errors={errors} id={`${htmlFor}-error`} />
+      {child}
+      {hint ? <Hint id={hintId}>{hint}</Hint> : null}
+      <FieldError errors={errors} id={errorId} />
     </div>
   );
 }

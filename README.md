@@ -7,7 +7,8 @@ ingredients and allergens, private dietary preferences, and a simple organizer d
 - **Set it up:** [SETUP.md](SETUP.md) — numbered beginner guide with an environment-variable checklist.
 - **Before real use:** organizers sign off on [docs/ORGANIZER_REVIEW.md](docs/ORGANIZER_REVIEW.md).
   Dish votes are never proof that food is safe for someone with an allergy.
-- **Organizers:** the dashboard has a built-in guide at **Dashboard → Help**.
+- **Organizers:** one-page [docs/ORGANIZER_QUICKSTART.md](docs/ORGANIZER_QUICKSTART.md), plus a built-in guide at
+  **Dashboard → Help**. Admins get a **Getting started** checklist (incl. one-click demo removal).
 
 ## Features
 
@@ -19,9 +20,9 @@ ingredients and allergens, private dietary preferences, and a simple organizer d
 | Menus | Ingredients and allergens visible before RSVP: **Contains** vs **May contain (cross-contact)** vs **Related** (sesame seeds ↔ oil, wheat ↔ gluten). Kitchen confirmation, versions, urgent updates, disclaimer and organizer contact. Personal allergy alerts — never a "safe" label. |
 | Voting | Favorites, votes on proposed dishes, suggestions — all advisory. |
 | Profile & settings | Details, private dietary profile (allergens with severity, diets, notes, consent), notifications, delete dietary info or the whole account. |
-| Notifications | In-app bell: waitlist promotions, approvals, invitations, urgent menu changes. |
-| Dashboard | Events (duplicate weekly), attendees (approvals, guests, check-in, email, CSV, invitations), menu editor with required preparation confirmation, dishes and ingredients, dietary report, announcements, suggestions, people & roles, settings, audit log, Help. |
-| Find Us | Address, directions, map buttons, contact. Pre-filled from public listings — confirm in Settings. |
+| Notifications | In-app bell: waitlist promotions, approvals, invitations, cancelled or changed events, urgent menu changes. |
+| Dashboard | Events (duplicate weekly), attendees (approvals, guests, cancel for someone, check-in, email, CSV, invitations), menu editor with required preparation confirmation, dishes and ingredients, dietary report, announcements, suggestions, people & roles, settings, audit log, Help. |
+| Find Us | Address, directions, map buttons, contact. Pre-filled from public sources — confirm in Settings and add the phone. |
 
 **Planned** (shown at `/coming-soon`): volunteer and learning sign-ups, photo gallery, opt-in "friends
 attending", email/text reminders, QR check-in, customized meals. Database tables for volunteer shifts,
@@ -48,6 +49,7 @@ learning sign-ups and a gallery bucket already exist.
 ## Security and privacy
 
 - No service-role key anywhere in the app; every query runs as the signed-in person under row level security.
+- Passwordless only: the database strips any password, so nobody can pre-register someone else's email.
 - Business rules live in SQL so they can't be bypassed: capacity/waitlist (row-locked), approvals, menu
   publishing (confirmation required, published menus frozen), notifications, rate limits (in Postgres).
 - Dietary data is owner-only; kitchen staff/admins see it only through an audited report.
@@ -79,8 +81,8 @@ http://127.0.0.1:54324.
 
 ## Verified locally (before deployment)
 
-Against a local Supabase stack and a production build: **105** unit tests, **111** database tests,
-**28** end-to-end tests (14 journeys × phone and desktop, real email-code sign-in), and a crawl of every
+Against a local Supabase stack and a production build: **115** unit tests, **154** database tests,
+**32** end-to-end tests (16 journeys × phone and desktop, real email-code sign-in), and a crawl of every
 internal link as a visitor and as an admin (no errors). The one-file SQL setup was verified on an empty database. Your
 hosted Supabase, Vercel, email sender and domain are verified by the checklist at the end of SETUP.md.
 

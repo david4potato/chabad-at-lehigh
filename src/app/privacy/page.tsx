@@ -39,9 +39,9 @@ export default async function PrivacyPage() {
       title: "Where it's stored",
       body: (
         <p>
-          The app is hosted on Vercel and stores data in Supabase (a managed Postgres database) with strict access rules
-          on every table. We don&apos;t sell your information, show ads, or use tracking cookies — only the cookie that
-          keeps you signed in.
+          The app is hosted on Vercel, stores data in Supabase (a managed Postgres database) with strict access rules on
+          every table, and sends sign-in emails through an email delivery service. We don&apos;t sell your information,
+          show ads, or use tracking cookies — only the cookie that keeps you signed in.
         </p>
       ),
     },

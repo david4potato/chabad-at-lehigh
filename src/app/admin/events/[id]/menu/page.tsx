@@ -28,12 +28,13 @@ const NOTICES: Record<string, string> = {
   started: "Draft started. Changes stay private until you publish.",
   discarded: "Draft discarded. The published menu (if any) is unchanged.",
   published: "Menu published.",
-  published_urgent: "Menu published, and everyone who RSVP'd was notified.",
+  published_urgent: "Menu published, and everyone who RSVP'd was notified in the app (no email or text).",
 };
 
 export default async function MenuAdminPage({ params, searchParams }: PageProps<"/admin/events/[id]/menu">) {
   const [{ id }, query] = await Promise.all([params, searchParams]);
-  const notice = typeof query.notice === "string" ? NOTICES[query.notice] : undefined;
+  // Own keys only: ?notice=constructor would otherwise return a function and crash the page.
+  const notice = typeof query.notice === "string" && Object.hasOwn(NOTICES, query.notice) ? NOTICES[query.notice] : undefined;
   const viewer = await requireRole(["organizer", "kitchen_staff", "admin"], `/admin/events/${id}/menu`);
   const event = await getAdminEvent(id);
   const supabase = await createClient();

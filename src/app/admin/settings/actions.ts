@@ -9,7 +9,7 @@ import { dbErrorMessage, validationError, type ActionResult } from "@/lib/action
 const field = (max: number) => z.string().trim().max(max, `Please keep this under ${max} characters.`).default("");
 
 const schema = z.object({
-  name: z.string().trim().min(2, "Please enter a name.").max(120),
+  name: z.string().trim().min(2, "Please enter a name.").max(120, "Please keep this under 120 characters."),
   contact_name: field(120),
   contact_email: z.union([z.literal(""), z.email("Please enter a valid email.").max(254)]).default(""),
   contact_phone: field(40),
@@ -20,26 +20,33 @@ const schema = z.object({
   student_email_domains: z
     .string()
     .trim()
-    .max(500)
+    .max(500, "Please keep this under 500 characters.")
     .transform((v) =>
       v
-        .split(/[\s,]+/)
+        .split(/[\s,;]+/)
         .map((d) => d.trim().toLowerCase().replace(/^@/, ""))
         .filter(Boolean),
     )
-    .pipe(z.array(z.string().regex(/^[a-z0-9-]+(\.[a-z0-9-]+)+$/, "Use domains like lehigh.edu")).max(10)),
+    // Checked as one list so the error shows under the field (not at "student_email_domains.1").
+    .superRefine((list, ctx) => {
+      const bad = list.filter((d) => !/^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(d));
+      if (bad.length) ctx.addIssue({ code: "custom", message: `${bad.join(", ")} isn't a domain. Use domains like lehigh.edu.` });
+      if (list.length > 10) ctx.addIssue({ code: "custom", message: "Up to 10 domains." });
+    }),
 });
 
 export async function saveSettings(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
-  if (!(await viewerWithRole(["admin"]))) return { ok: false, error: "Only admins can change settings." };
+  const viewer = await viewerWithRole(["admin"]);
+  if (!viewer) return { ok: false, error: "Only admins can change settings." };
   const parsed = schema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return validationError(parsed.error);
   const { student_email_domains, ...organization } = parsed.data;
 
   const supabase = await createClient();
   const { error } = await supabase.from("app_settings").upsert([
-    { key: "organization", value: organization },
-    { key: "student_email_domains", value: student_email_domains },
+    // updated_by ticks the "Check the contact details" step in Getting started.
+    { key: "organization", value: organization, updated_by: viewer.id },
+    { key: "student_email_domains", value: student_email_domains, updated_by: viewer.id },
   ]);
   if (error) return { ok: false, error: dbErrorMessage(error) };
   revalidatePath("/", "layout");

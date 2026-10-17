@@ -55,9 +55,25 @@ export async function decideGuests(eventId: string, rsvpId: string, decision: "a
     p_decision: g.data.decision,
     p_override_capacity: g.data.override,
   });
+  if (error?.message === "not_enough_capacity") {
+    // Refresh the list so the over-capacity option shows for this row.
+    revalidate(g.data.eventId);
+    return { ok: false, error: "There isn't room for these guests. You can approve them anyway (over capacity) or decline them." };
+  }
   if (error) return { ok: false, error: dbErrorMessage(error) };
   revalidate(g.data.eventId);
   return { ok: true, message: decision === "approve" ? "Guests confirmed." : "Guests declined." };
+}
+
+/** Mark someone as not going on their behalf (e.g. they texted that they can't come). Frees the seat for the waitlist. */
+export async function cancelRsvp(eventId: string, rsvpId: string): Promise<ActionResult> {
+  const g = await guard({ eventId, rsvpId, decision: "decline" });
+  if ("error" in g) return { ok: false, error: g.error! };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("staff_cancel_rsvp", { p_rsvp_id: g.data.rsvpId });
+  if (error) return { ok: false, error: dbErrorMessage(error) };
+  revalidate(g.data.eventId);
+  return { ok: true, message: "RSVP cancelled. They've been notified." };
 }
 
 export async function setCheckIn(eventId: string, rsvpId: string, checkedIn: boolean): Promise<ActionResult> {
@@ -72,6 +88,22 @@ export async function setCheckIn(eventId: string, rsvpId: string, checkedIn: boo
 
 export type InviteResult = ActionResult<{ email: string; result: string }[]>;
 
+/**
+ * Pasted text to a list of addresses. A list copied from an email client
+ * ("Sarah Cohen" <sarah@lehigh.edu>, ...) keeps only the addresses. Otherwise every
+ * word is kept, so typos come back as "not a valid email" instead of vanishing.
+ */
+function parseEmailList(text: string): string[] {
+  const clean = (t: string) => t.trim().replace(/^[<"'(\[]+|[>"')\]:.,;]+$/g, "").toLowerCase();
+  const tokens = text.includes("<")
+    ? [
+        ...Array.from(text.matchAll(/<([^<>]*)>/g), (m) => m[1]),
+        ...text.replace(/<[^<>]*>/g, " ").split(/[\s,;]+/).filter((t) => t.includes("@")),
+      ]
+    : text.split(/[\s,;]+/);
+  return [...new Set(tokens.map(clean).filter(Boolean))];
+}
+
 /** Send in-app invitations to members by email (organizers/admins). */
 export async function invitePeople(_prev: InviteResult, formData: FormData): Promise<InviteResult> {
   if (!(await viewerWithRole(ORGANIZERS))) return { ok: false, error: "You don't have permission to do that." };
@@ -83,7 +115,8 @@ export async function invitePeople(_prev: InviteResult, formData: FormData): Pro
     })
     .safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Please check the form." };
-  const emails = parsed.data.emails.split(/[\s,;]+/).filter(Boolean);
+  const emails = parseEmailList(parsed.data.emails);
+  if (emails.length === 0) return { ok: false, error: "Add at least one email address." };
   if (emails.length > 100) return { ok: false, error: "Please invite up to 100 people at a time." };
 
   const supabase = await createClient();

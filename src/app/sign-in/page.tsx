@@ -17,7 +17,8 @@ const ERRORS: Record<string, string> = {
 export default async function SignInPage({ searchParams }: PageProps<"/sign-in">) {
   const params = await searchParams;
   const next = safeNextPath(typeof params.next === "string" ? params.next : null, "/");
-  const error = typeof params.error === "string" ? ERRORS[params.error] : undefined;
+  const error =
+    typeof params.error === "string" && Object.hasOwn(ERRORS, params.error) ? ERRORS[params.error] : undefined;
 
   if (await getViewer()) redirect(next);
 

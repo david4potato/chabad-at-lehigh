@@ -2,13 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, CalendarPlus, ChefHat, Lightbulb, Megaphone, UserCheck } from "lucide-react";
 import { requireRole } from "@/lib/auth";
-import { canManageEvents, canManageMenus } from "@/lib/roles";
+import { canManageEvents, canManageMenus, isAdmin } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 import { formatShortDate, formatTime } from "@/lib/time";
 import { getEventCounts } from "@/lib/data/events";
 import { Card, CardTitle } from "@/components/ui/card";
 import { ButtonLink } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Alert } from "@/components/ui/alert";
+import { GettingStarted } from "@/components/admin/getting-started";
 
 export const metadata: Metadata = { title: "Overview" };
 
@@ -16,13 +18,14 @@ function since() {
   return new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString();
 }
 
-export default async function AdminHome() {
+export default async function AdminHome({ searchParams }: PageProps<"/admin">) {
   const viewer = await requireRole(["organizer", "kitchen_staff", "admin"], "/admin");
+  const params = await searchParams;
   const organizer = canManageEvents(viewer.roles);
   const menus = canManageMenus(viewer.roles);
   const supabase = await createClient();
 
-  const [{ data: events }, suggestions] = await Promise.all([
+  const [{ data: events }, { data: published }, suggestions] = await Promise.all([
     supabase
       .from("events")
       .select("id, title, starts_at, capacity, status, has_meal")
@@ -30,17 +33,25 @@ export default async function AdminHome() {
       .gte("starts_at", since())
       .order("starts_at")
       .limit(5),
+    // Approvals are counted across every upcoming event, not just the five listed.
+    organizer
+      ? supabase.from("events").select("id").eq("status", "published").gte("starts_at", since()).limit(500)
+      : Promise.resolve({ data: [] as { id: string }[] }),
     menus
       ? supabase.from("dish_suggestions").select("id", { count: "exact", head: true }).eq("status", "new")
       : Promise.resolve({ count: 0 }),
   ]);
   const upcoming = events ?? [];
-  const counts = await getEventCounts(upcoming.map((e) => e.id));
-  const pendingTotal = [...counts.values()].reduce((sum, c) => sum + c.pending, 0);
+  const pendingIds = (published ?? []).map((e) => e.id);
+  const counts = await getEventCounts([...new Set([...upcoming.map((e) => e.id), ...pendingIds])]);
+  const pendingTotal = pendingIds.reduce((sum, id) => sum + (counts.get(id)?.pending ?? 0), 0);
   const newSuggestions = suggestions.count ?? 0;
 
   return (
     <div className="space-y-6">
+      {params.denied ? (
+        <Alert tone="warning">That page needs a different role. Ask an admin (People &amp; roles) if you need access.</Alert>
+      ) : null}
       <div>
         <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">Hi, {viewer.displayName}</h1>
         <p className="mt-1 text-muted">
@@ -51,6 +62,8 @@ export default async function AdminHome() {
           .
         </p>
       </div>
+
+      {isAdmin(viewer.roles) ? <GettingStarted /> : null}
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {organizer ? (

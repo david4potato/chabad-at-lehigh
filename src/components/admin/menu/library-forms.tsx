@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState, useTransition } from "react";
+import { useActionState, useState, useTransition } from "react";
 import { Trash2 } from "lucide-react";
 import {
   addDishIngredient,
@@ -17,6 +17,7 @@ import { COURSE_LABELS, COURSE_ORDER } from "@/lib/menu";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Input, Select, Textarea } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
+import { Form } from "@/components/ui/form";
 import { FormMessage } from "@/components/ui/form-message";
 
 type Dish = {
@@ -33,7 +34,7 @@ export function DishForm({ dish, defaultName }: { dish?: Dish; defaultName?: str
   const [state, action] = useActionState(saveDish, initialActionState);
   const e = state.ok ? undefined : state.fieldErrors;
   return (
-    <form action={action} className="space-y-4">
+    <Form action={action} className="space-y-4">
       <input type="hidden" name="id" value={dish?.id ?? ""} />
       <Field label="Dish name" htmlFor="dish-name" errors={e?.name} required>
         <Input id="dish-name" name="name" required minLength={2} maxLength={120} defaultValue={dish?.name ?? defaultName ?? ""} />
@@ -73,20 +74,16 @@ export function DishForm({ dish, defaultName }: { dish?: Dish; defaultName?: str
       </div>
       <SubmitButton>{dish ? "Save dish" : "Create dish"}</SubmitButton>
       <FormMessage state={state} />
-    </form>
+    </Form>
   );
 }
 
 export function AddIngredientForm({ dishId, ingredients }: { dishId: string; ingredients: { id: string; name: string }[] }) {
   const [state, action] = useActionState(addDishIngredient, initialActionState);
   const [mode, setMode] = useState<"existing" | "new">("existing");
-  const formRef = useRef<HTMLFormElement>(null);
-  useEffect(() => {
-    if (state.ok && state.message) formRef.current?.reset();
-  }, [state]);
 
   return (
-    <form ref={formRef} action={action} className="space-y-4">
+    <Form action={action} state={state} resetOnSuccess className="space-y-4">
       <input type="hidden" name="dish_id" value={dishId} />
       <div className="flex gap-2" role="radiogroup" aria-label="Ingredient source">
         {(["existing", "new"] as const).map((m) => (
@@ -139,7 +136,7 @@ export function AddIngredientForm({ dishId, ingredients }: { dishId: string; ing
       </div>
       <SubmitButton variant="secondary">Add ingredient</SubmitButton>
       <FormMessage state={state} />
-    </form>
+    </Form>
   );
 }
 
@@ -193,14 +190,10 @@ export function IngredientForm({
 }) {
   const [state, action] = useActionState(saveIngredient, initialActionState);
   const del = useAction();
-  const formRef = useRef<HTMLFormElement>(null);
   const p = ingredient?.id ?? "new";
-  useEffect(() => {
-    if (state.ok && state.message && !ingredient) formRef.current?.reset();
-  }, [state, ingredient]);
 
   return (
-    <form ref={formRef} action={action} className="space-y-4">
+    <Form action={action} state={state} resetOnSuccess={!ingredient} className="space-y-4">
       <input type="hidden" name="id" value={ingredient?.id ?? ""} />
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Name" htmlFor={`ing-name-${p}`}>
@@ -235,14 +228,14 @@ export function IngredientForm({
       </div>
       <FormMessage state={state} />
       <FormMessage state={del.result} />
-    </form>
+    </Form>
   );
 }
 
 export function SuggestionReviewForm({ suggestion }: { suggestion: { id: string; status: string; staff_response: string | null } }) {
   const [state, action] = useActionState(reviewSuggestion, initialActionState);
   return (
-    <form action={action} className="space-y-3">
+    <Form action={action} className="space-y-3">
       <input type="hidden" name="id" value={suggestion.id} />
       <div className="grid gap-3 sm:grid-cols-[200px_1fr]">
         <Field label="Status" htmlFor={`status-${suggestion.id}`}>
@@ -261,6 +254,6 @@ export function SuggestionReviewForm({ suggestion }: { suggestion: { id: string;
         Save
       </SubmitButton>
       <FormMessage state={state} />
-    </form>
+    </Form>
   );
 }
