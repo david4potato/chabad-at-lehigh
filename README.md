@@ -111,6 +111,17 @@ custom domain via Cloudflare DNS, optional Cloudflare Turnstile, and a productio
 checklist. CI (`.github/workflows/ci.yml`) runs lint, typecheck, unit tests, build, database
 tests and end-to-end tests on every push and pull request.
 
+## Verification status (local, before deployment)
+
+Tested against a local Supabase stack (Postgres 17, Auth, Storage, Mailpit) with a production build:
+
+- **Unit tests:** 105 passing (time zones incl. daylight-saving changes, allergen matching incl. sesame seed ↔ oil, safe redirects, menu helpers, error messages).
+- **Database tests (pgTAP):** 94 passing — dietary privacy, roles, audit log, event visibility, RSVP capacity/waitlist/approvals/guests/deadlines/check-in/rate limits, menu drafts/publishing/immutability/snapshots/urgent notifications, votes and suggestions.
+- **End-to-end tests (Playwright):** 24 passing (12 journeys × phone and desktop) using real email-code sign-in.
+- The one-file SQL setup (`supabase/setup/all_migrations.sql`) was verified on an empty database, followed by the seed, `bootstrap_admin.sql` and `remove_demo_data.sql`.
+
+Not yet verified: anything on your hosted Supabase project, Vercel, custom SMTP delivery and your domain — those happen during [SETUP.md](SETUP.md), which ends with a production verification checklist.
+
 ## Notes for future maintainers
 
 - Next.js 16 runs here with `cacheComponents: false` (classic dynamic rendering) because nearly
