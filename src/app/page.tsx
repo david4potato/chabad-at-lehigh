@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Clock, Flame, MapPin, Phone, Salad, Mail, Navigation } from "lucide-react";
 import { getViewer } from "@/lib/auth";
 import { getOrgSettings } from "@/lib/settings";
+import { safeNextPath } from "@/lib/safe-redirect";
 import { formatLongDate, formatTimeRange, relativeDay } from "@/lib/time";
 import {
   getEventsMeta,
@@ -60,7 +61,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
             {urgent.map((n) => (
               <li key={n.id}>
                 {n.link ? (
-                  <Link href={n.link} className="font-semibold underline underline-offset-2">
+                  <Link href={safeNextPath(n.link)} className="font-semibold underline underline-offset-2">
                     {n.title}
                   </Link>
                 ) : (

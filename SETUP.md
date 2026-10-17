@@ -55,7 +55,9 @@ You will add these in **Vercel → your project → Settings → Environment Var
    them in step 36.
 7. Check it worked: sidebar → **Table Editor** — you should see tables such as `events`, `rsvps`,
    `dishes`, `dietary_profiles`. Then sidebar → **Advisors → Security Advisor** → there should be
-   no red "Error" items.
+   no red "Error" items. A few yellow warnings about functions that anyone can call (such as
+   `get_event_menu`, `get_event_counts`, `has_role`) are expected: they only return public
+   information or answer "no" for visitors.
 8. Sidebar → **Project Settings → Data API**: copy the **Project URL** into a note
    (`NEXT_PUBLIC_SUPABASE_URL`).
 9. **Project Settings → API Keys**: copy the **Publishable key** (`sb_publishable_…`) into the

@@ -184,7 +184,7 @@ export function AttendeeList({ eventId, attendees }: { eventId: string; attendee
                         disabled={busy}
                         aria-pressed={Boolean(a.checked_in_at)}
                         onClick={() => run(a.id, () => setCheckIn(eventId, a.id, !a.checked_in_at))}
-                        className="min-w-36"
+                        className="w-full min-w-36 md:w-auto"
                       >
                         {a.checked_in_at ? (
                           <>

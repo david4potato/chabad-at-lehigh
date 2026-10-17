@@ -3,6 +3,7 @@ import Link from "next/link";
 import { requireViewer } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { formatDateTime } from "@/lib/time";
+import { safeNextPath } from "@/lib/safe-redirect";
 import { cn } from "@/lib/cn";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -52,7 +53,7 @@ export default async function NotificationsPage() {
                 <p className="mt-1 font-semibold text-ink">{n.title}</p>
                 {n.body ? <p className="mt-0.5 text-sm text-muted">{n.body}</p> : null}
                 {n.link ? (
-                  <Link href={n.link} className="mt-1 inline-flex min-h-11 items-center text-sm font-semibold text-brand-700 hover:underline">
+                  <Link href={safeNextPath(n.link)} className="mt-1 inline-flex min-h-11 items-center text-sm font-semibold text-brand-700 hover:underline">
                     View details →
                   </Link>
                 ) : null}

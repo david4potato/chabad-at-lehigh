@@ -12,7 +12,7 @@ export default function MealSafetyPage() {
     <div className="mx-auto max-w-3xl space-y-5">
       <PageHeader
         title="Meals & allergies"
-        description="How our menus work, what the allergen labels mean, and how to stay safe with a food allergy."
+        description="How our menus work, what the allergen labels mean, and what to do if you have a food allergy."
       />
 
       <Card>
