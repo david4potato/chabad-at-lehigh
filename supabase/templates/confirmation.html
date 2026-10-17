@@ -1,0 +1,16 @@
+<h2 style="font-family: Arial, sans-serif; color: #1d2433;">Welcome to Chabad at Lehigh</h2>
+<p style="font-family: Arial, sans-serif; color: #1d2433; font-size: 16px;">
+  Tap the button below to finish creating your account. This link works on any device and expires in one hour.
+</p>
+<p>
+  <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email"
+     style="display: inline-block; background: #1d45a3; color: #ffffff; padding: 12px 20px; border-radius: 10px; font-family: Arial, sans-serif; font-weight: bold; text-decoration: none;">
+    Sign in
+  </a>
+</p>
+<p style="font-family: Arial, sans-serif; color: #1d2433; font-size: 16px;">
+  Or enter this code in the app: <strong style="font-size: 22px; letter-spacing: 4px;">{{ .Token }}</strong>
+</p>
+<p style="font-family: Arial, sans-serif; color: #4a5466; font-size: 13px;">
+  If you didn't ask to sign in, you can ignore this email.
+</p>

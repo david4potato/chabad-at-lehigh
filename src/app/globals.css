@@ -1,26 +1,83 @@
 @import "tailwindcss";
 
+/*
+  Design tokens — warm, bright and high-contrast.
+  brand = deep blue (buttons, links), gold = Shabbat warmth (highlights),
+  cream = page background. All text colors meet WCAG AA on cream and white.
+*/
+@theme {
+  --color-cream: #fffaf2;
+  --color-ink: #1d2433;
+  --color-muted: #4a5466;
+
+  --color-brand-50: #eef4ff;
+  --color-brand-100: #dbe6fe;
+  --color-brand-200: #bfd3fe;
+  --color-brand-500: #3b6fe0;
+  --color-brand-600: #2557c7;
+  --color-brand-700: #1d45a3;
+  --color-brand-800: #1b3a82;
+  --color-brand-900: #182f63;
+
+  --color-gold-50: #fff8eb;
+  --color-gold-100: #feedc7;
+  --color-gold-200: #fdd98a;
+  --color-gold-400: #f6b23b;
+  --color-gold-500: #e8941a;
+  --color-gold-700: #9a5a0c;
+  --color-gold-800: #7c4810;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Noto Sans", sans-serif;
+
+  --radius-card: 1.25rem;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Clear, consistent keyboard focus everywhere. */
+:focus-visible {
+  outline: 3px solid var(--color-brand-500);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Respect people who prefer less motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Leave room for the mobile bottom navigation + iPhone home indicator. */
+.pb-safe-nav {
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+}
+@media (min-width: 768px) {
+  .pb-safe-nav {
+    padding-bottom: 0;
+  }
+}
+
+.prose-simple p + p {
+  margin-top: 0.75rem;
 }
