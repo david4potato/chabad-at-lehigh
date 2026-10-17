@@ -1,0 +1,90 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowRight, Bell, LayoutDashboard, LogOut, Salad, Ticket } from "lucide-react";
+import { requireViewer } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
+import { ROLE_LABELS, isStaff } from "@/lib/roles";
+import { PageHeader } from "@/components/ui/page-header";
+import { Card, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ProfileForm } from "@/components/account/profile-form";
+import { saveProfile } from "./actions";
+
+export const metadata: Metadata = { title: "Profile" };
+
+export default async function ProfilePage() {
+  const viewer = await requireViewer("/profile");
+  const supabase = await createClient();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("full_name, preferred_name, affiliation, class_year, phone")
+    .eq("id", viewer.id)
+    .single();
+
+  const links = [
+    { href: "/profile/dietary", label: "Dietary & allergies", hint: viewer.hasDietaryInfo ? "Saved — private" : "Not added yet", Icon: Salad },
+    {
+      href: "/notifications",
+      label: "Notifications",
+      hint: viewer.unreadNotifications > 0 ? `${viewer.unreadNotifications} unread` : "You're all caught up",
+      Icon: Bell,
+    },
+    { href: "/my-events", label: "My events", hint: "Your RSVPs", Icon: Ticket },
+    ...(isStaff(viewer.roles) ? [{ href: "/admin", label: "Organizer dashboard", hint: "Events, menus, RSVPs", Icon: LayoutDashboard }] : []),
+  ];
+
+  return (
+    <div className="mx-auto max-w-3xl space-y-6">
+      <PageHeader title={`Hi, ${viewer.displayName}`} description={viewer.email} />
+
+      <div className="flex flex-wrap gap-2">
+        {viewer.roles.map((r) => (
+          <Badge key={r} tone={r === "student" || r === "community_guest" ? "neutral" : "brand"}>
+            {ROLE_LABELS[r]}
+          </Badge>
+        ))}
+      </div>
+
+      <ul className="grid gap-3 sm:grid-cols-2">
+        {links.map(({ href, label, hint, Icon }) => (
+          <li key={href}>
+            <Link
+              href={href}
+              className="flex items-center gap-3 rounded-[var(--radius-card)] border border-stone-200 bg-white p-4 shadow-sm hover:border-brand-200"
+            >
+              <span className="flex size-10 items-center justify-center rounded-full bg-brand-50 text-brand-700">
+                <Icon className="size-5" aria-hidden="true" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block font-semibold text-ink">{label}</span>
+                <span className="block text-sm text-muted">{hint}</span>
+              </span>
+              <ArrowRight className="size-4 text-muted" aria-hidden="true" />
+            </Link>
+          </li>
+        ))}
+      </ul>
+
+      <Card>
+        <CardTitle>Your details</CardTitle>
+        <p className="mt-1 text-sm text-muted">
+          Your sign-in email can&apos;t be changed here — ask an organizer if you need to update it.
+        </p>
+        <div className="mt-5">
+          <ProfileForm
+            action={saveProfile}
+            profile={profile ?? { full_name: null, preferred_name: null, affiliation: viewer.affiliation, class_year: null, phone: null }}
+            submitLabel="Save changes"
+          />
+        </div>
+      </Card>
+
+      <form action="/auth/sign-out" method="post">
+        <Button type="submit" variant="secondary" className="w-full sm:w-auto">
+          <LogOut className="size-4" aria-hidden="true" /> Sign out
+        </Button>
+      </form>
+    </div>
+  );
+}

@@ -56,6 +56,14 @@ export function siteLocalToUtcIso(value: string): string | null {
   const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(value.trim());
   if (!m) return null;
   const [y, mo, d, h, mi] = m.slice(1).map(Number);
+  // Reject impossible values (Feb 30, month 13, 25:00) instead of rolling over.
+  const check = new Date(Date.UTC(y, mo - 1, d, h, mi));
+  if (
+    check.getUTCFullYear() !== y || check.getUTCMonth() !== mo - 1 || check.getUTCDate() !== d ||
+    check.getUTCHours() !== h || check.getUTCMinutes() !== mi
+  ) {
+    return null;
+  }
   // Start from the same wall-clock time in UTC, then correct by the zone offset
   // (twice, to settle correctly around DST transitions).
   const wallAsUtc = Date.UTC(y, mo - 1, d, h, mi);

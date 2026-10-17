@@ -87,17 +87,14 @@ export function matchDishAllergens(
   for (const { code, severity } of profile) {
     if (contains.has(code)) {
       matches.push({ code, severity, kind: optionalOnly.has(code) ? "contains_optional" : "contains" });
-      continue;
-    }
-    if (cross.has(code)) {
+    } else if (cross.has(code)) {
       matches.push({ code, severity, kind: "cross_contact" });
-      continue;
     }
-    const related = RELATED_ALLERGENS[code as AllergenCode] ?? [];
-    for (const rel of related) {
+    // Always mention related allergens too (e.g. a dish that may contain sesame
+    // seeds AND contains sesame oil), keeping the severity the person gave.
+    for (const rel of RELATED_ALLERGENS[code as AllergenCode] ?? []) {
       if (contains.has(rel) || cross.has(rel)) {
         matches.push({ code, severity, kind: "related", relatedTo: rel });
-        break;
       }
     }
   }

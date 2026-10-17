@@ -42,7 +42,7 @@ const DB_ERROR_MESSAGES: Record<string, string> = {
 export function dbErrorMessage(error: PostgrestError | { message?: string; code?: string } | null): string {
   if (!error) return "Something went wrong. Please try again.";
   const msg = (error.message ?? "").trim();
-  if (DB_ERROR_MESSAGES[msg]) return DB_ERROR_MESSAGES[msg];
+  if (Object.hasOwn(DB_ERROR_MESSAGES, msg)) return DB_ERROR_MESSAGES[msg];
   if (error.code === "23505") return "That already exists.";
   if (error.code === "42501") return "You don't have permission to do that.";
   if (error.code === "23503") return "That item is still in use, so it can't be removed.";
