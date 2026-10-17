@@ -46,7 +46,7 @@ export function DishCard({ item, matches, favorite }: Props) {
         >
           <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
           <div>
-            <p className="font-semibold">Based on your dietary profile:</p>
+            <p className="font-semibold">Your allergies:</p>
             <ul className="mt-0.5 list-disc pl-4">
               {matches.map((m) => (
                 <li key={`${m.code}-${m.kind}-${m.relatedTo ?? ""}`}>{describeMatch(m, dish.allergens)}</li>

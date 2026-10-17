@@ -24,10 +24,10 @@ const SECTIONS: Section[] = [
     body: (
       <ol className="list-decimal space-y-2 pl-5">
         <li>
-          Go to <A href="/admin/events?tab=past">Events → Past</A>, open last week&apos;s dinner, and on the{" "}
-          <strong>Details</strong> tab press <strong>Duplicate for next week</strong>. You get a draft with the same settings.
+          <A href="/admin/events?tab=past">Events → Past</A> → last week&apos;s dinner → <strong>Duplicate for next week</strong>. You get a draft
+          with the same settings.
         </li>
-        <li>Check the date, time, capacity and guest settings, set <strong>Status</strong> to <strong>Published</strong>, and press <strong>Save event</strong>.</li>
+        <li>Check the date, time and capacity, set <strong>Status → Published</strong>, and press <strong>Save event</strong>.</li>
         <li>
           On the <strong>Menu</strong> tab press <strong>Start the menu</strong> (or <strong>Start a new version</strong>), add the dishes, tick the
           preparation confirmation and press <strong>Publish</strong>. (Kitchen staff can do this part.)
@@ -37,8 +37,8 @@ const SECTIONS: Section[] = [
           <A href="/admin/announcements">announcement</A>.
         </li>
         <li>
-          During the week, check <A href="/admin">Overview</A>. If it shows <strong>RSVPs needing approval</strong>, open the event&apos;s
-          <strong> Attendees</strong> tab → <strong>Needs approval</strong> and approve or decline.
+          During the week, check <A href="/admin">Overview</A> for <strong>RSVPs needing approval</strong> and approve or decline them on the
+          event&apos;s <strong>Attendees</strong> tab.
         </li>
         <li>On the day: kitchen staff open the <strong>Dietary</strong> tab and press <strong>Print</strong>.</li>
         <li>At the door: open <strong>Attendees &amp; check-in</strong> on a phone and tap <strong>Check in</strong> as people arrive.</li>
@@ -59,8 +59,8 @@ const SECTIONS: Section[] = [
           automatically (with a notification) when someone cancels.
         </li>
         <li>
-          <strong>Who gets confirmed?</strong> — &ldquo;Confirm everyone&rdquo; is simplest. &ldquo;Guests and community members need approval&rdquo; lets
-          Lehigh students in automatically while you approve plus-ones and community guests. &ldquo;Every RSVP needs approval&rdquo; for special events.
+          <strong>Who gets confirmed?</strong> &ldquo;Confirm everyone&rdquo; is simplest; the approval options let you check plus-ones, community
+          guests, or everyone.
         </li>
         <li>To call an event off, set <strong>Status → Cancelled</strong>. People see it marked cancelled. (Only admins can delete events.)</li>
         <li>Times are always Bethlehem, PA time.</li>
@@ -159,8 +159,8 @@ const SECTIONS: Section[] = [
           account, use <strong>Copy event link</strong> and email it yourself. Anyone can also tap <strong>Invite friends</strong> on an event page.
         </li>
         <li>
-          People get in-app notifications (the bell) when they&apos;re taken off the waitlist, approved or declined, invited, or when an urgent menu
-          update is posted. There are no automatic emails or texts yet — use <strong>Email everyone going</strong> for reminders.
+          The bell notifies people about waitlist spots, approvals, invitations and urgent menu updates. No automatic emails or texts yet — use{" "}
+          <strong>Email everyone going</strong> for reminders.
         </li>
       </ul>
     ),

@@ -43,6 +43,6 @@ export function dishTags(dish: { kosher_type: string | null; diet_tags: string[]
   return [...(dish.kosher_type ? [KOSHER_LABELS[dish.kosher_type] ?? dish.kosher_type] : []), ...dish.diet_tags.map(dietLabel)];
 }
 
-export const ADVISORY_NOTE = "Favorites and votes help us plan. They're advisory — our staff choose the final menu.";
+export const ADVISORY_NOTE = "Votes are advisory — staff choose the final menu. A popular dish isn't a sign it suits an allergy.";
 
 export const signInHref = (slug: string) => `/sign-in?next=${encodeURIComponent(`/events/${slug}#menu`)}`;

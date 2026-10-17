@@ -16,7 +16,7 @@ test.describe("public browsing (signed out)", () => {
     await page.goto(`/events/${slug}`);
     const menu = page.locator("#menu");
     await expect(menu.getByRole("heading", { name: "Menu" })).toBeVisible();
-    await expect(menu.getByText(/confirmed by our kitchen team/i)).toBeVisible();
+    await expect(menu.getByText(/confirmed by our kitchen/i)).toBeVisible();
     // Sesame oil and sesame seeds are shown as separate allergens.
     await expect(menu.getByText("Sesame oil", { exact: true }).first()).toBeVisible();
     await expect(menu.getByText("Sesame seeds", { exact: true }).first()).toBeVisible();

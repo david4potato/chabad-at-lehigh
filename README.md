@@ -1,146 +1,91 @@
 # Chabad at Lehigh
 
-A warm, mobile-first community hub for Chabad at Lehigh: Shabbat dinner RSVPs, events, menus
-with ingredients and allergens, private dietary preferences, dish voting, and a simple
-organizer dashboard.
+A warm, mobile-first hub for Chabad at Lehigh: Shabbat dinner RSVPs, events, menus with
+ingredients and allergens, private dietary preferences, and a simple organizer dashboard.
 
-- **Hosting:** Vercel (free Hobby plan) · **Database, sign-in, storage:** Supabase (free plan)
-- **One codebase**, no paid subscriptions required, no extra services beyond an email sender.
-- **New here? Follow [SETUP.md](SETUP.md)** — a numbered, beginner-friendly guide with an
-  environment variable checklist.
-- **Before real use:** organizers review and approve the workflow and meal/allergy process with
-  [docs/ORGANIZER_REVIEW.md](docs/ORGANIZER_REVIEW.md). Dish votes are never proof that food is
-  safe for someone with an allergy.
+- **Hosting:** Vercel · **Database, sign-in, storage:** Supabase · both free plans, one codebase.
+- **Set it up:** [SETUP.md](SETUP.md) — numbered beginner guide with an environment-variable checklist.
+- **Before real use:** organizers sign off on [docs/ORGANIZER_REVIEW.md](docs/ORGANIZER_REVIEW.md).
+  Dish votes are never proof that food is safe for someone with an allergy.
+- **Organizers:** the dashboard has a built-in guide at **Dashboard → Help**.
 
-## What works in this first release
+## Features
 
-| Area | What people can do |
+| Area | What it does |
 | --- | --- |
-| **Sign-in** | Passwordless: email link *or* 6-digit code (works across devices). Lehigh addresses get the Student role automatically. Short welcome form on first sign-in. |
-| **Home** | Prominent Shabbat dinner card with **Going / Not going / Change RSVP**, urgent notices, this week's events, announcements, quick links. |
-| **Events & RSVP** | Browse without an account. Event details, capacity and spots left, automatic waitlist (auto-promotion when someone cancels), plus-ones, organizer approval when an event requires it, RSVP deadlines, add-to-calendar (.ics). |
-| **My Events** | Upcoming RSVPs with status, change RSVP, past events. |
-| **Menus & allergens** | Every dish shows ingredients and allergens **before** you RSVP: *Contains* (from ingredients) vs *May contain / cross-contact* (kitchen-entered) vs *Related* (sesame seeds ↔ sesame oil, wheat ↔ gluten). Kitchen confirmation date, kitchen notes, version history, urgent updates, disclaimer and organizer contact on every menu. Personal alerts based on your saved allergies (never a "safe" label). |
-| **Voting & suggestions** | Favorite dishes, vote on proposed menu options (advisory only), suggest dishes/ingredients. |
-| **Private dietary profile** | Allergens with severity (sesame seeds and sesame oil listed separately), diets, notes for the kitchen, epinephrine, per-event meal preferences, consent toggle, delete anytime. |
-| **Profile & settings** | Edit name, preferred name, student/community status, class year and phone; dietary & allergies; notifications; privacy; sign out; delete your dietary info or your whole account (seats go to the waitlist; the last admin is protected). |
-| **Notifications** | In-app bell with unread count: waitlist promotions, approvals, invitations, urgent menu changes. |
-| **Invitations** | "Invite friends" on every event (share sheet on phones, copy link elsewhere); organizers can invite members by email from the Attendees tab (in-app invitation). |
-| **Organizer dashboard** | Built-in **Help** guide (Dashboard → Help) with the weekly routine and step-by-step how-tos. Events (create, edit, duplicate for next week, cancel), attendees with approvals, guests, waitlist, door check-in, email attendees (BCC), CSV export; menus (drafts, dishes, cross-contact, publish with required preparation confirmation, urgent updates, voting options); dish & ingredient library; dietary report (named for kitchen/admin, anonymous counts for organizers); announcements; suggestions; people & roles; settings; audit log. |
-| **Find Us** | Address, directions, parking, one-tap Google/Apple Maps links, contact buttons. |
+| Sign-in | Email link or 6-digit code, no passwords. `@lehigh.edu` → Student role automatically. |
+| Home | Shabbat dinner card with **Going / Not going / Change RSVP**, urgent notices, upcoming events, announcements. |
+| Events | Capacity, automatic waitlist, plus-ones, organizer approval, deadlines, add to calendar, **Invite friends**, My Events. |
+| Menus | Ingredients and allergens visible before RSVP: **Contains** vs **May contain (cross-contact)** vs **Related** (sesame seeds ↔ oil, wheat ↔ gluten). Kitchen confirmation, versions, urgent updates, disclaimer and organizer contact. Personal allergy alerts — never a "safe" label. |
+| Voting | Favorites, votes on proposed dishes, suggestions — all advisory. |
+| Profile & settings | Details, private dietary profile (allergens with severity, diets, notes, consent), notifications, delete dietary info or the whole account. |
+| Notifications | In-app bell: waitlist promotions, approvals, invitations, urgent menu changes. |
+| Dashboard | Events (duplicate weekly), attendees (approvals, guests, check-in, email, CSV, invitations), menu editor with required preparation confirmation, dishes and ingredients, dietary report, announcements, suggestions, people & roles, settings, audit log, Help. |
+| Find Us | Address, directions, map buttons, contact. Pre-filled from public listings — confirm in Settings. |
 
-**Planned (clearly labelled in the app at `/coming-soon`, not built yet):** volunteer sign-ups,
-learning program sign-ups, photo gallery, opt-in "friends attending", email/text reminders,
-QR check-in and walk-ins, customized meals and chef integrations. The database already
-has tables (with security rules) for volunteer shifts, learning sign-ups and a gallery storage bucket.
+**Planned** (shown at `/coming-soon`): volunteer and learning sign-ups, photo gallery, opt-in "friends
+attending", email/text reminders, QR check-in, customized meals. Database tables for volunteer shifts,
+learning sign-ups and a gallery bucket already exist.
 
 ## How email works
 
-| Email | Who sends it | Setup needed |
+| Email | How | Setup |
 | --- | --- | --- |
-| **Sign-in emails** (link + 6-digit code) | Supabase Auth, through your email sender (Resend or Gmail SMTP) | SETUP.md steps 10–18. Without custom SMTP, Supabase only delivers to your own team. |
-| **Emailing attendees** | You — "Email everyone going" opens *your* email app with everyone in BCC; "Copy emails" and the CSV export also work | None |
-| **Invitations** | In-app for people with an account; "Copy event link" for everyone else (you paste it into your own email/text) | None |
-| **Contact the organizer** | Visitors, using the contact email/phone in Admin → Settings (mailto/tel links) | Fill in Settings |
-| **Notifications** (waitlist, approvals, invitations, urgent menu changes) | In-app bell only — no automatic emails | None |
+| Sign-in (link + code) | Supabase sends it through your SMTP sender (Resend or Gmail) | SETUP.md Part B — required |
+| Emailing attendees | "Email everyone going" opens *your* email app (BCC); copy emails; CSV | None |
+| Invitations | In-app for members; "Copy event link" for everyone else | None |
+| Notifications | In-app bell only (no automatic emails yet) | None |
 
-Automatic reminder emails are a planned feature (see `/coming-soon`); they would reuse the same Resend account.
+## Roles
 
-## Roles and permissions (least privilege)
-
-| Role | Can do |
+| Role | Can |
 | --- | --- |
-| Student | RSVP, vote, suggest, manage own profile and dietary info. Given automatically to `@lehigh.edu`. |
-| Community guest | Same as student; some events may require organizer approval. |
-| Organizer | Events, RSVPs/approvals/check-in, announcements, menus. Sees **anonymous** dietary counts only. |
-| Kitchen staff | Dishes, ingredients, menus, and the **named** dietary report (every view is logged). |
-| Admin | Everything, including roles, settings and the audit log. |
+| Student / Community guest | RSVP, vote, suggest, manage own profile and dietary info (some events need approval for community guests). |
+| Organizer | Events, RSVPs, check-in, invitations, announcements, menus. **Anonymous** dietary counts only. |
+| Kitchen staff | Dishes, ingredients, menus, and the **named** dietary report (every view logged). |
+| Admin | Everything, plus roles, settings and the audit log. |
 
-Enforcement happens in the database (row level security + role-checking SQL functions); the app
-also checks roles on every staff page and server action.
+## Security and privacy
 
-## Security and privacy model
+- No service-role key anywhere in the app; every query runs as the signed-in person under row level security.
+- Business rules live in SQL so they can't be bypassed: capacity/waitlist (row-locked), approvals, menu
+  publishing (confirmation required, published menus frozen), notifications, rate limits (in Postgres).
+- Dietary data is owner-only; kitchen staff/admins see it only through an audited report.
+- Server-side validation (zod + database checks), safe redirects, security headers.
 
-- **No service-role key** is used anywhere in the app. The browser and server both use the
-  public *publishable* key plus the person's session, so row level security applies to every query.
-- RLS is enabled on every table, with explicit, minimal table/column privileges.
-- Business rules run in SQL so they can't be bypassed: RSVP capacity/waitlist (row-locked, no
-  overselling), approvals, menu publishing (requires preparation confirmation; published menus
-  are immutable snapshots; changes need a new version and a change summary), urgent-update
-  notifications, rate limits (stored in Postgres — no Redis).
-- Dietary data is readable only by its owner. Kitchen staff/admins see it only through an audited
-  report function for events people RSVP'd to; organizers get counts without names.
-- Inputs are validated with zod on the server and with CHECK constraints in the database.
-- Security headers (no framing, no sniffing, strict referrer, HSTS); safe redirects only.
+## Tech and structure
 
-## Tech stack
-
-Next.js 16 (App Router, TypeScript, Server Components & Server Actions) · Tailwind CSS v4 ·
-Supabase (`@supabase/ssr`, Auth, Postgres, Storage) · zod · lucide-react icons ·
-Vitest (unit) · pgTAP (database) · Playwright (end-to-end).
-
-## Project structure
+Next.js 16 (App Router, TypeScript) · Tailwind CSS v4 · Supabase (`@supabase/ssr`) · zod · lucide-react ·
+Vitest · pgTAP · Playwright.
 
 ```
-src/app/              pages and routes (admin/ = organizer dashboard)
-src/components/       ui/ primitives, layout/ header+nav+footer, events/, menu/, account/, admin/
-src/lib/              auth (data access layer), supabase clients, time zone, allergens, menu types
-src/proxy.ts          refreshes sessions; redirects signed-out visitors from private pages
-supabase/migrations/  database schema, RLS policies and SQL functions (source of truth)
-supabase/seed.sql     DEMO data (clearly labelled) for local development / trying the app
-supabase/setup/       all migrations in one file for the Supabase SQL Editor
+src/app/              pages and routes (admin/ = dashboard)
+src/components/       ui/, layout/, events/, menu/, account/, admin/
+src/lib/              auth, Supabase clients, time zone, allergens, menu types
+supabase/migrations/  schema, row level security, SQL functions (source of truth)
+supabase/setup/       all migrations in one file for the SQL Editor
 supabase/scripts/     bootstrap_admin.sql, remove_demo_data.sql
-supabase/templates/   sign-in email templates (link + code)
-supabase/tests/       pgTAP database tests (permissions, RSVP, menus)
-e2e/                  Playwright end-to-end tests
-docs/                 organizer review checklist
+supabase/seed.sql     DEMO data · supabase/templates/ sign-in emails · supabase/tests/ pgTAP
+e2e/                  Playwright tests (+ screenshot and link-crawl tools)
 ```
 
 ## Scripts
 
-| Command | What it does |
-| --- | --- |
-| `npm run dev` | Start the app locally on http://localhost:3000 |
-| `npm run build` / `npm start` | Production build / serve it |
-| `npm run lint` · `npm run typecheck` | ESLint · TypeScript |
-| `npm test` | Unit tests (Vitest) |
-| `npm run db:start` · `npm run db:reset` | Start local Supabase (Docker) · re-apply migrations + DEMO seed |
-| `npm run test:db` | Database security/workflow tests (pgTAP) against local Supabase |
-| `npm run test:e2e` | End-to-end tests (Playwright) — run `npm run build` first, local Supabase must be running |
-| `npm run db:types` | Regenerate `src/lib/database.types.ts` after schema changes |
-| `npm run db:bundle` | Regenerate `supabase/setup/all_migrations.sql` after adding a migration |
-| `npm run check` | Lint + typecheck + unit tests + build |
+`npm run dev` · `build` · `lint` · `typecheck` · `test` (unit) · `test:db` (pgTAP) · `test:e2e` (Playwright,
+after `build`) · `db:start` / `db:reset` (local Supabase via Docker) · `db:types` · `db:bundle` · `check`.
 
-## Local development
+Local development: see the end of [SETUP.md](SETUP.md). Local sign-in emails appear in Mailpit at
+http://127.0.0.1:54324.
 
-See the last section of [SETUP.md](SETUP.md). In short: `npm install`, `npx supabase start`,
-`npx supabase db reset`, create `.env.local` from `.env.example` with the local URL/key, then
-`npm run dev`. Local sign-in emails appear in Mailpit at http://127.0.0.1:54324.
+## Verified locally (before deployment)
 
-## Deployment
+Against a local Supabase stack and a production build: **105** unit tests, **111** database tests,
+**28** end-to-end tests (14 journeys × phone and desktop, real email-code sign-in), and a crawl of every
+internal link as a visitor and as an admin (no errors). The one-file SQL setup was verified on an empty database. Your
+hosted Supabase, Vercel, email sender and domain are verified by the checklist at the end of SETUP.md.
 
-GitHub → Vercel (automatic deploys on every push to `main`) + Supabase. Step-by-step in
-[SETUP.md](SETUP.md), including authentication redirect URLs, email delivery (custom SMTP),
-custom domain via Cloudflare DNS, optional Cloudflare Turnstile, and a production verification
-checklist. CI (`.github/workflows/ci.yml`) runs lint, typecheck, unit tests, build, database
-tests and end-to-end tests on every push and pull request.
+## For maintainers
 
-## Verification status (local, before deployment)
-
-Tested against a local Supabase stack (Postgres 17, Auth, Storage, Mailpit) with a production build:
-
-- **Unit tests:** 105 passing (time zones incl. daylight-saving changes, allergen matching incl. sesame seed ↔ oil, safe redirects, menu helpers, error messages).
-- **Database tests (pgTAP):** 111 passing — dietary privacy, roles, audit log, event visibility, RSVP capacity/waitlist/approvals/guests/deadlines/check-in/rate limits, menu drafts/publishing/immutability/snapshots/urgent notifications, votes, suggestions and account deletion and invitations.
-- **End-to-end tests (Playwright):** 28 passing (14 journeys × phone and desktop) using real email-code sign-in, including every account setting.
-- **Link crawl:** every internal link followed as a visitor (42 pages) and as an admin (101 pages): no broken pages, no browser errors.
-- The one-file SQL setup (`supabase/setup/all_migrations.sql`) was verified on an empty database, followed by the seed, `bootstrap_admin.sql` and `remove_demo_data.sql`.
-
-Not yet verified: anything on your hosted Supabase project, Vercel, custom SMTP delivery and your domain — those happen during [SETUP.md](SETUP.md), which ends with a production verification checklist.
-
-## Notes for future maintainers
-
-- Next.js 16 runs here with `cacheComponents: false` (classic dynamic rendering) because nearly
-  every page is personalized by the sign-in cookie. A future major version may make Cache
-  Components mandatory; see `node_modules/next/dist/docs/01-app/02-guides/migrating-to-cache-components.md`.
-- Add schema changes as new files in `supabase/migrations/`, then `npm run db:types` and
-  `npm run db:bundle`.
+- `cacheComponents` is off (pages are personalized by the sign-in cookie). A future Next.js major may
+  require Cache Components; see `node_modules/next/dist/docs/01-app/02-guides/migrating-to-cache-components.md`.
+- Schema changes: add a file in `supabase/migrations/`, then `npm run db:types` and `npm run db:bundle`.

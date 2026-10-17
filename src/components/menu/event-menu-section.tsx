@@ -119,9 +119,8 @@ export async function EventMenuSection({ event, viewer }: { event: MenuEvent; vi
               <p className="flex items-start gap-2 text-sm text-ink">
                 <ChefHat className="mt-0.5 size-4 shrink-0 text-gold-700" aria-hidden="true" />
                 <span>
-                  Ingredients, preparation and cross-contact details were confirmed by our kitchen team on{" "}
-                  <strong>{formatLongDate(version.prep_confirmed_at)}</strong>. Cross-contact is still possible in a
-                  shared kitchen.
+                  Confirmed by our kitchen on <strong>{formatLongDate(version.prep_confirmed_at)}</strong>. Shared kitchen —
+                  cross-contact is possible.
                 </span>
               </p>
             ) : null}
@@ -182,7 +181,7 @@ export async function EventMenuSection({ event, viewer }: { event: MenuEvent; vi
               </div>
             ))}
           </div>
-          <p className="text-xs text-muted">{ADVISORY_NOTE}</p>
+
         </>
       )}
 
@@ -191,10 +190,7 @@ export async function EventMenuSection({ event, viewer }: { event: MenuEvent; vi
           <CardTitle className="flex items-center gap-2">
             <Vote className="size-5 text-brand-700" aria-hidden="true" /> Help pick the menu
           </CardTitle>
-          <p className="mt-1 text-sm text-muted">
-            Vote for the options you&apos;d enjoy. Votes are advisory — our staff choose the final menu, and a popular
-            dish is never a sign that it suits a particular allergy.
-          </p>
+          <p className="mt-1 text-sm text-muted">{ADVISORY_NOTE}</p>
           <ul className="mt-4 divide-y divide-stone-100">
             {options.map((o) => {
               const votes = optionVotes.get(o.dish_id);
@@ -230,15 +226,12 @@ export async function EventMenuSection({ event, viewer }: { event: MenuEvent; vi
               </Link>
             </p>
           ) : null}
-          <p className="mt-2 text-xs text-muted">
-            Allergen details for proposed dishes are confirmed only when a menu is published.
-          </p>
+          <p className="mt-2 text-xs text-muted">Allergens are confirmed only once a menu is published.</p>
         </Card>
       ) : null}
 
       <Card>
         <CardTitle>Suggest a dish or ingredient</CardTitle>
-        <p className="mt-1 text-sm text-muted">Ideas for future menus are always welcome.</p>
         <div className="mt-4">
           {viewer ? (
             <SuggestionForm eventId={event.id} />
@@ -274,7 +267,7 @@ function PersonalNotice({
         <Link href={signInHref(slug)} className="font-semibold text-brand-700 hover:underline">
           Sign in and save your allergies
         </Link>{" "}
-        to see personal alerts on this menu.
+        to get personal alerts.
       </p>
     );
   }
@@ -284,7 +277,7 @@ function PersonalNotice({
         <Link href="/profile/dietary" className="font-semibold text-brand-700 hover:underline">
           Add your allergies
         </Link>{" "}
-        to see personal alerts on this menu. Your dietary information stays private.
+        (private) to get personal alerts.
       </p>
     );
   }
@@ -292,13 +285,11 @@ function PersonalNotice({
     return (
       <Alert tone={hasSevere ? "danger" : "warning"} title="Heads up for your allergies">
         <p>
-          {flaggedNames.length === 1 ? "1 dish lists" : `${flaggedNames.length} dishes list`} ingredients or
-          cross-contact that match what you saved: {flaggedNames.join(", ")}. Details are shown on each dish below.
+          {flaggedNames.length === 1 ? "1 dish matches" : `${flaggedNames.length} dishes match`} your saved allergies:{" "}
+          {flaggedNames.join(", ")}. See each dish below.
         </p>
         {hasSevere ? (
-          <p className="mt-1 font-semibold">
-            Because you listed a severe allergy, please contact the organizer before the event.
-          </p>
+          <p className="mt-1 font-semibold">You listed a severe allergy — please contact the organizer before the event.</p>
         ) : null}
       </Alert>
     );
@@ -307,8 +298,8 @@ function PersonalNotice({
     <p className="flex items-start gap-2 rounded-xl bg-white px-3 py-2.5 text-sm text-muted ring-1 ring-stone-200">
       <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
       <span>
-        No listed ingredients or cross-contact notes match the allergies you saved. This is not a guarantee — please
-        contact the organizer about serious allergies.
+        Nothing listed matches your saved allergies. This is not a guarantee — contact the organizer about serious
+        allergies.
       </span>
     </p>
   );

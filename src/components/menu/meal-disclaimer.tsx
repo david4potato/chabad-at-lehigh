@@ -42,13 +42,11 @@ export async function MealDisclaimer({ contact, headingLevel = 3, id = "meal-dis
         About our food and allergies
       </Heading>
       <ul className="mt-2 list-disc space-y-1 pl-5 leading-relaxed text-muted">
-        <li>Menus can change. We post any changes here.</li>
-        <li>Food is prepared in a shared kitchen, so cross-contact with allergens is possible.</li>
-        <li>Ingredient lists, allergen labels and votes are not a guarantee.</li>
+        <li>Menus can change; changes are posted here.</li>
+        <li>Shared kitchen — cross-contact is possible.</li>
+        <li>Ingredient lists, labels and votes are not a guarantee.</li>
         <li>
-          <strong className="font-semibold text-ink">
-            If you have a food allergy, please contact the organizer before the event.
-          </strong>
+          <strong className="font-semibold text-ink">Food allergy? Contact the organizer before the event.</strong>
         </li>
       </ul>
 
