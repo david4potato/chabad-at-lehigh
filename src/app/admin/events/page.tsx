@@ -5,7 +5,7 @@ import { requireRole } from "@/lib/auth";
 import { canManageEvents, canManageMenus } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 import { formatShortDate, formatTime } from "@/lib/time";
-import { getEventCounts } from "@/lib/data/events";
+import { getEventCounts, pastFilter, upcomingFilter } from "@/lib/data/events";
 import { cn } from "@/lib/cn";
 import { PageHeader } from "@/components/ui/page-header";
 import { ButtonLink } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert } from "@/components/ui/alert";
 import { EmptyState } from "@/components/ui/empty-state";
 import { CATEGORY_LABELS } from "@/components/events/event-utils";
+import { DuplicateEventButton } from "@/components/admin/duplicate-event-button";
 
 export const metadata: Metadata = { title: "Events" };
 
@@ -22,10 +23,6 @@ const TABS = [
   { key: "past", label: "Past" },
 ] as const;
 const STATUS_TONE = { draft: "neutral", published: "green", cancelled: "red" } as const;
-
-function cutoff() {
-  return new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString();
-}
 
 export default async function AdminEventsPage({ searchParams }: PageProps<"/admin/events">) {
   const viewer = await requireRole(["organizer", "kitchen_staff", "admin"], "/admin/events");
@@ -39,10 +36,10 @@ export default async function AdminEventsPage({ searchParams }: PageProps<"/admi
     .from("events")
     .select("id, slug, title, status, category, starts_at, ends_at, capacity, has_meal")
     .limit(100);
-  const since = cutoff();
+  // Same split as the public site: an event is over when it ends (or 3 hours after it starts).
   if (tab === "drafts") query = query.eq("status", "draft").order("starts_at");
-  else if (tab === "past") query = query.neq("status", "draft").lt("starts_at", since).order("starts_at", { ascending: false });
-  else query = query.neq("status", "draft").gte("starts_at", since).order("starts_at");
+  else if (tab === "past") query = query.neq("status", "draft").or(pastFilter()).order("starts_at", { ascending: false });
+  else query = query.neq("status", "draft").or(upcomingFilter()).order("starts_at");
   const { data } = await query;
   const events = data ?? [];
   const counts = await getEventCounts(events.map((e) => e.id));
@@ -111,15 +108,23 @@ export default async function AdminEventsPage({ searchParams }: PageProps<"/admi
                       ) : null}
                     </p>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap items-start gap-2">
+                    {/* Past: the weekly routine starts here, so copying is the one primary action. */}
+                    {organizer && tab === "past" ? <DuplicateEventButton id={e.id} size="sm" className="min-h-11" /> : null}
                     {organizer ? (
                       <>
-                        <ButtonLink href={`/admin/events/${e.id}/attendees`} size="sm">Attendees</ButtonLink>
-                        <ButtonLink href={`/admin/events/${e.id}`} size="sm" variant="secondary">Edit</ButtonLink>
+                        <ButtonLink href={`/admin/events/${e.id}/attendees`} size="sm" className="min-h-11" variant={tab === "past" ? "secondary" : "primary"}>
+                          Attendees
+                        </ButtonLink>
+                        <ButtonLink href={`/admin/events/${e.id}`} size="sm" className="min-h-11" variant="secondary">
+                          Edit
+                        </ButtonLink>
                       </>
                     ) : null}
                     {menus && e.has_meal ? (
-                      <ButtonLink href={`/admin/events/${e.id}/menu`} size="sm" variant="secondary">Menu</ButtonLink>
+                      <ButtonLink href={`/admin/events/${e.id}/menu`} size="sm" className="min-h-11" variant="secondary">
+                        Menu
+                      </ButtonLink>
                     ) : null}
                   </div>
                 </div>

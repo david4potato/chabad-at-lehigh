@@ -7,6 +7,7 @@ ingredients and allergens, private dietary preferences, and a simple organizer d
 - **Set it up:** [SETUP.md](SETUP.md) — numbered beginner guide with an environment-variable checklist.
 - **Before real use:** organizers sign off on [docs/ORGANIZER_REVIEW.md](docs/ORGANIZER_REVIEW.md).
   Dish votes are never proof that food is safe for someone with an allergy.
+- **Philosophy:** [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md) — the rules the product never breaks.
 - **Organizers:** one-page [docs/ORGANIZER_QUICKSTART.md](docs/ORGANIZER_QUICKSTART.md), plus a built-in guide at
   **Dashboard → Help**. Admins get a **Getting started** checklist (incl. one-click demo removal).
 
@@ -83,8 +84,8 @@ http://127.0.0.1:54324.
 
 ## Verified locally (before deployment)
 
-Against a local Supabase stack and a production build: **199** unit tests, **291** database tests,
-**56** end-to-end tests (28 journeys × phone and desktop, real email-code sign-in), and a crawl of every
+Against a local Supabase stack and a production build: **201** unit tests, **303** database tests,
+**60** end-to-end tests (30 journeys × phone and desktop, real email-code sign-in), and a crawl of every
 internal link as a visitor and as an admin (no errors). The one-file SQL setup was verified on an empty database. Your
 hosted Supabase, Vercel, email sender and domain are verified by the checklist at the end of SETUP.md.
 

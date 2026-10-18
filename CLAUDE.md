@@ -3,7 +3,7 @@
 Mobile-first community hub: events + RSVP, Shabbat dinner RSVP card, menus with
 ingredients/allergens, private dietary preferences, dish voting, organizer dashboard.
 
-Also read `AGENTS.md` (Next.js 16 notes). Docs for this exact Next version live in
+Read `docs/PHILOSOPHY.md` (when a feature conflicts with it, the feature changes) and `AGENTS.md` (Next.js 16 notes). Docs for this exact Next version live in
 `node_modules/next/dist/docs/`.
 
 ## Stack and key decisions

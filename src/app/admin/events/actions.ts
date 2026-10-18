@@ -11,6 +11,9 @@ import { siteLocalToUtcIso, toDateTimeLocalValue } from "@/lib/time";
 const ORGANIZERS = ["organizer", "admin"] as const;
 const FORBIDDEN: ActionResult = { ok: false, error: "You don't have permission to do that." };
 
+/** Event form result. `next` is the following step, shown as a link (e.g. the Menu tab after publishing). */
+export type EventResult = ActionResult<{ next?: { href: string; label: string } }>;
+
 const text = (max: number) =>
   z
     .string()
@@ -61,7 +64,6 @@ const eventSchema = z
     approval_mode: z.enum(["auto", "guests_need_approval", "all_need_approval"]),
     max_guests_per_rsvp: z.coerce.number().int().min(0, "0 to 10.").max(10, "0 to 10."),
     has_meal: z.boolean(),
-    menu_voting_open: z.boolean(),
     contact_name: text(120),
     contact_email: z
       .union([z.literal(""), z.email("Please enter a valid email.").max(254)])
@@ -92,7 +94,6 @@ function parseEventForm(formData: FormData) {
     ...raw,
     rsvp_enabled: formData.get("rsvp_enabled") === "on",
     has_meal: formData.get("has_meal") === "on",
-    menu_voting_open: formData.get("menu_voting_open") === "on",
   });
 }
 
@@ -103,7 +104,7 @@ function revalidateEvents(slug?: string) {
   if (slug) revalidatePath(`/events/${slug}`);
 }
 
-export async function createEvent(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
+export async function createEvent(_prev: EventResult, formData: FormData): Promise<EventResult> {
   if (!(await viewerWithRole(ORGANIZERS))) return FORBIDDEN;
   const parsed = parseEventForm(formData);
   if (!parsed.success) return validationError(parsed.error);
@@ -124,7 +125,7 @@ export async function createEvent(_prev: ActionResult, formData: FormData): Prom
   redirect(`/admin/events/${data.id}?saved=1`);
 }
 
-export async function updateEvent(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
+export async function updateEvent(_prev: EventResult, formData: FormData): Promise<EventResult> {
   if (!(await viewerWithRole(ORGANIZERS))) return FORBIDDEN;
   const id = String(formData.get("id") ?? "");
   if (!z.guid().safeParse(id).success) return { ok: false, error: "We couldn't find that event." };
@@ -133,6 +134,26 @@ export async function updateEvent(_prev: ActionResult, formData: FormData): Prom
   const { slug, ...values } = parsed.data;
 
   const supabase = await createClient();
+  const { data: before } = await supabase.from("events").select("status").eq("id", id).maybeSingle();
+  if (!before) return { ok: false, error: "We couldn't find that event." };
+
+  // Back to Draft would hide the event from people who are coming, without telling them.
+  if (before.status === "published" && values.status === "draft") {
+    const { count, error: countError } = await supabase
+      .from("rsvps")
+      .select("id", { count: "exact", head: true })
+      .eq("event_id", id)
+      .in("status", ["going", "waitlist", "pending"]);
+    if (countError) return { ok: false, error: dbErrorMessage(countError) };
+    if (count) {
+      return {
+        ok: false,
+        error: "People have RSVP'd, so it can't go back to Draft. Choose Cancelled instead, and they'll be told.",
+        fieldErrors: { status: ["People have RSVP'd. Choose Cancelled instead."] },
+      };
+    }
+  }
+
   // A blank web address keeps the current one: shared links and notifications point to it.
   const { data, error } = await supabase
     .from("events")
@@ -145,10 +166,25 @@ export async function updateEvent(_prev: ActionResult, formData: FormData): Prom
     return { ok: false, error: dbErrorMessage(error) };
   }
   revalidateEvents(data.slug);
+
+  if (before.status === "draft" && values.status === "published") {
+    // Point to the next step of the weekly routine: the menu, unless one is already live.
+    if (values.has_meal) {
+      const { data: menus } = await supabase.from("menu_versions").select("status").eq("event_id", id);
+      if (!menus?.some((m) => m.status === "published")) {
+        const label = menus?.length ? "Next: check the menu and publish it" : "Next: add the menu";
+        return { ok: true, message: "Published.", data: { next: { href: `/admin/events/${id}/menu`, label } } };
+      }
+    }
+    return { ok: true, message: "Published." };
+  }
   return { ok: true, message: "Event saved." };
 }
 
-/** Copy an event one week later as a draft (great for weekly Shabbat dinners). */
+/**
+ * Copy an event to the same time next week as a draft (great for weekly Shabbat dinners), with its
+ * menu as a draft and its volunteer shifts. An older event is copied to the first such week from now.
+ */
 export async function duplicateEvent(id: string): Promise<ActionResult> {
   if (!(await viewerWithRole(ORGANIZERS))) return FORBIDDEN;
   if (!z.guid().safeParse(id).success) return { ok: false, error: "We couldn't find that event." };
@@ -157,8 +193,8 @@ export async function duplicateEvent(id: string): Promise<ActionResult> {
   if (error || !e) return { ok: false, error: dbErrorMessage(error) };
 
   const week = 7 * 24 * 60 * 60 * 1000;
-  const shift = (iso: string | null) => (iso ? new Date(new Date(iso).getTime() + week).toISOString() : null);
-  const startsAt = shift(e.starts_at)!;
+  const weeks = Math.max(1, Math.floor((Date.now() - new Date(e.starts_at).getTime()) / week) + 1);
+  const startsAt = new Date(new Date(e.starts_at).getTime() + weeks * week).toISOString();
   // Keep wall-clock time steady across daylight-saving changes.
   const local = toDateTimeLocalValue(e.starts_at).slice(11);
   const fixedStart = siteLocalToUtcIso(`${toDateTimeLocalValue(startsAt).slice(0, 10)}T${local}`) ?? startsAt;
@@ -199,6 +235,32 @@ export async function duplicateEvent(id: string): Promise<ActionResult> {
     .select("id")
     .single();
   if (insertError) return { ok: false, error: dbErrorMessage(insertError) };
+
+  // The menu (as a draft, so staff still confirm preparation) and the volunteer shifts come along.
+  // Either can fail without undoing the copy: the event is what matters, and both can be added by hand.
+  const { data: shifts } = await supabase
+    .from("volunteer_shifts")
+    .select("title, description, slots, starts_at, ends_at, status, is_demo")
+    .eq("event_id", id);
+  await Promise.all([
+    e.has_meal ? supabase.rpc("copy_menu_to_event", { p_source_event: id, p_target_event: copy.id }) : null,
+    shifts?.length
+      ? supabase.from("volunteer_shifts").insert(
+          shifts.map((s) => ({
+            event_id: copy.id,
+            title: s.title,
+            description: s.description,
+            slots: s.slots,
+            starts_at: move(s.starts_at)!,
+            ends_at: move(s.ends_at),
+            // New sign-ups start fresh; a shift kept as a draft stays a draft.
+            status: s.status === "draft" ? "draft" : "open",
+            is_demo: s.is_demo,
+          })),
+        )
+      : null,
+  ]);
+
   revalidateEvents();
   redirect(`/admin/events/${copy.id}?duplicated=1`);
 }

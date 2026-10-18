@@ -84,7 +84,14 @@ export default async function EventPage({ params, searchParams }: PageProps<"/ev
   const rsvp = rsvps.get(event.id) ?? null;
   const intent = query.rsvp === "going" || query.rsvp === "not_going" ? query.rsvp : null;
   const isMember = viewer ? viewer.roles.some((r) => r !== "community_guest") : false;
-  const showMealForm = Boolean(viewer && event.has_meal && !rsvpClosedReason(event) && rsvp && rsvp.status !== "not_going");
+  // Only active RSVPs: the kitchen's report leaves out declined and not-going ones.
+  const showMealForm = Boolean(
+    viewer &&
+      event.has_meal &&
+      !rsvpClosedReason(event) &&
+      rsvp &&
+      (rsvp.status === "going" || rsvp.status === "pending" || rsvp.status === "waitlist"),
+  );
 
   return (
     <article className="space-y-6">
@@ -177,6 +184,7 @@ export default async function EventPage({ params, searchParams }: PageProps<"/ev
                   slug={event.slug}
                   initial={mealPref}
                   allowsGuests={event.max_guests_per_rsvp > 0}
+                  guestCount={rsvp?.guest_count ?? 0}
                   shareWithKitchen={shareWithKitchen}
                 />
               </div>

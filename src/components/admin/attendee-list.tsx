@@ -66,34 +66,6 @@ export function AttendeeList({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <a
-          href={mailDisabled ? undefined : mailto}
-          className={cn(buttonClasses("secondary", "md"), mailDisabled && "pointer-events-none opacity-50")}
-          aria-disabled={mailDisabled}
-        >
-          <Mail className="size-4" aria-hidden="true" /> Email everyone going
-        </a>
-        <Button
-          variant="secondary"
-          disabled={goingEmails.length === 0}
-          onClick={async () => {
-            await navigator.clipboard.writeText(goingEmails.join(", "));
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-          }}
-        >
-          {copied ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
-          {copied ? "Copied!" : "Copy emails"}
-        </Button>
-        <a href={`/admin/events/${eventId}/attendees/export`} className={buttonClasses("ghost", "md")}>
-          Download spreadsheet (CSV)
-        </a>
-      </div>
-      {tooManyForMailto ? (
-        <p className="-mt-2 text-sm text-muted">Too many people for one email link. Use Copy emails and paste them into BCC.</p>
-      ) : null}
-
       <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
         <div className="flex w-max gap-2" role="tablist" aria-label="Filter attendees">
           {FILTERS.map((f) => {
@@ -106,7 +78,7 @@ export function AttendeeList({
                 aria-selected={filter === f.key}
                 onClick={() => setFilter(f.key)}
                 className={cn(
-                  "inline-flex h-10 items-center gap-1.5 rounded-full border px-4 text-sm font-semibold",
+                  "inline-flex h-11 items-center gap-1.5 rounded-full border px-4 text-sm font-semibold",
                   filter === f.key ? "border-brand-700 bg-brand-700 text-white" : "border-stone-300 bg-white text-ink",
                 )}
               >
@@ -172,7 +144,13 @@ export function AttendeeList({
                         <Button disabled={busy} onClick={() => run(a.id, () => decideRsvp(eventId, a.id, "approve"))}>
                           Approve
                         </Button>
-                        <Button variant="secondary" disabled={busy} onClick={() => run(a.id, () => decideRsvp(eventId, a.id, "decline"))}>
+                        <Button
+                          variant="secondary"
+                          disabled={busy}
+                          onClick={() => {
+                            if (confirm(`Decline ${a.name}'s RSVP? They'll be notified.`)) run(a.id, () => decideRsvp(eventId, a.id, "decline"));
+                          }}
+                        >
                           Decline
                         </Button>
                       </>
@@ -194,7 +172,7 @@ export function AttendeeList({
                         Confirm anyway (over capacity)
                       </Button>
                     ) : null}
-                    {guestsPending && a.status !== "not_going" && a.status !== "declined" ? (
+                    {guestsPending && a.status !== "pending" && a.status !== "not_going" && a.status !== "declined" ? (
                       <>
                         {guestsFit ? (
                           <Button variant="secondary" disabled={busy} onClick={() => run(a.id, () => decideGuests(eventId, a.id, "approve"))}>
@@ -213,10 +191,27 @@ export function AttendeeList({
                             Approve guests anyway (over capacity)
                           </Button>
                         )}
-                        <Button variant="ghost" disabled={busy} onClick={() => run(a.id, () => decideGuests(eventId, a.id, "decline"))}>
+                        <Button
+                          variant="ghost"
+                          disabled={busy}
+                          onClick={() => {
+                            if (confirm(`Decline ${a.name}'s guests? They'll be notified.`)) run(a.id, () => decideGuests(eventId, a.id, "decline"));
+                          }}
+                        >
                           Decline guests
                         </Button>
                       </>
+                    ) : null}
+                    {a.status === "declined" ? (
+                      <Button
+                        variant="secondary"
+                        disabled={busy}
+                        onClick={() => {
+                          if (confirm(`Undo the decline for ${a.name}? They'll be notified.`)) run(a.id, () => decideRsvp(eventId, a.id, "approve"));
+                        }}
+                      >
+                        Undo decline
+                      </Button>
                     ) : null}
                     {(a.status === "going" || a.status === "waitlist" || a.status === "pending") && !a.checked_in_at ? (
                       <Button
@@ -254,6 +249,39 @@ export function AttendeeList({
           })}
         </ul>
       )}
+
+      <section aria-labelledby="attendees-export" className="border-t border-stone-200 pt-4">
+        <h2 id="attendees-export" className="text-sm font-semibold text-muted">
+          Message or export
+        </h2>
+        <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+          <a
+            href={mailDisabled ? undefined : mailto}
+            className={cn(buttonClasses("secondary", "md"), mailDisabled && "pointer-events-none opacity-50")}
+            aria-disabled={mailDisabled}
+          >
+            <Mail className="size-4" aria-hidden="true" /> Email everyone going
+          </a>
+          <Button
+            variant="secondary"
+            disabled={goingEmails.length === 0}
+            onClick={async () => {
+              await navigator.clipboard.writeText(goingEmails.join(", "));
+              setCopied(true);
+              setTimeout(() => setCopied(false), 2000);
+            }}
+          >
+            {copied ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
+            {copied ? "Copied!" : "Copy emails"}
+          </Button>
+          <a href={`/admin/events/${eventId}/attendees/export`} className={buttonClasses("ghost", "md")}>
+            Download spreadsheet (CSV)
+          </a>
+        </div>
+        {tooManyForMailto ? (
+          <p className="mt-2 text-sm text-muted">Too many people for one email link. Use Copy emails and paste them into BCC.</p>
+        ) : null}
+      </section>
     </div>
   );
 }

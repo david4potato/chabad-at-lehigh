@@ -5,8 +5,9 @@ import { requireRole } from "@/lib/auth";
 import { canManageEvents, canManageMenus, isAdmin } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 import { formatShortDate, formatTime } from "@/lib/time";
-import { getEventCounts } from "@/lib/data/events";
+import { getEventCounts, upcomingFilter } from "@/lib/data/events";
 import { formatSince, parseStaffStats, semesterStart } from "@/lib/stats";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardTitle } from "@/components/ui/card";
 import { ButtonLink } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -16,10 +17,6 @@ import { StatsRow } from "@/components/admin/stats-row";
 
 export const metadata: Metadata = { title: "Overview" };
 
-function since() {
-  return new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString();
-}
-
 export default async function AdminHome({ searchParams }: PageProps<"/admin">) {
   const viewer = await requireRole(["organizer", "kitchen_staff", "admin"], "/admin");
   const params = await searchParams;
@@ -27,18 +24,20 @@ export default async function AdminHome({ searchParams }: PageProps<"/admin">) {
   const menus = canManageMenus(viewer.roles);
   const supabase = await createClient();
   const semester = semesterStart();
+  // Same "still on" rule as the public site: until it ends, or 3 hours after start without an end time.
+  const stillOn = upcomingFilter();
 
   const [{ data: events }, { data: published }, suggestions, semesterStats] = await Promise.all([
     supabase
       .from("events")
       .select("id, title, starts_at, capacity, status, has_meal")
       .neq("status", "draft")
-      .gte("starts_at", since())
+      .or(stillOn)
       .order("starts_at")
       .limit(5),
     // Approvals are counted across every upcoming event, not just the five listed.
     organizer
-      ? supabase.from("events").select("id").eq("status", "published").gte("starts_at", since()).limit(500)
+      ? supabase.from("events").select("id").eq("status", "published").or(stillOn).limit(500)
       : Promise.resolve({ data: [] as { id: string }[] }),
     menus
       ? supabase.from("dish_suggestions").select("id", { count: "exact", head: true }).eq("status", "new")
@@ -49,8 +48,13 @@ export default async function AdminHome({ searchParams }: PageProps<"/admin">) {
   const upcoming = events ?? [];
   const pendingIds = (published ?? []).map((e) => e.id);
   const counts = await getEventCounts([...new Set([...upcoming.map((e) => e.id), ...pendingIds])]);
-  const pendingTotal = pendingIds.reduce((sum, id) => sum + (counts.get(id)?.pending ?? 0), 0);
+  const pendingEvents = pendingIds.filter((id) => (counts.get(id)?.pending ?? 0) > 0);
+  const pendingTotal = pendingEvents.reduce((sum, id) => sum + (counts.get(id)?.pending ?? 0), 0);
+  // One event waiting? Go straight to its attendees (it opens on "Needs approval").
+  const approvalsHref = pendingEvents.length === 1 ? `/admin/events/${pendingEvents[0]}/attendees` : "/admin/events";
   const newSuggestions = suggestions.count ?? 0;
+  const showApprovals = organizer && pendingTotal > 0;
+  const showSuggestions = menus && newSuggestions > 0;
   const staffStats = semesterStats && !semesterStats.error ? parseStaffStats(semesterStats.data) : null;
 
   return (
@@ -72,12 +76,19 @@ export default async function AdminHome({ searchParams }: PageProps<"/admin">) {
 
       {isAdmin(viewer.roles) ? <GettingStarted /> : null}
 
+      {!showApprovals && !showSuggestions ? <p className="text-muted">Nothing needs your attention. Enjoy your day.</p> : null}
+
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {organizer ? (
-          <StatCard href="/admin/events" Icon={UserCheck} label="RSVPs needing approval" value={pendingTotal} highlight={pendingTotal > 0} />
+        {showApprovals ? (
+          <StatCard href={approvalsHref} Icon={UserCheck} label={pendingTotal === 1 ? "RSVP to approve" : "RSVPs to approve"} value={pendingTotal} />
         ) : null}
-        {menus ? (
-          <StatCard href="/admin/suggestions" Icon={Lightbulb} label="New menu suggestions" value={newSuggestions} highlight={newSuggestions > 0} />
+        {showSuggestions ? (
+          <StatCard
+            href="/admin/suggestions"
+            Icon={Lightbulb}
+            label={newSuggestions === 1 ? "New menu suggestion" : "New menu suggestions"}
+            value={newSuggestions}
+          />
         ) : null}
         {organizer ? <QuickAction href="/admin/events/new" Icon={CalendarPlus} label="New event" /> : null}
         {organizer ? <QuickAction href="/admin/announcements" Icon={Megaphone} label="New announcement" /> : null}
@@ -102,7 +113,14 @@ export default async function AdminHome({ searchParams }: PageProps<"/admin">) {
               return (
                 <li key={e.id} className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <p className="font-semibold text-ink">{e.title}</p>
+                    <p className="font-semibold text-ink">
+                      {e.title}
+                      {e.status === "cancelled" ? (
+                        <Badge tone="red" className="ml-2 align-middle">
+                          Cancelled
+                        </Badge>
+                      ) : null}
+                    </p>
                     <p className="text-sm text-muted">
                       {formatShortDate(e.starts_at)} · {formatTime(e.starts_at)} · {c?.seatsTaken ?? 0}
                       {e.capacity ? ` / ${e.capacity}` : ""} seats
@@ -128,12 +146,10 @@ export default async function AdminHome({ searchParams }: PageProps<"/admin">) {
   );
 }
 
-function StatCard({ href, Icon, label, value, highlight }: { href: string; Icon: typeof UserCheck; label: string; value: number; highlight?: boolean }) {
+/** Something waiting for the viewer. Only shown when there is something to do. */
+function StatCard({ href, Icon, label, value }: { href: string; Icon: typeof UserCheck; label: string; value: number }) {
   return (
-    <Link
-      href={href}
-      className={`flex items-center gap-3 rounded-[var(--radius-card)] border p-4 shadow-sm transition hover:shadow-md ${highlight ? "border-brand-300 bg-brand-50" : "border-stone-200 bg-white"}`}
-    >
+    <Link href={href} className="flex items-center gap-3 rounded-[var(--radius-card)] border border-brand-300 bg-brand-50 p-4 shadow-sm transition hover:shadow-md">
       <Icon className="size-6 text-brand-700" aria-hidden="true" />
       <div>
         <p className="text-2xl font-extrabold text-ink">{value}</p>

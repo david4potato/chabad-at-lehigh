@@ -22,7 +22,7 @@ export default async function PeoplePage({ searchParams }: PageProps<"/admin/peo
 
   let query = supabase
     .from("profiles")
-    .select("id, email, full_name, preferred_name, affiliation, created_at, roles:user_roles!user_roles_user_id_fkey(role)")
+    .select("id, email, full_name, preferred_name, affiliation, created_at, roles:user_roles!user_roles_user_id_fkey(role)", { count: "exact" })
     .order("created_at", { ascending: false })
     .limit(50);
   if (q) {
@@ -30,7 +30,7 @@ export default async function PeoplePage({ searchParams }: PageProps<"/admin/peo
     const safe = q.replace(/[^\p{L}\p{N}@.\-+' ]/gu, " ").trim();
     query = query.or(`email.ilike.%${safe}%,full_name.ilike.%${safe}%,preferred_name.ilike.%${safe}%`);
   }
-  const [{ data: people }, { data: pending }] = await Promise.all([
+  const [{ data: people, count }, { data: pending }] = await Promise.all([
     query,
     supabase.from("pending_role_grants").select("email, role").order("email"),
   ]);
@@ -91,6 +91,12 @@ export default async function PeoplePage({ searchParams }: PageProps<"/admin/peo
           <Input name="q" defaultValue={q} placeholder="Search name or email" aria-label="Search people" />
           <Button type="submit" variant="secondary">Search</Button>
         </form>
+        {count && count > (people ?? []).length ? (
+          <p className="mt-3 text-sm text-muted">
+            Showing the newest {(people ?? []).length} of {count}
+            {q ? " matches. Try a fuller name or email." : ". Search to find others."}
+          </p>
+        ) : null}
         <ul className="mt-4 divide-y divide-stone-100">
           {(people ?? []).map((p) => (
             <li key={p.id} className="py-3">

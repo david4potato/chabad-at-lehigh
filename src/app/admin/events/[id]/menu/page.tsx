@@ -57,6 +57,8 @@ export default async function MenuAdminPage({ params, searchParams }: PageProps<
   const published = all.find((v) => v.status === "published") ?? null;
   const menu = parseEventMenu(menuRes.data);
   const draftItems = draft && menu?.version?.id === draft.id ? menu.items : [];
+  const kitchenNotes = menu?.version?.kitchen_notes ?? null;
+  const updateList = updates ?? [];
   const voteMap = new Map((votes ?? []).map((v) => [v.dish_id, v.votes]));
   const optionRows = (options ?? [])
     .map((o) => ({ dish_id: o.dish_id, name: o.dish?.name ?? "Unknown dish", votes: voteMap.get(o.dish_id) ?? 0 }))
@@ -90,7 +92,7 @@ export default async function MenuAdminPage({ params, searchParams }: PageProps<
               </div>
             ) : (
               <div className="mt-5 space-y-6">
-                <DraftDetailsForm eventId={event.id} versionId={draft.id} title={draft.title} kitchenNotes={menu?.version?.kitchen_notes ?? null} />
+                <DraftDetailsForm eventId={event.id} versionId={draft.id} title={draft.title} kitchenNotes={kitchenNotes} />
                 <div className="space-y-4">
                   <h3 className="text-base font-bold text-ink">Dishes</h3>
                   {draftItems.length === 0 ? <p className="text-sm text-muted">No dishes yet — add one below.</p> : null}
@@ -115,31 +117,41 @@ export default async function MenuAdminPage({ params, searchParams }: PageProps<
               <CardTitle>Publish</CardTitle>
               <p className="mt-1 text-sm text-muted">Publishing makes this version visible to everyone and freezes it.</p>
               <div className="mt-4">
-                <PublishForm eventId={event.id} versionId={draft.id} hasPublished={Boolean(published)} itemCount={draftItems.length} />
+                <PublishForm
+                  eventId={event.id}
+                  versionId={draft.id}
+                  hasPublished={Boolean(published)}
+                  itemCount={draftItems.length}
+                  title={draft.title}
+                  kitchenNotes={kitchenNotes}
+                />
               </div>
             </Card>
           ) : null}
         </div>
 
         <div className="space-y-6">
-          <Card>
-            <CardTitle>Post a menu update</CardTitle>
-            <p className="mt-1 text-sm text-muted">Quick notices without a new version. Shown on the event page.</p>
-            <div className="mt-4">
-              <MenuUpdateForm eventId={event.id} versionId={published?.id ?? null} />
-            </div>
-            {(updates ?? []).length ? (
-              <ul className="mt-5 space-y-2 border-t border-stone-100 pt-4 text-sm">
-                {(updates ?? []).map((u) => (
-                  <li key={u.id}>
-                    {u.is_urgent ? <Badge tone="amber" className="mr-1">Urgent</Badge> : null}
-                    <span className="text-ink">{u.message}</span>
-                    <span className="block text-xs text-muted">{formatDateTime(u.created_at)}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-          </Card>
+          {/* Updates are about a live menu, so this waits until one is published. */}
+          {published || updateList.length ? (
+            <Card>
+              <CardTitle>Post a menu update</CardTitle>
+              <p className="mt-1 text-sm text-muted">Quick notices without a new version. Shown on the event page.</p>
+              <div className="mt-4">
+                <MenuUpdateForm eventId={event.id} versionId={published?.id ?? null} />
+              </div>
+              {updateList.length ? (
+                <ul className="mt-5 space-y-2 border-t border-stone-100 pt-4 text-sm">
+                  {updateList.map((u) => (
+                    <li key={u.id}>
+                      {u.is_urgent ? <Badge tone="amber" className="mr-1">Urgent</Badge> : null}
+                      <span className="text-ink">{u.message}</span>
+                      <span className="block text-xs text-muted">{formatDateTime(u.created_at)}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </Card>
+          ) : null}
 
           <Card>
             <CardTitle>Menu voting</CardTitle>
@@ -155,11 +167,9 @@ export default async function MenuAdminPage({ params, searchParams }: PageProps<
             </div>
           </Card>
 
-          <Card>
-            <CardTitle>Version history</CardTitle>
-            {all.length === 0 ? (
-              <p className="mt-2 text-sm text-muted">No versions yet.</p>
-            ) : (
+          {all.length ? (
+            <Card>
+              <CardTitle>Version history</CardTitle>
               <ul className="mt-3 space-y-3 text-sm">
                 {all.map((v) => (
                   <li key={v.id}>
@@ -174,8 +184,8 @@ export default async function MenuAdminPage({ params, searchParams }: PageProps<
                   </li>
                 ))}
               </ul>
-            )}
-          </Card>
+            </Card>
+          ) : null}
         </div>
       </div>
     </div>

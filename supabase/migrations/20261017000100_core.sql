@@ -243,13 +243,14 @@ declare
 begin
   if tg_op = 'DELETE' then
     v_old := to_jsonb(old);
-    v_id := coalesce(v_old ->> 'id', v_old ->> 'key', v_old ->> 'user_id');
-    perform private.log_audit(lower(tg_table_name) || '.delete', tg_table_name, v_id, '{}');
+    v_id := coalesce(v_old ->> 'id', v_old ->> 'key', v_old ->> 'user_id', v_old ->> 'email');
+    perform private.log_audit(lower(tg_table_name) || '.delete', tg_table_name, v_id,
+      case when v_old ? 'role' then jsonb_build_object('role', v_old ->> 'role') else '{}'::jsonb end);
     return old;
   end if;
 
   v_new := to_jsonb(new);
-  v_id := coalesce(v_new ->> 'id', v_new ->> 'key', v_new ->> 'user_id');
+  v_id := coalesce(v_new ->> 'id', v_new ->> 'key', v_new ->> 'user_id', v_new ->> 'email');
 
   if tg_op = 'INSERT' then
     perform private.log_audit(lower(tg_table_name) || '.insert', tg_table_name, v_id,

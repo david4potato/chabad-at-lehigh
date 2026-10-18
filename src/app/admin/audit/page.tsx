@@ -4,6 +4,7 @@ import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { formatDateTime } from "@/lib/time";
 import { cn } from "@/lib/cn";
+import { ROLE_LABELS, type Role } from "@/lib/roles";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";
 
@@ -74,8 +75,23 @@ export default async function AuditPage({ searchParams }: PageProps<"/admin/audi
     ? await supabase.from("events").select("id, title").in("id", eventIds)
     : { data: [] as { id: string; title: string }[] };
   const titles = new Map((events ?? []).map((e) => [e.id, e.title]));
+
+  // Who got or lost a role: user_roles rows store the person's id (pending grants store the email).
+  const personIds = [...new Set(rows.filter((r) => r.entity_type === "user_roles" && r.entity_id).map((r) => r.entity_id!))];
+  const { data: people } = personIds.length
+    ? await supabase.from("profiles").select("id, full_name, email").in("id", personIds)
+    : { data: [] as { id: string; full_name: string | null; email: string }[] };
+  const names = new Map((people ?? []).map((p) => [p.id, p.full_name || p.email]));
+
+  const subjectOf = (entityType: string, entityId: string | null) => {
+    if (!entityId) return undefined;
+    if (entityType === "events") return titles.get(entityId);
+    if (entityType === "user_roles") return names.get(entityId) ?? `Deleted account ${entityId.slice(0, 8)}…`;
+    if (entityType === "pending_role_grants") return entityId;
+    return undefined;
+  };
   const chip = (active: boolean) =>
-    cn("inline-flex h-9 items-center rounded-full border px-3 text-xs font-semibold whitespace-nowrap", active ? "border-brand-700 bg-brand-700 text-white" : "border-stone-300 bg-white text-ink");
+    cn("inline-flex h-11 items-center rounded-full border px-4 text-xs font-semibold whitespace-nowrap", active ? "border-brand-700 bg-brand-700 text-white" : "border-stone-300 bg-white text-ink");
 
   return (
     <div>
@@ -96,7 +112,10 @@ export default async function AuditPage({ searchParams }: PageProps<"/admin/audi
       <Card className="p-0 sm:p-0">
         <ul className="divide-y divide-stone-100">
           {rows.map((row) => {
-            const title = row.entity_type === "events" && row.entity_id ? titles.get(row.entity_id) : undefined;
+            const subject = subjectOf(row.entity_type, row.entity_id);
+            const { role, ...otherDetails } = (row.details ?? {}) as Record<string, unknown>;
+            const roleLabel = typeof role === "string" ? (ROLE_LABELS[role as Role] ?? role) : null;
+            const extra = roleLabel ? otherDetails : ((row.details ?? {}) as Record<string, unknown>);
             return (
               <li key={row.id} className="grid gap-1 px-4 py-3 text-sm sm:grid-cols-[170px_1fr_1.2fr] sm:gap-4">
                 <span className="text-muted">{formatDateTime(row.created_at)}</span>
@@ -108,11 +127,15 @@ export default async function AuditPage({ searchParams }: PageProps<"/admin/audi
                   </span>
                 </span>
                 <span className="text-xs text-muted">
-                  {title ? <span className="block font-semibold text-ink">{title}</span> : null}
+                  {subject || roleLabel ? (
+                    <span className="block break-all font-semibold text-ink">
+                      {[subject, roleLabel].filter(Boolean).join(" · ")}
+                    </span>
+                  ) : null}
                   <code className="break-all">
                     {row.entity_type}
-                    {row.entity_id && !title ? ` ${row.entity_id.slice(0, 8)}…` : ""}{" "}
-                    {row.details && Object.keys(row.details as object).length ? JSON.stringify(row.details) : ""}
+                    {row.entity_id && !subject ? ` ${row.entity_id.slice(0, 8)}…` : ""}{" "}
+                    {Object.keys(extra).length ? JSON.stringify(extra) : ""}
                   </code>
                 </span>
               </li>

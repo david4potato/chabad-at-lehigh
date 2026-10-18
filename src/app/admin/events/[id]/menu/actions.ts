@@ -136,10 +136,23 @@ export async function removeMenuItem(eventId: string, itemId: string): Promise<A
 export async function publishMenu(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
   if (!(await viewerWithRole(MENU_STAFF))) return FORBIDDEN;
   const parsed = z
-    .object({ event_id: id, version_id: id, change_summary: text(1000) })
+    .object({ event_id: id, version_id: id, change_summary: text(1000), title: text(140), kitchen_notes: text(2000) })
     .safeParse(Object.fromEntries(formData));
   if (!parsed.success) return validationError(parsed.error);
   const supabase = await createClient();
+  // Publish also saves the title and kitchen note as typed, so a note nobody tapped Save on isn't lost.
+  const details = {
+    ...(formData.has("title") ? { title: parsed.data.title } : {}),
+    ...(formData.has("kitchen_notes") ? { kitchen_notes: parsed.data.kitchen_notes } : {}),
+  };
+  if (Object.keys(details).length) {
+    const { error: detailsError } = await supabase
+      .from("menu_versions")
+      .update(details)
+      .eq("id", parsed.data.version_id)
+      .eq("status", "draft");
+    if (detailsError) return { ok: false, error: dbErrorMessage(detailsError) };
+  }
   const { error } = await supabase.rpc("publish_menu", {
     p_menu_version_id: parsed.data.version_id,
     p_change_summary: parsed.data.change_summary ?? "",

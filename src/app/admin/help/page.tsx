@@ -26,21 +26,22 @@ const SECTIONS: Section[] = [
     body: (
       <ol className="list-decimal space-y-2 pl-5">
         <li>
-          <A href="/admin/events?tab=past">Events → Past</A> → last week&apos;s dinner → <strong>Duplicate for next week</strong>. You get a draft
-          with the same settings.
-        </li>
-        <li>Check the date, time and capacity, set <strong>Status → Published</strong>, and press <strong>Save event</strong>.</li>
-        <li>
-          On the <strong>Menu</strong> tab press <strong>Start the menu</strong> (or <strong>Start a new version</strong>), add the dishes, tick the
-          preparation confirmation and press <strong>Publish</strong>. (Kitchen staff can do this part.)
+          <A href="/admin/events?tab=past">Events → Past</A> → tap <strong>Duplicate for next week</strong> on last week&apos;s dinner. You get a
+          draft copy one week later.
         </li>
         <li>
-          Spread the word: <strong>Attendees &amp; check-in → Invite people</strong>, <strong>Copy event link</strong> for group chats, or post an{" "}
-          <A href="/admin/announcements">announcement</A>.
+          Check the copy: date, time and capacity. Its menu and volunteer shifts come along as drafts. Then press <strong>Publish</strong>.
         </li>
         <li>
-          During the week, check <A href="/admin">Overview</A> for <strong>RSVPs needing approval</strong> and approve or decline them on the
-          event&apos;s <strong>Attendees</strong> tab.
+          On the <strong>Menu</strong> tab, check the dishes, tick the preparation confirmation and press <strong>Publish menu</strong>. (Kitchen staff
+          can do this part.)
+        </li>
+        <li>
+          Press <strong>Copy event link</strong> at the top of the event and paste it into your group chats. You can also{" "}
+          <strong>Invite people</strong> from the Attendees tab, or post an <A href="/admin/announcements">announcement</A>.
+        </li>
+        <li>
+          During the week, if <A href="/admin">Overview</A> shows <strong>RSVPs to approve</strong>, tap it and approve or decline them.
         </li>
         <li>On the day: kitchen staff open the <strong>Dietary</strong> tab and press <strong>Print</strong>.</li>
         <li>At the door: open <strong>Attendees &amp; check-in</strong> on a phone and tap <strong>Check in</strong> as people arrive.</li>
@@ -68,6 +69,12 @@ const SECTIONS: Section[] = [
           To call an event off, set <strong>Status → Cancelled</strong>. Everyone who RSVP&apos;d gets an urgent in-app notification. Changing the time or
           place of a published event notifies them too. (Only admins can delete events.)
         </li>
+        <li>
+          Cancelled by mistake? Set it back to <strong>Published</strong>. Everyone who RSVP&apos;d or signed up to help is told it&apos;s back on.
+        </li>
+        <li>
+          Once people have RSVP&apos;d, a published event can&apos;t go back to <strong>Draft</strong>. Cancel it instead, so they hear about it.
+        </li>
         <li>Times are always Bethlehem, PA time.</li>
       </ul>
     ),
@@ -78,13 +85,27 @@ const SECTIONS: Section[] = [
     who: "Organizers",
     body: (
       <ul className="list-disc space-y-2 pl-5">
-        <li>The tiles at the top of <strong>Attendees &amp; check-in</strong> show your headcount, seats, waitlist and approvals.</li>
-        <li><strong>Approve / Decline</strong> pending RSVPs; <strong>Approve guests / Decline guests</strong> for plus-ones. People get a notification.</li>
+        <li>
+          The three tiles at the top of <strong>Attendees &amp; check-in</strong> show seats taken, RSVPs that need approval, and how many people are
+          checked in. The filters below count who&apos;s going and who&apos;s on the waitlist.
+        </li>
+        <li>
+          <strong>Approve / Decline</strong> a pending RSVP first. If they&apos;re bringing guests, <strong>Approve guests / Decline guests</strong> shows
+          up next. People get a notification.
+        </li>
+        <li>Declined someone by mistake? Open the <strong>Declined</strong> filter and tap <strong>Undo decline</strong>.</li>
+        <li>
+          Someone wants to bring more guests after theirs were approved? They set guests to 0, save, then add them all again. The guests need approval
+          again.
+        </li>
         <li><strong>Confirm anyway (over capacity)</strong> lets someone in from the waitlist even when full.</li>
         <li>
           Someone tells you they can&apos;t come? <strong>Cancel RSVP</strong> frees their seat. They get a notification and the waitlist moves up.
         </li>
-        <li><strong>Email everyone going</strong> opens your email app with everyone in BCC. <strong>Download spreadsheet</strong> gives a CSV (no dietary data).</li>
+        <li>
+          Under the list, <strong>Email everyone going</strong> opens your email app with everyone in BCC. <strong>Download spreadsheet</strong> gives a
+          CSV (no dietary data).
+        </li>
         <li>If you check in at least half the people going, only checked-in people count in the stats.</li>
         <li>Allergy details are on the <strong>Dietary</strong> tab, not here.</li>
       </ul>
@@ -160,15 +181,16 @@ const SECTIONS: Section[] = [
     body: (
       <ul className="list-disc space-y-2 pl-5">
         <li>
-          <A href="/admin/announcements">Announcements</A> show on the home page. <strong>Pin</strong> keeps one on top; <strong>Mark as important</strong> highlights it;
-          <strong> Show from / Hide after</strong> schedules it.
+          <A href="/admin/announcements">Announcements</A> show on the home page. Write a title and message and press{" "}
+          <strong>Post announcement</strong>. Under <strong>More options</strong>: who sees it, <strong>Show from / Hide after</strong> to schedule it,{" "}
+          <strong>Pin</strong> to keep it on top and <strong>Mark as important</strong> to highlight it.
         </li>
         <li>
           <strong>Invite people</strong> (event → Attendees tab): paste email addresses. Members get an in-app invitation; for addresses without an
           account, use <strong>Copy event link</strong> and email it yourself. Anyone can also tap <strong>Invite friends</strong> on an event page.
         </li>
         <li>
-          The bell notifies people about waitlist spots, approvals, invitations, urgent menu updates, and cancelled or changed events. No automatic
+          The bell notifies people about waitlist spots, approvals, invitations, urgent menu updates, and cancelled, changed or back-on events. No automatic
           emails or texts yet — use{" "}
           <strong>Email everyone going</strong> for reminders.
         </li>
@@ -277,7 +299,7 @@ export default async function HelpPage() {
       </Alert>
       <nav aria-label="Help topics" className="mb-6 flex flex-wrap gap-2">
         {sections.map((s) => (
-          <a key={s.id} href={`#${s.id}`} className="rounded-full border border-stone-300 bg-white px-3 py-1.5 text-sm font-semibold text-ink hover:bg-stone-50">
+          <a key={s.id} href={`#${s.id}`} className="inline-flex min-h-11 items-center rounded-full border border-stone-300 bg-white px-4 text-sm font-semibold text-ink hover:bg-stone-50">
             {s.title.split(" — ")[0]}
           </a>
         ))}

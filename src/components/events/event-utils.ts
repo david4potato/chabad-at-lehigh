@@ -106,19 +106,20 @@ export function capacityInfo(
   return { text: `${plural(left, "spot")} left`, tone: "muted" };
 }
 
-/** Plain-words explanation of who needs organizer approval. */
-export function approvalNote(mode: ApprovalMode, isMember: boolean, maxGuests: number): string | null {
+/** Plain-words note when the person's own RSVP needs organizer approval (null when it doesn't). */
+export function approvalNote(mode: ApprovalMode, isMember: boolean): string | null {
   if (mode === "all_need_approval") {
     return "An organizer confirms each RSVP for this event. You'll get a notification once you're confirmed.";
   }
-  if (mode === "guests_need_approval") {
-    if (!isMember) {
-      return "Community guests are confirmed by an organizer. You'll get a notification once you're in.";
-    }
-    if (maxGuests > 0) return "Guests you bring are confirmed by an organizer.";
+  if (mode === "guests_need_approval" && !isMember) {
+    return "Community guests are confirmed by an organizer. You'll get a notification once you're in.";
   }
   return null;
 }
+
+/** Shown in the guest box once someone adds guests. With "all need approval", approvalNote already says so. */
+export const guestApprovalNote = (mode: ApprovalMode): string | null =>
+  mode === "guests_need_approval" ? "Guests you bring are confirmed by an organizer." : null;
 
 const datePart = (options: Intl.DateTimeFormatOptions) =>
   new Intl.DateTimeFormat("en-US", { timeZone: SITE_TIME_ZONE, ...options });

@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { matchDishAllergens, type ProfileAllergen, type Severity } from "@/lib/allergens";
 import { groupByCourse, optionalOnlyAllergens, parseEventMenu } from "@/lib/menu";
 import { formatDateTime, formatLongDate } from "@/lib/time";
+import { plural } from "@/components/events/event-utils";
 import { Alert } from "@/components/ui/alert";
 import { Card, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -215,7 +216,7 @@ export async function EventMenuSection({ event, viewer }: { event: MenuEvent; vi
                       initial={{ active: Boolean(votes?.voted_by_me), count: votes?.votes ?? 0 }}
                     />
                   ) : (
-                    <span className="shrink-0 text-sm text-muted">{votes?.votes ?? 0} votes</span>
+                    <span className="shrink-0 text-sm text-muted">{plural(votes?.votes ?? 0, "vote")}</span>
                   )}
                 </li>
               );

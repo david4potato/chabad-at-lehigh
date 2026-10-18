@@ -49,6 +49,9 @@ test.describe("organizer dashboard", () => {
     await page.getByLabel("Add a dish").selectOption({ label: "Hummus with tahini" });
     await page.getByRole("button", { name: "Add to menu" }).click();
     await expect(page.getByText("Dish added.")).toBeVisible();
+    // Typed but not saved on its own: Publish saves it too.
+    const kitchenNote = "E2E: prepared in a shared kitchen that also handles sesame.";
+    await page.getByLabel("Kitchen note (shown above the menu)").fill(kitchenNote);
 
     // The preparation confirmation is required before publishing.
     await page.getByRole("button", { name: /publish menu/i }).click();
@@ -56,6 +59,11 @@ test.describe("organizer dashboard", () => {
     await page.getByRole("checkbox", { name: /i confirm the ingredients/i }).check();
     await page.getByRole("button", { name: /publish menu/i }).click();
     await expect(page.getByText("Menu published.")).toBeVisible();
+    const [live] = await db<{ kitchen_notes: string | null }>(
+      `select kitchen_notes from menu_versions where event_id = $1 and status = 'published'`,
+      [event.id],
+    );
+    expect(live.kitchen_notes).toBe(kitchenNote);
 
     await page.getByLabel("Message").fill("E2E: the hummus now contains pine nuts.");
     await page.getByRole("checkbox", { name: /urgent — notify everyone/i }).check();
@@ -68,6 +76,67 @@ test.describe("organizer dashboard", () => {
     await studentPage.goto("/notifications");
     await expect(studentPage.getByText(/urgent menu update/i).first()).toBeVisible();
     await studentPage.close();
+  });
+
+  test("organizer duplicates last week's dinner with its menu and shifts, then publishes it", async ({ page }) => {
+    // Not a Shabbat dinner, so other tests that pick "the next Shabbat dinner" never see the copy.
+    const title = `E2E Weekly Dinner ${Date.now()}`;
+    const [source] = await db<{ id: string; starts_at: Date }>(
+      `insert into events (slug, title, category, status, starts_at, ends_at, has_meal)
+       values ($1, $2, 'social', 'published', now() - interval '2 days', now() - interval '2 days' + interval '2 hours', true)
+       returning id, starts_at`,
+      [`e2e-weekly-${Date.now()}`, title],
+    );
+    // Last week's menu (with a kitchen note and a cross-contact tick) and a help shift that filled up.
+    await db(
+      `with v as (insert into menu_versions (event_id, version, status, kitchen_notes) values ($1, 1, 'draft', 'E2E shared kitchen.') returning id),
+            i as (insert into menu_items (menu_version_id, dish_id, course, sort_order)
+                  select v.id, d.id, 'appetizer', 1 from v, dishes d where d.name = 'Hummus with tahini' returning id)
+       insert into menu_item_cross_contact (menu_item_id, allergen_code) select id, 'tree_nuts' from i`,
+      [source.id],
+    );
+    await db(
+      `insert into volunteer_shifts (event_id, title, starts_at, slots, status)
+       select id, 'E2E help cook', starts_at - interval '3 hours', 3, 'closed' from events where id = $1`,
+      [source.id],
+    );
+    const cleanup = [source.id];
+
+    try {
+      // One tap from the Past tab.
+      await signInAs(page, "organizer", { next: "/admin/events?tab=past" });
+      await page.getByRole("listitem").filter({ hasText: title }).getByRole("button", { name: "Duplicate for next week" }).click();
+      await expect(page).toHaveURL(/\/admin\/events\/[0-9a-f-]{36}\?duplicated=1/);
+      const copyId = new URL(page.url()).pathname.split("/").pop()!;
+      cleanup.push(copyId);
+      await expect(page.getByText(/the menu and volunteer shifts came too/i)).toBeVisible();
+
+      const [copy] = await db<{ status: string; starts_at: Date }>(`select status, starts_at from events where id = $1`, [copyId]);
+      expect(copy.status).toBe("draft");
+      // Same time one week later (an hour either way across a daylight-saving change).
+      const days = (new Date(copy.starts_at).getTime() - new Date(source.starts_at).getTime()) / 86_400_000;
+      expect(Math.abs(days - 7)).toBeLessThan(0.1);
+      const shifts = await db<{ title: string; status: string }>(`select title, status from volunteer_shifts where event_id = $1`, [copyId]);
+      expect(shifts).toEqual([{ title: "E2E help cook", status: "open" }]);
+      const crossContact = await db<{ allergen_code: string }>(
+        `select cc.allergen_code from menu_item_cross_contact cc
+         join menu_items mi on mi.id = cc.menu_item_id join menu_versions v on v.id = mi.menu_version_id
+         where v.event_id = $1 and v.status = 'draft'`,
+        [copyId],
+      );
+      expect(crossContact).toEqual([{ allergen_code: "tree_nuts" }]);
+
+      // "Publish" in the alert, then the next step is the menu, still a draft until staff confirm it.
+      await page.getByRole("button", { name: "Publish", exact: true }).click();
+      await page.getByRole("link", { name: /next: check the menu and publish it/i }).click();
+      await expect(page.getByRole("heading", { name: /draft — version 1/i })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Remove Hummus with tahini" })).toBeVisible();
+      await expect(page.getByLabel("Kitchen note (shown above the menu)")).toHaveValue("E2E shared kitchen.");
+      const [published] = await db<{ status: string }>(`select status from events where id = $1`, [copyId]);
+      expect(published.status).toBe("published");
+    } finally {
+      await db(`delete from events where id = any($1::uuid[])`, [cleanup]);
+    }
   });
 
   test("organizers see anonymous dietary counts; kitchen staff see names", async ({ page, browser }) => {

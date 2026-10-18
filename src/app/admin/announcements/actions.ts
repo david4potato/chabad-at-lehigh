@@ -5,7 +5,7 @@ import { z } from "zod";
 import { viewerWithRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { dbErrorMessage, validationError, type ActionResult } from "@/lib/action-result";
-import { siteLocalToUtcIso } from "@/lib/time";
+import { formatDateTime, siteLocalToUtcIso } from "@/lib/time";
 
 const FORBIDDEN: ActionResult = { ok: false, error: "You don't have permission to do that." };
 const when = z
@@ -56,7 +56,10 @@ export async function saveAnnouncement(_prev: ActionResult, formData: FormData):
     : await supabase.from("announcements").insert(row);
   if (error) return { ok: false, error: dbErrorMessage(error) };
   revalidate();
-  return { ok: true, message: id ? "Announcement saved." : "Announcement created." };
+  if (id) return { ok: true, message: "Saved." };
+  if (row.status === "draft") return { ok: true, message: "Saved as a draft." };
+  if (row.publish_at > new Date().toISOString()) return { ok: true, message: `Scheduled for ${formatDateTime(row.publish_at)}.` };
+  return { ok: true, message: "Posted. It's live now." };
 }
 
 export async function deleteAnnouncement(id: string): Promise<ActionResult> {

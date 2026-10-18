@@ -377,6 +377,54 @@ begin
 end;
 $$;
 
+-- "Duplicate for next week": start the new event with a draft copy of the source
+-- event's menu (published version first). Does nothing if the new event already
+-- has a menu or the source has none. Staff still confirm preparation to publish.
+create or replace function public.copy_menu_to_event(p_source_event uuid, p_target_event uuid)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_source public.menu_versions;
+  v_draft public.menu_versions;
+  r public.menu_items;
+  v_new_item uuid;
+begin
+  if not public.can_manage_menus() then
+    raise exception 'forbidden';
+  end if;
+  perform 1 from public.events where id = p_target_event for update;
+  if not found then
+    raise exception 'event_not_found';
+  end if;
+  if exists (select 1 from public.menu_versions where event_id = p_target_event) then
+    return;
+  end if;
+
+  select * into v_source from public.menu_versions
+  where event_id = p_source_event
+  order by (status = 'published') desc, version desc
+  limit 1;
+  if not found then
+    return;
+  end if;
+
+  insert into public.menu_versions (event_id, version, status, title, kitchen_notes, created_by)
+  values (p_target_event, 1, 'draft', v_source.title, v_source.kitchen_notes, auth.uid())
+  returning * into v_draft;
+
+  for r in select * from public.menu_items where menu_version_id = v_source.id loop
+    insert into public.menu_items (menu_version_id, dish_id, course, sort_order, preparation_notes, cross_contact_notes)
+    values (v_draft.id, r.dish_id, r.course, r.sort_order, r.preparation_notes, r.cross_contact_notes)
+    returning id into v_new_item;
+    insert into public.menu_item_cross_contact (menu_item_id, allergen_code)
+    select v_new_item, allergen_code from public.menu_item_cross_contact where menu_item_id = r.id;
+  end loop;
+end;
+$$;
+
 create or replace function public.publish_menu(
   p_menu_version_id uuid,
   p_change_summary text,
@@ -1028,6 +1076,8 @@ revoke execute on function public.publish_menu(uuid, text, boolean, boolean) fro
 revoke execute on function public.event_dietary_report(uuid) from public, anon;
 revoke execute on function public.event_dietary_summary(uuid) from public, anon;
 grant execute on function public.create_menu_draft(uuid, boolean) to authenticated;
+revoke execute on function public.copy_menu_to_event(uuid, uuid) from public, anon;
+grant execute on function public.copy_menu_to_event(uuid, uuid) to authenticated;
 grant execute on function public.publish_menu(uuid, text, boolean, boolean) to authenticated;
 grant execute on function public.event_dietary_report(uuid) to authenticated;
 grant execute on function public.event_dietary_summary(uuid) to authenticated;

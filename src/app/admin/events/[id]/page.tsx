@@ -2,22 +2,42 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { canManageEvents, isAdmin } from "@/lib/roles";
+import { createClient } from "@/lib/supabase/server";
 import { getAdminEvent } from "@/lib/data/admin";
 import { listShiftsForEvent } from "@/lib/data/volunteer";
+import { formatEventWhen } from "@/lib/time";
 import { Alert } from "@/components/ui/alert";
 import { EventTabs } from "@/components/admin/event-tabs";
 import { AdminEventHeader } from "@/components/admin/event-header";
 import { EventForm } from "@/components/admin/event-form";
+import { DuplicateEventButton } from "@/components/admin/duplicate-event-button";
+import { PublishDraftButton } from "@/components/admin/publish-draft-button";
 import { EventShiftsAdmin } from "@/components/volunteer/event-shifts-admin";
-import { deleteEvent, duplicateEvent, updateEvent } from "../actions";
+import { deleteEvent, updateEvent } from "../actions";
 
 export const metadata: Metadata = { title: "Edit event" };
+
+/** What else "Duplicate for next week" brought along, said plainly. */
+function copiedExtras(menu: boolean, shifts: boolean) {
+  if (menu && shifts) return "The menu and volunteer shifts came too, as drafts to check.";
+  if (menu) return "The menu came too, as a draft to check.";
+  if (shifts) return "The volunteer shifts came too, as drafts to check.";
+  return null;
+}
 
 export default async function EditEventPage({ params, searchParams }: PageProps<"/admin/events/[id]">) {
   const [{ id }, query] = await Promise.all([params, searchParams]);
   const viewer = await requireRole(["organizer", "kitchen_staff", "admin"], `/admin/events/${id}`);
   if (!canManageEvents(viewer.roles)) redirect(`/admin/events/${id}/menu`);
   const [event, shifts] = await Promise.all([getAdminEvent(id), listShiftsForEvent(id)]);
+
+  const justDuplicated = Boolean(query.duplicated) && event.status === "draft";
+  let extras: string | null = null;
+  if (justDuplicated) {
+    const supabase = await createClient();
+    const { count } = await supabase.from("menu_versions").select("id", { count: "exact", head: true }).eq("event_id", event.id);
+    extras = copiedExtras(Boolean(count), shifts.length > 0);
+  }
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -32,19 +52,21 @@ export default async function EditEventPage({ params, searchParams }: PageProps<
               : "Event created."}
         </Alert>
       ) : null}
-      {query.duplicated && event.status === "draft" ? (
-        <Alert tone="success" className="mb-4">
-          Copied as a draft one week later. Check the details, then set the status to Published.
+      {justDuplicated ? (
+        <Alert tone="success" className="mb-4" title={`Copied to ${formatEventWhen(event.starts_at, event.ends_at)}, as a draft.`}>
+          <p>{extras ? `${extras} ` : ""}Looks right?</p>
+          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+            <PublishDraftButton />
+            <span>Or change the details below.</span>
+          </div>
         </Alert>
-      ) : null}
+      ) : (
+        <div className="mb-4">
+          <DuplicateEventButton id={event.id} variant="secondary" />
+        </div>
+      )}
       <EventShiftsAdmin eventId={event.id} shifts={shifts} />
-      <EventForm
-        action={updateEvent}
-        event={event}
-        canDelete={isAdmin(viewer.roles)}
-        onDuplicate={duplicateEvent}
-        onDelete={deleteEvent}
-      />
+      <EventForm action={updateEvent} event={event} canDelete={isAdmin(viewer.roles)} onDelete={deleteEvent} />
     </div>
   );
 }

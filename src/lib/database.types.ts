@@ -1385,6 +1385,7 @@ export type Database = {
       can_manage_events: { Args: Record<PropertyKey, never>; Returns: boolean };
       can_manage_menus: { Args: Record<PropertyKey, never>; Returns: boolean };
       can_view_dietary: { Args: Record<PropertyKey, never>; Returns: boolean };
+      copy_menu_to_event: { Args: { p_source_event: string; p_target_event: string }; Returns: undefined };
       create_menu_draft: {
         Args: { p_copy_published?: boolean; p_event_id: string };
         Returns: {

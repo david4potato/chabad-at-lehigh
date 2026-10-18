@@ -29,7 +29,10 @@ export default async function PrivacyPage() {
         <ul className="list-disc space-y-1 pl-5">
           <li>Organizers see RSVPs, names and contact details to run events.</li>
           <li>Organizers see who signed up for a volunteer shift and can email them.</li>
-          <li>Admins can see a person&apos;s attendance and volunteering history. Other organizers see totals only, without names.</li>
+          <li>
+            Organizers can see who RSVP&apos;d to and checked in at each event, past and upcoming. Only admins see a one-page summary of
+            a person&apos;s attendance and volunteering. The numbers on the organizer overview are totals, without names.
+          </li>
           <li>
             Your dietary information is visible only to you, and to kitchen staff and admins for events you RSVP to — only
             for preparing food. Every time they open the dietary report it is logged.

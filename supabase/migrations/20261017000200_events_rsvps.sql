@@ -603,7 +603,7 @@ $$;
 -- -----------------------------------------------------------------------------
 -- Event changes: fill seats freed by a capacity change, and tell everyone who
 -- RSVP'd or signed up to help (urgent, in-app) when an event is cancelled,
--- rescheduled or moved.
+-- rescheduled, moved or back on after a cancellation.
 -- -----------------------------------------------------------------------------
 create or replace function private.after_event_update()
 returns trigger
@@ -630,6 +630,10 @@ begin
     v_kind := 'event_cancelled';
     v_title := 'Cancelled: ' || new.title;
     v_body := new.title || ' on ' || v_when || ' has been cancelled. Please contact the organizer with any questions.';
+  elsif old.status = 'cancelled' and new.status = 'published' then
+    v_kind := 'event_reinstated';
+    v_title := 'Back on: ' || new.title;
+    v_body := new.title || ' on ' || v_when || ' is back on. See the event page for details.';
   elsif old.status = 'published' and new.status = 'published'
         and (new.starts_at is distinct from old.starts_at
              or new.location_name is distinct from old.location_name

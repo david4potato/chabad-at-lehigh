@@ -22,11 +22,12 @@ test.describe("students", () => {
     await page.getByLabel(/full name/i).fill("Dana Student");
     await page.getByRole("button", { name: "Continue" }).click();
     await expect(page.getByRole("heading", { name: /any food allergies/i })).toBeVisible();
-    await page.getByRole("link", { name: /skip for now/i }).click();
+    // "Skip for now" is offered at the top and the bottom of the dietary step.
+    await page.getByRole("link", { name: /skip for now/i }).first().click();
 
     // Back on the event, ready to confirm.
     await expect(page).toHaveURL(new RegExp(`/events/${slug}`));
-    await expect(page.getByText(/tap going to confirm/i)).toBeVisible();
+    await expect(page.getByText(/tap going to save your spot/i)).toBeVisible();
     await page.getByRole("button", { name: "Going", exact: true }).click();
     await expect(page.getByText(/you're going/i).first()).toBeVisible();
 

@@ -1,23 +1,19 @@
 "use client";
 
-import { useActionState, useRef, useEffect } from "react";
+import { useActionState } from "react";
 import { submitSuggestion } from "@/app/meals/actions";
 import { initialActionState } from "@/lib/action-result";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
+import { Form } from "@/components/ui/form";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { FormMessage } from "@/components/ui/form-message";
 
 export function SuggestionForm({ eventId }: { eventId: string }) {
   const [state, action] = useActionState(submitSuggestion, initialActionState);
-  const formRef = useRef<HTMLFormElement>(null);
   const errors = state.ok ? undefined : state.fieldErrors;
 
-  useEffect(() => {
-    if (state.ok && state.message) formRef.current?.reset();
-  }, [state]);
-
   return (
-    <form ref={formRef} action={action} className="space-y-4">
+    <Form action={action} state={state} resetOnSuccess className="space-y-4">
       <input type="hidden" name="event_id" value={eventId} />
       <div className="grid gap-4 sm:grid-cols-[180px_1fr]">
         <Field label="Type" htmlFor="suggestion-kind" errors={errors?.kind}>
@@ -38,6 +34,6 @@ export function SuggestionForm({ eventId }: { eventId: string }) {
         Send suggestion
       </SubmitButton>
       <FormMessage state={state} />
-    </form>
+    </Form>
   );
 }

@@ -36,6 +36,9 @@ export default async function DietaryPage({ searchParams }: PageProps<"/profile/
             Recommended if you&apos;ll come to meals. You&apos;ll also get personal alerts on menus. You can skip this and
             add it later.
           </p>
+          <a href={next} className="mt-2 inline-flex min-h-11 items-center font-semibold text-brand-700 hover:underline">
+            No allergies or dietary needs? Skip for now
+          </a>
         </div>
       ) : (
         <PageHeader

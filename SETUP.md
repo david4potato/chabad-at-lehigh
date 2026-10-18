@@ -1,11 +1,36 @@
 # Setup guide
 
-From zero to a live site in about an hour. Do the steps in order.
+## Fastest path (about 30 minutes)
+
+If Claude is helping you, it does the database, admin and code steps; you do the clicks below.
+
+1. **Supabase project (1 min).** <https://supabase.com/dashboard> → **New project** → name `chabad-at-lehigh`,
+   **Generate a password** (save it), region **East US**, size: leave the default → **Create**.
+   Tell Claude "created", plus your email and Dit's. Claude loads the database, makes you both admins and sends you a
+   block to paste into Vercel. (Doing it yourself: steps 2, 5 and 12 below.)
+2. **GitHub repo (1 min).** <https://github.com/new> → `chabad-at-lehigh`, **Private**, no README → **Create**.
+   Tell Claude, who pushes the code. (Yourself: step 14.)
+3. **Vercel (5 min).** <https://vercel.com/new> → import `chabad-at-lehigh` → **Environment Variables** → paste the
+   block from Claude (it fills both values) → **Deploy**. Copy the address it gives you (e.g. `https://chabad-at-lehigh.vercel.app`).
+4. **Supabase → Authentication (10 min)** — four screens, links in steps 7, 10, 11 and 17:
+   - **URL Configuration:** Site URL = your Vercel address; Redirect URLs → add `https://<your address>/**`.
+   - **Email Templates:** Magic Link and Confirm signup — subjects and files in step 7.
+   - **SMTP Settings:** quickest is a Gmail **app password** (step 10, no domain needed). Resend can come later.
+   - **Rate Limits:** email → `100` per hour.
+   (Providers → Email → *Confirm email* is on by default — leave it on.)
+5. **Sign in (2 min)** on your site → **Dashboard** → the **Getting started** checklist: confirm the contact details,
+   **add the Greenbergs' phone** and parking.
+6. **Send Dit her sign-in note** (in [docs/ORGANIZER_QUICKSTART.md](docs/ORGANIZER_QUICKSTART.md)).
+
+Later, when you have time: Resend with your own domain (step 9), `app.chabadlehigh.org` (Part F), the bot check
+(step 21), and the organizer review + one trial dinner before announcing.
+
+The rest of this guide is the full reference for each step.
 
 | Piece | Service | Cost |
 | --- | --- | --- |
 | Website | Vercel (Hobby) | Free |
-| Database + sign-in | Supabase | Free, or Pro ($25/mo per organization: never pauses, daily backups) |
+| Database + sign-in | Supabase | Free, or in a Pro organization $25/mo plus about $10/mo per extra project (never pauses, daily backups) |
 | Sign-in emails | Resend (Free) — or Gmail | Free |
 | Custom address (optional) | A subdomain of chabadlehigh.org, or a domain you buy | Free / domain price |
 | Code | GitHub | Free |
@@ -22,7 +47,7 @@ Nothing else is needed — no Neon, Loops or Mailchimp.
 | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Project Settings → Data API → Project URL |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase → Project Settings → API Keys → Publishable key (`sb_publishable_…`) |
-| `NEXT_PUBLIC_SITE_URL` | Your site address with `https://`, no trailing slash (Vercel URL first, custom address later) |
+| `NEXT_PUBLIC_SITE_URL` | Optional on Vercel (it uses your Vercel production address). Set it only for a custom address, with `https://` |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Optional — step 21 |
 
 Never add the Supabase **secret / service_role** key anywhere — the app doesn't use it.
@@ -32,7 +57,7 @@ Dashboard links below use `/project/_/`, which opens your project.
 ## Part A — Supabase
 
 1. <https://supabase.com> → **New project**: name `chabad-at-lehigh`, generate and save a database password,
-   region **East US (North Virginia)**, compute **Micro** → **Create**. Free plan: 2 active projects per person,
+   region **East US (North Virginia)**, compute size: leave the default → **Create**. Free plan: 2 active projects per person,
    and idle projects pause after a week (the site pings it daily to prevent that). Pro never pauses.
 2. **SQL Editor → New query** (<https://supabase.com/dashboard/project/_/sql/new>) → paste **all** of
    `supabase/setup/all_migrations.sql` → **Run**. Expect *Success*. Run once, on a new project.
@@ -41,14 +66,14 @@ Dashboard links below use `/project/_/`, which opens your project.
    red errors. (Yellow warnings about public functions like `get_event_menu` are expected.)
 5. Copy the **Project URL** (<https://supabase.com/dashboard/project/_/settings/api>) and the
    **Publishable key** (<https://supabase.com/dashboard/project/_/settings/api-keys>).
-6. **Project Settings → JWT Keys** (<https://supabase.com/dashboard/project/_/settings/jwt>): the current key should
-   be **ECC (P-256)** or RSA. If it says *Legacy JWT secret*, click **Migrate**, then **Rotate** to the new key
-   (do this before launch). This lets pages check sign-ins without an extra call to Supabase.
+6. *Optional speed-up:* **Project Settings → JWT Keys** (<https://supabase.com/dashboard/project/_/settings/jwt>): if the
+   current key says *Legacy JWT secret*, click **Migrate**, then **Rotate** to the new ECC key (before launch). Pages then
+   check sign-ins without an extra call to Supabase. Newer projects already use ECC.
 7. **Authentication → Email Templates** (<https://supabase.com/dashboard/project/_/auth/templates>):
    - **Magic Link** — subject `Your Chabad at Lehigh sign-in link`, body = `supabase/templates/magic_link.html` → Save.
    - **Confirm signup** — subject `Welcome to Chabad at Lehigh — confirm your email`, body = `supabase/templates/confirmation.html` → Save.
 8. **Authentication → Providers → Email** (<https://supabase.com/dashboard/project/_/auth/providers>): Email enabled,
-   **Confirm email on** (required — it's part of what keeps accounts from being claimed by someone else).
+   **Confirm email on** (on by default; required — it's part of what keeps accounts from being claimed by someone else).
 
 ## Part B — Email sender (required)
 
@@ -88,8 +113,8 @@ Supabase's built-in email only reaches your own team, so students need a real se
 17. Supabase → **Authentication → URL Configuration** (<https://supabase.com/dashboard/project/_/auth/url-configuration>):
     Site URL = your Vercel address; Redirect URLs → add `https://your-address/**` (and `http://localhost:3000/**`
     for local development) → Save.
-18. Vercel → add `NEXT_PUBLIC_SITE_URL` = your Vercel address → **Deployments → ⋯ → Redeploy**
-    (variable changes need a redeploy).
+18. Nothing else to set in Vercel: the site uses its Vercel production address automatically. (Set
+    `NEXT_PUBLIC_SITE_URL` only when you add a custom address — step 20.)
 
 ## Part F — Custom address (optional)
 
@@ -108,7 +133,7 @@ that would take down the current site and rabbi@ email. Use a subdomain instead,
 ## Part G — Check it works
 
 22. Open the site on a phone and a computer: home, Events, Find Us and footer links load.
-23. **Sign in** → email arrives with a button and a code → welcome form → you see **Dashboard**, with a
+23. **Sign in** → email arrives with a button and a code → welcome form → optional allergy screen (**Skip for now**) → you see **Dashboard**, with a
     **Getting started** checklist. Do step 13 now.
 24. Follow the checklist: **Settings** — confirm the contact details with the Greenbergs (pre-filled from public
     sources: Rabbi Zalman & Dit Greenberg, rabbi@chabadlehigh.org, 306 Wyandotte Street), **add their phone number**

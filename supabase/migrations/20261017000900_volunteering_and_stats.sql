@@ -152,19 +152,21 @@ returns table (user_id uuid, event_id uuid, category public.event_category, star
                title text, slug text, guests integer)
 language sql
 stable
-security definer
-set search_path = ''
+-- Deliberately not SECURITY DEFINER and no SET clause, so Postgres can inline it
+-- into the (SECURITY DEFINER) callers and push their filters down. Every name is
+-- schema-qualified.
 as $$
   select r.user_id, e.id, e.category, e.starts_at, e.title, e.slug,
          case when r.guest_status = 'approved' then r.guest_count else 0 end
-  from public.rsvps r
-  join public.events e on e.id = r.event_id
-  where r.status = 'going'
-    and e.status = 'published'
+  from public.events e
+  cross join lateral (
+    select count(*) filter (where c.checked_in_at is not null) * 2 < count(*) as few_checkins
+    from public.rsvps c where c.event_id = e.id and c.status = 'going'
+  ) k
+  join public.rsvps r on r.event_id = e.id and r.status = 'going'
+  where e.status = 'published'
     and coalesce(e.ends_at, e.starts_at + interval '3 hours') < now()
-    and (r.checked_in_at is not null
-         or (select count(*) filter (where c.checked_in_at is not null) * 2 < count(*)
-             from public.rsvps c where c.event_id = e.id and c.status = 'going'));
+    and (r.checked_in_at is not null or k.few_checkins);
 $$;
 
 -- A past shift "happened" unless it was a draft or its event was cancelled.

@@ -19,7 +19,8 @@ const DB_ERROR_MESSAGES: Record<string, string> = {
   rsvp_deadline_passed: "The RSVP deadline has passed. Please contact the organizer.",
   rsvp_declined: "An organizer has already responded to your RSVP. Please contact them directly.",
   too_many_guests: "That's more guests than this event allows.",
-  guest_increase_needs_organizer: "Your guests are already confirmed. To bring more, please contact the organizer.",
+  guest_increase_needs_organizer:
+    "Your guests are already confirmed. To bring more, set guests to 0 and tap Going, then add them all again. They'll need approval again, and their seats aren't held until then.",
   not_enough_capacity: "There isn't enough space for that change. Your current RSVP is unchanged.",
   invalid_response: "Please choose Going or Not going.",
   text_too_long: "That text is too long.",

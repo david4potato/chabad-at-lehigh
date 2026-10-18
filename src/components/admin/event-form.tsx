@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useState, useTransition } from "react";
 import { initialActionState, type ActionResult } from "@/lib/action-result";
+import type { EventResult } from "@/app/admin/events/actions";
 import { toDateTimeLocalValue } from "@/lib/time";
 import { cn } from "@/lib/cn";
 import { Checkbox, Field, Input, Select, Textarea } from "@/components/ui/field";
@@ -9,9 +11,13 @@ import { Button } from "@/components/ui/button";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { Form } from "@/components/ui/form";
 import { FormMessage } from "@/components/ui/form-message";
+import { Alert } from "@/components/ui/alert";
 import type { AdminEvent } from "@/lib/data/admin";
 
-type Action = (prev: ActionResult, formData: FormData) => Promise<ActionResult>;
+type Action = (prev: EventResult, formData: FormData) => Promise<EventResult>;
+
+/** The event form's id, so a button elsewhere on the page (e.g. "Publish" after duplicating) can submit it. */
+export const EVENT_FORM_ID = "event-form";
 
 const APPROVAL_OPTIONS = [
   { value: "auto", label: "Confirm everyone automatically", hint: "People are confirmed while space remains; then they join the waitlist." },
@@ -39,7 +45,6 @@ export function EventForm({
   event,
   defaults,
   canDelete,
-  onDuplicate,
   onDelete,
 }: {
   action: Action;
@@ -47,19 +52,19 @@ export function EventForm({
   /** Pre-filled values for a new event (e.g. the usual location). */
   defaults?: { location_name?: string; location_address?: string };
   canDelete?: boolean;
-  onDuplicate?: (id: string) => Promise<ActionResult>;
   onDelete?: (id: string) => Promise<ActionResult>;
 }) {
-  const [state, formAction] = useActionState(action, initialActionState);
+  const [state, formAction] = useActionState(action, initialActionState as EventResult);
   const [approval, setApproval] = useState(event?.approval_mode ?? "auto");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [busy, startBusy] = useTransition();
   const [extraState, setExtraState] = useState<ActionResult | null>(null);
   const e = state.ok ? undefined : state.fieldErrors;
+  const next = state.ok ? state.data?.next : undefined;
 
   return (
     <div className="space-y-5">
-      <Form action={formAction} className="space-y-5">
+      <Form id={EVENT_FORM_ID} action={formAction} className="space-y-5">
         {event ? <input type="hidden" name="id" value={event.id} /> : null}
 
         <Section title="Basics">
@@ -86,7 +91,7 @@ export function EventForm({
             <Field
               label="Status"
               htmlFor="status"
-              hint="Drafts are only visible to staff. Choosing Cancelled notifies everyone who RSVP'd in the app."
+              hint="Drafts are only visible to staff. Choosing Cancelled notifies everyone who RSVP'd in the app. Setting it back to Published tells them it's back on."
               errors={e?.status}
             >
               <Select id="status" name="status" defaultValue={event?.status ?? "draft"}>
@@ -168,12 +173,6 @@ export function EventForm({
 
         <Section title="Food">
           <Checkbox name="has_meal" label="This event has a meal" hint="Shows the menu section on the event page." defaultChecked={event?.has_meal ?? true} />
-          <Checkbox
-            name="menu_voting_open"
-            label="Let people vote on proposed dishes"
-            hint="Add the options on the Menu tab. Votes are advisory."
-            defaultChecked={event?.menu_voting_open ?? false}
-          />
         </Section>
 
         <Section title="Contact" description="Leave blank to use the organization's contact from Settings.">
@@ -207,27 +206,28 @@ export function EventForm({
         <div className="sticky bottom-[calc(5rem+env(safe-area-inset-bottom))] z-10 flex flex-wrap items-center gap-3 rounded-2xl border border-stone-200 bg-white/95 p-3 shadow-lg backdrop-blur md:bottom-4">
           <SubmitButton size="lg">{event ? "Save event" : "Create event"}</SubmitButton>
           <div className="min-w-0 flex-1">
-            <FormMessage state={state} />
+            {next ? (
+              <Alert tone="success">
+                {state.ok ? state.message : null}{" "}
+                <Link href={next.href} className="inline-flex min-h-11 items-center font-semibold underline">
+                  {next.label}
+                </Link>
+              </Alert>
+            ) : (
+              <FormMessage state={state} />
+            )}
           </div>
         </div>
       </Form>
 
-      {event && (onDuplicate || onDelete) ? (
+      {event && canDelete && onDelete ? (
         <div className="space-y-3 rounded-[var(--radius-card)] border border-stone-200 bg-white p-5">
           <h2 className="text-lg font-bold text-ink">More actions</h2>
-          <div className="flex flex-wrap gap-2">
-            {onDuplicate ? (
-              <Button variant="secondary" disabled={busy} onClick={() => startBusy(async () => setExtraState(await onDuplicate(event.id)))}>
-                Duplicate for next week
-              </Button>
-            ) : null}
-            {canDelete && onDelete && !confirmDelete ? (
-              <Button variant="ghost" className="text-red-700 hover:bg-red-50" onClick={() => setConfirmDelete(true)}>
-                Delete event
-              </Button>
-            ) : null}
-          </div>
-          {confirmDelete && onDelete ? (
+          {!confirmDelete ? (
+            <Button variant="ghost" className="text-red-700 hover:bg-red-50" onClick={() => setConfirmDelete(true)}>
+              Delete event
+            </Button>
+          ) : (
             <div className="space-y-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-900">
               <p>
                 Deleting removes the event, its RSVPs and menus permanently. If people already RSVP&apos;d, it&apos;s usually
@@ -242,7 +242,7 @@ export function EventForm({
                 </Button>
               </div>
             </div>
-          ) : null}
+          )}
           <FormMessage state={extraState} />
         </div>
       ) : null}

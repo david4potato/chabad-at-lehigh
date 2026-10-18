@@ -4,6 +4,7 @@ import { useOptimistic, useState, useTransition } from "react";
 import { Check, Heart } from "lucide-react";
 import { toggleFavorite, toggleOptionVote } from "@/app/meals/actions";
 import { cn } from "@/lib/cn";
+import { plural } from "@/components/events/event-utils";
 
 type VoteState = { active: boolean; count: number };
 
@@ -74,7 +75,7 @@ export function OptionVoteButton({
         onClick={toggle}
         disabled={pending}
         aria-pressed={state.active}
-        aria-label={`${state.active ? "Remove your vote for" : "Vote for"} ${dishName} (${state.count} votes)`}
+        aria-label={`${state.active ? "Voted" : "Vote"} for ${dishName}, ${plural(state.count, "vote")}`}
         className={cn(
           "inline-flex h-11 items-center gap-2 rounded-xl border px-4 text-sm font-semibold transition-colors",
           state.active ? "border-brand-700 bg-brand-700 text-white" : "border-stone-300 bg-white text-ink hover:bg-stone-50",

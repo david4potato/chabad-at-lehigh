@@ -9,6 +9,7 @@ import { cn } from "@/lib/cn";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Input, Select, Textarea } from "@/components/ui/field";
+import { Form } from "@/components/ui/form";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { FormMessage } from "@/components/ui/form-message";
 
@@ -42,7 +43,8 @@ export function DietaryForm({ initial, welcome, next }: { initial: Initial; welc
 
   return (
     <div className="space-y-6">
-      <form key={formKey} action={action} className="space-y-8">
+      {/* Form, not <form action>: React's automatic reset after a save would untick new allergies and re-tick sharing. */}
+      <Form key={formKey} action={action} className="space-y-8">
         {welcome ? <input type="hidden" name="welcome" value="1" /> : null}
         <input type="hidden" name="next" value={next} />
 
@@ -143,7 +145,7 @@ export function DietaryForm({ initial, welcome, next }: { initial: Initial; welc
           ) : null}
         </div>
         <FormMessage state={state} />
-      </form>
+      </Form>
 
       {initial.hasData && !welcome ? (
         <div className="border-t border-stone-200 pt-6">

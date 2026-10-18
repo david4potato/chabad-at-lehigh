@@ -18,11 +18,9 @@ export default async function AttendeesPage({ params }: PageProps<"/admin/events
   const [attendees, counts] = await Promise.all([getAttendees(event.id), getEventCounts([event.id])]);
   const c = counts.get(event.id);
 
+  // Three numbers at the door. Going and Waitlist counts are on the filter chips below.
   const tiles = [
-    { label: "Going", value: c?.going ?? 0 },
-    { label: "Approved guests", value: c?.guests ?? 0 },
     { label: "Seats taken", value: event.capacity ? `${c?.seatsTaken ?? 0} / ${event.capacity}` : (c?.seatsTaken ?? 0) },
-    { label: "Waitlist", value: c?.waitlist ?? 0 },
     { label: "Needs approval", value: c?.pending ?? 0, highlight: (c?.pending ?? 0) > 0 },
     { label: "Checked in", value: attendees.filter((a) => a.checked_in_at).length },
   ];
@@ -31,19 +29,19 @@ export default async function AttendeesPage({ params }: PageProps<"/admin/events
     <div>
       <AdminEventHeader event={event} />
       <EventTabs eventId={event.id} active="attendees" roles={viewer.roles} />
-      <dl className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <dl className="mb-6 grid grid-cols-3 gap-2 sm:gap-3">
         {tiles.map((t) => (
-          <div key={t.label} className={`rounded-2xl border bg-white p-3.5 shadow-sm ${t.highlight ? "border-brand-300 bg-brand-50" : "border-stone-200"}`}>
+          <div key={t.label} className={`rounded-2xl border bg-white p-3 shadow-sm sm:p-3.5 ${t.highlight ? "border-brand-300 bg-brand-50" : "border-stone-200"}`}>
             <dt className="text-xs font-semibold text-muted">{t.label}</dt>
-            <dd className="mt-0.5 text-2xl font-extrabold text-ink">{t.value}</dd>
+            <dd className="mt-0.5 text-xl font-extrabold text-ink sm:text-2xl">{t.value}</dd>
           </div>
         ))}
       </dl>
       <AttendeeList eventId={event.id} attendees={attendees} capacity={event.capacity} seatsTaken={c?.seatsTaken ?? 0} />
       <Card className="mt-8">
         <CardTitle>Invite people</CardTitle>
-        <p className="mb-4 mt-1 text-sm text-muted">Send an in-app invitation, or copy the link to share anywhere.</p>
-        <InvitePeople eventId={event.id} eventPath={`/events/${event.slug}`} published={event.status === "published"} />
+        <p className="mb-4 mt-1 text-sm text-muted">Send members an in-app invitation. To share anywhere, use Copy event link at the top.</p>
+        <InvitePeople eventId={event.id} published={event.status === "published"} />
       </Card>
       <p className="mt-6 text-sm text-muted">Allergy and dietary details are on the Dietary tab (names are visible to kitchen staff and admins only).</p>
       <p className="mt-2 text-sm text-muted">If you check in at least half the people going, only checked-in people count in the stats.</p>

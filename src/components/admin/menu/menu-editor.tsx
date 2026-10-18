@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState, useTransition } from "react";
+import { useActionState, useRef, useState, useTransition, type MouseEvent } from "react";
 import { AlertTriangle, Trash2 } from "lucide-react";
 import {
   addMenuItem,
@@ -24,6 +24,7 @@ import { Checkbox, Field, Input, Select, Textarea } from "@/components/ui/field"
 import { SubmitButton } from "@/components/ui/submit-button";
 import { Form } from "@/components/ui/form";
 import { FormMessage } from "@/components/ui/form-message";
+import { Alert } from "@/components/ui/alert";
 import { AllergenBadges } from "@/components/menu/allergen-badges";
 
 export type DishOption = { id: string; name: string; category: string; status: string };
@@ -49,21 +50,40 @@ export function StartDraftButton({ eventId, hasPublished }: { eventId: string; h
   );
 }
 
+/** Ids of the title and kitchen note fields; Publish copies what's typed there so nothing is lost. */
+const TITLE_ID = "menu-title";
+const KITCHEN_NOTES_ID = "kitchen-notes";
+
+/** The first field in a form that differs from what was last saved, or null. */
+function changedField(form: HTMLFormElement): HTMLElement | null {
+  for (const el of Array.from(form.elements)) {
+    if (el instanceof HTMLInputElement) {
+      if (el.type === "hidden") continue;
+      if (el.type === "checkbox" || el.type === "radio" ? el.checked !== el.defaultChecked : el.value !== el.defaultValue) return el;
+    } else if (el instanceof HTMLTextAreaElement) {
+      if (el.value !== el.defaultValue) return el;
+    } else if (el instanceof HTMLSelectElement) {
+      if (Array.from(el.options).some((o) => o.selected !== o.defaultSelected)) return el;
+    }
+  }
+  return null;
+}
+
 export function DraftDetailsForm({ eventId, versionId, title, kitchenNotes }: { eventId: string; versionId: string; title: string | null; kitchenNotes: string | null }) {
   const [state, action] = useActionState(saveDraftDetails, initialActionState);
   return (
     <Form action={action} className="space-y-4">
       <input type="hidden" name="event_id" value={eventId} />
       <input type="hidden" name="version_id" value={versionId} />
-      <Field label="Menu title" htmlFor="menu-title" hint="Optional, e.g. “Shabbat Dinner Menu”">
-        <Input id="menu-title" name="title" maxLength={140} defaultValue={title ?? ""} />
+      <Field label="Menu title" htmlFor={TITLE_ID} hint="Optional, e.g. “Shabbat Dinner Menu”">
+        <Input id={TITLE_ID} name="title" maxLength={140} defaultValue={title ?? ""} />
       </Field>
       <Field
         label="Kitchen note (shown above the menu)"
-        htmlFor="kitchen-notes"
+        htmlFor={KITCHEN_NOTES_ID}
         hint="A general cross-contact statement, e.g. “Prepared in a shared kitchen that also handles sesame, tree nuts, eggs, wheat and soy.”"
       >
-        <Textarea id="kitchen-notes" name="kitchen_notes" rows={3} maxLength={2000} defaultValue={kitchenNotes ?? ""} />
+        <Textarea id={KITCHEN_NOTES_ID} name="kitchen_notes" rows={3} maxLength={2000} defaultValue={kitchenNotes ?? ""} />
       </Field>
       <SubmitButton variant="secondary">Save</SubmitButton>
       <FormMessage state={state} />
@@ -75,6 +95,9 @@ export function MenuItemEditor({ eventId, item }: { eventId: string; item: MenuI
   const [state, action] = useActionState(updateMenuItem, initialActionState);
   const remove = useAction();
   const optionalOnly = optionalOnlyAllergens(item.dish);
+  // A new key after each save starts the form fresh from the saved values, so Publish can tell
+  // whether anything here is still unsaved.
+  const savedKey = JSON.stringify([item.course, item.sort_order, item.preparation_notes, item.cross_contact_notes, item.cross_contact_allergens]);
   return (
     <li className="rounded-2xl border border-stone-200 bg-white p-4">
       <div className="flex items-start justify-between gap-3">
@@ -113,7 +136,7 @@ export function MenuItemEditor({ eventId, item }: { eventId: string; item: MenuI
       </div>
       <details className="mt-3">
         <summary className="cursor-pointer text-sm font-semibold text-brand-700">Edit course, preparation and cross-contact</summary>
-        <Form action={action} className="mt-3 space-y-4">
+        <Form key={savedKey} action={action} data-dish={item.dish.name} className="mt-3 space-y-4">
           <input type="hidden" name="event_id" value={eventId} />
           <input type="hidden" name="item_id" value={item.id} />
           <div className="grid gap-3 sm:grid-cols-2">
@@ -189,14 +212,54 @@ export function AddDishForm({ eventId, versionId, dishes }: { eventId: string; v
   );
 }
 
-export function PublishForm({ eventId, versionId, hasPublished, itemCount }: { eventId: string; versionId: string; hasPublished: boolean; itemCount: number }) {
+export function PublishForm({
+  eventId,
+  versionId,
+  hasPublished,
+  itemCount,
+  title,
+  kitchenNotes,
+}: {
+  eventId: string;
+  versionId: string;
+  hasPublished: boolean;
+  itemCount: number;
+  /** Saved title and kitchen note: what Publish sends if the page hasn't loaded its scripts yet. */
+  title: string | null;
+  kitchenNotes: string | null;
+}) {
   const [state, action] = useActionState(publishMenu, initialActionState);
   const discard = useAction();
+  const [unsaved, setUnsaved] = useState<string | null>(null);
+  const titleRef = useRef<HTMLInputElement>(null);
+  const notesRef = useRef<HTMLInputElement>(null);
+
+  // Runs before the form submits. Publish saves the title and kitchen note as typed, and stops
+  // while a dish's details have unsaved changes, so the confirmation below is true.
+  function beforePublish(e: MouseEvent<HTMLButtonElement>) {
+    for (const form of Array.from(document.querySelectorAll<HTMLFormElement>("form[data-dish]"))) {
+      if (changedField(form)) {
+        e.preventDefault();
+        const details = form.closest("details");
+        if (details) details.open = true;
+        setUnsaved(`${form.dataset.dish} has unsaved changes. Tap Save dish details first.`);
+        return;
+      }
+    }
+    setUnsaved(null);
+    const typedTitle = document.getElementById(TITLE_ID);
+    const typedNotes = document.getElementById(KITCHEN_NOTES_ID);
+    if (titleRef.current && typedTitle instanceof HTMLInputElement) titleRef.current.value = typedTitle.value;
+    if (notesRef.current && typedNotes instanceof HTMLTextAreaElement) notesRef.current.value = typedNotes.value;
+  }
+
   return (
     <div className="space-y-4">
       <Form action={action} className="space-y-4">
         <input type="hidden" name="event_id" value={eventId} />
         <input type="hidden" name="version_id" value={versionId} />
+        <input type="hidden" name="title" ref={titleRef} defaultValue={title ?? ""} />
+        <input type="hidden" name="kitchen_notes" ref={notesRef} defaultValue={kitchenNotes ?? ""} />
         {hasPublished ? (
           <Field
             label="What changed?"
@@ -221,10 +284,11 @@ export function PublishForm({ eventId, versionId, hasPublished, itemCount }: { e
             hint="In-app notification only (no email or text)."
           />
         ) : null}
-        <SubmitButton size="lg" disabled={itemCount === 0} pendingText="Publishing…">
+        <SubmitButton size="lg" disabled={itemCount === 0} pendingText="Publishing…" onClick={beforePublish}>
           {hasPublished ? "Publish new version" : "Publish menu"}
         </SubmitButton>
         {itemCount === 0 ? <p className="text-sm text-muted">Add at least one dish first.</p> : null}
+        {unsaved ? <Alert tone="warning">{unsaved}</Alert> : null}
         <FormMessage state={state} />
       </Form>
       <div className="border-t border-stone-100 pt-3">

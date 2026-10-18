@@ -69,8 +69,8 @@ export async function signIn(page: Page, email: string, opts: { next?: string; n
     await page.getByLabel(/full name/i).fill(opts.name ?? "Test Person");
     await page.getByRole("button", { name: /continue|save/i }).first().click();
     await page.waitForURL((url) => url.pathname !== "/welcome", { timeout: 20_000 });
-    // The dietary step offers "Skip for now".
-    const skip = page.getByRole("link", { name: /skip for now/i });
+    // The dietary step offers "Skip for now" (at the top and the bottom).
+    const skip = page.getByRole("link", { name: /skip for now/i }).first();
     if (await skip.isVisible().catch(() => false)) {
       await skip.click();
       await page.waitForLoadState("networkidle");

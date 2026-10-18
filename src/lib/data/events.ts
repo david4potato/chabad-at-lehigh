@@ -79,13 +79,13 @@ const HOUR = 60 * 60 * 1000;
 
 // An event is over once it ends, or 3 hours after it starts when it has no end
 // time (same rule as the database).
-function upcomingFilter(now = new Date()) {
+export function upcomingFilter(now = new Date()) {
   const nowIso = now.toISOString();
   const graceIso = new Date(now.getTime() - 3 * HOUR).toISOString();
   return `ends_at.gte."${nowIso}",and(ends_at.is.null,starts_at.gte."${graceIso}")`;
 }
 
-function pastFilter(now = new Date()) {
+export function pastFilter(now = new Date()) {
   const nowIso = now.toISOString();
   const graceIso = new Date(now.getTime() - 3 * HOUR).toISOString();
   return `ends_at.lt."${nowIso}",and(ends_at.is.null,starts_at.lt."${graceIso}")`;

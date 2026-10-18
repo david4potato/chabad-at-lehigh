@@ -28,8 +28,7 @@ export default async function WelcomePage({ searchParams }: PageProps<"/welcome"
         <p className="text-sm font-semibold text-gold-700">Step 1 of 2</p>
         <h1 className="text-3xl font-extrabold tracking-tight">Welcome to Chabad at Lehigh!</h1>
         <p className="mt-2 text-muted">
-          Tell us a little about yourself so we can welcome you properly. Your email ({viewer.email}) is only used to sign
-          in and for event updates.
+          Just your name and you&apos;re in. Your email ({viewer.email}) is only used to sign in and for event updates.
         </p>
       </div>
       <Card>
@@ -38,6 +37,7 @@ export default async function WelcomePage({ searchParams }: PageProps<"/welcome"
           profile={profile ?? { full_name: null, preferred_name: null, affiliation: viewer.affiliation, class_year: null, phone: null }}
           submitLabel="Continue"
           next={next}
+          compact
         />
       </Card>
     </div>

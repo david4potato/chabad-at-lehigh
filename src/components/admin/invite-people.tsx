@@ -1,9 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import { Check, Copy } from "lucide-react";
+import { useActionState } from "react";
 import { invitePeople, type InviteResult } from "@/app/admin/events/[id]/attendees/actions";
-import { Button } from "@/components/ui/button";
 import { Field, Input, Textarea } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { FormMessage } from "@/components/ui/form-message";
@@ -17,17 +15,10 @@ const LABELS: Record<string, string> = {
   invalid: "Not a valid email address",
 };
 
-export function InvitePeople({ eventId, eventPath, published }: { eventId: string; eventPath: string; published: boolean }) {
+export function InvitePeople({ eventId, published }: { eventId: string; published: boolean }) {
   const [state, action] = useActionState(invitePeople, { ok: true } as InviteResult);
-  const [copied, setCopied] = useState(false);
   const results = state.ok ? (state.data ?? []) : [];
   const noAccount = results.filter((r) => r.result === "no_account").map((r) => r.email);
-
-  async function copyLink() {
-    await navigator.clipboard.writeText(new URL(eventPath, window.location.origin).toString());
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
 
   if (!published) {
     return <p className="text-sm text-muted">Publish the event first, then you can invite people.</p>;
@@ -47,13 +38,7 @@ export function InvitePeople({ eventId, eventPath, published }: { eventId: strin
         <Field label="Personal message (optional)" htmlFor="invite-message">
           <Input id="invite-message" name="message" maxLength={500} placeholder="Hope you can make it!" />
         </Field>
-        <div className="flex flex-wrap gap-2">
-          <SubmitButton pendingText="Sending…">Send invitations</SubmitButton>
-          <Button variant="secondary" onClick={copyLink}>
-            {copied ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
-            {copied ? "Link copied" : "Copy event link"}
-          </Button>
-        </div>
+        <SubmitButton pendingText="Sending…">Send invitations</SubmitButton>
         <FormMessage state={state} />
       </Form>
       {results.length ? (
@@ -68,7 +53,7 @@ export function InvitePeople({ eventId, eventPath, published }: { eventId: strin
       ) : null}
       {noAccount.length ? (
         <p className="text-sm text-muted">
-          Tip: use <strong>Copy event link</strong> and email it to the {noAccount.length === 1 ? "person" : "people"} without an
+          Tip: use <strong>Copy event link</strong> at the top of this page and email it to the {noAccount.length === 1 ? "person" : "people"} without an
           account. They can sign up in seconds when they RSVP.
         </p>
       ) : null}

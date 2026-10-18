@@ -254,13 +254,14 @@ declare
 begin
   if tg_op = 'DELETE' then
     v_old := to_jsonb(old);
-    v_id := coalesce(v_old ->> 'id', v_old ->> 'key', v_old ->> 'user_id');
-    perform private.log_audit(lower(tg_table_name) || '.delete', tg_table_name, v_id, '{}');
+    v_id := coalesce(v_old ->> 'id', v_old ->> 'key', v_old ->> 'user_id', v_old ->> 'email');
+    perform private.log_audit(lower(tg_table_name) || '.delete', tg_table_name, v_id,
+      case when v_old ? 'role' then jsonb_build_object('role', v_old ->> 'role') else '{}'::jsonb end);
     return old;
   end if;
 
   v_new := to_jsonb(new);
-  v_id := coalesce(v_new ->> 'id', v_new ->> 'key', v_new ->> 'user_id');
+  v_id := coalesce(v_new ->> 'id', v_new ->> 'key', v_new ->> 'user_id', v_new ->> 'email');
 
   if tg_op = 'INSERT' then
     perform private.log_audit(lower(tg_table_name) || '.insert', tg_table_name, v_id,
@@ -1179,7 +1180,7 @@ $$;
 -- -----------------------------------------------------------------------------
 -- Event changes: fill seats freed by a capacity change, and tell everyone who
 -- RSVP'd or signed up to help (urgent, in-app) when an event is cancelled,
--- rescheduled or moved.
+-- rescheduled, moved or back on after a cancellation.
 -- -----------------------------------------------------------------------------
 create or replace function private.after_event_update()
 returns trigger
@@ -1206,6 +1207,10 @@ begin
     v_kind := 'event_cancelled';
     v_title := 'Cancelled: ' || new.title;
     v_body := new.title || ' on ' || v_when || ' has been cancelled. Please contact the organizer with any questions.';
+  elsif old.status = 'cancelled' and new.status = 'published' then
+    v_kind := 'event_reinstated';
+    v_title := 'Back on: ' || new.title;
+    v_body := new.title || ' on ' || v_when || ' is back on. See the event page for details.';
   elsif old.status = 'published' and new.status = 'published'
         and (new.starts_at is distinct from old.starts_at
              or new.location_name is distinct from old.location_name
@@ -1736,6 +1741,54 @@ begin
   end if;
 
   return v_draft;
+end;
+$$;
+
+-- "Duplicate for next week": start the new event with a draft copy of the source
+-- event's menu (published version first). Does nothing if the new event already
+-- has a menu or the source has none. Staff still confirm preparation to publish.
+create or replace function public.copy_menu_to_event(p_source_event uuid, p_target_event uuid)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_source public.menu_versions;
+  v_draft public.menu_versions;
+  r public.menu_items;
+  v_new_item uuid;
+begin
+  if not public.can_manage_menus() then
+    raise exception 'forbidden';
+  end if;
+  perform 1 from public.events where id = p_target_event for update;
+  if not found then
+    raise exception 'event_not_found';
+  end if;
+  if exists (select 1 from public.menu_versions where event_id = p_target_event) then
+    return;
+  end if;
+
+  select * into v_source from public.menu_versions
+  where event_id = p_source_event
+  order by (status = 'published') desc, version desc
+  limit 1;
+  if not found then
+    return;
+  end if;
+
+  insert into public.menu_versions (event_id, version, status, title, kitchen_notes, created_by)
+  values (p_target_event, 1, 'draft', v_source.title, v_source.kitchen_notes, auth.uid())
+  returning * into v_draft;
+
+  for r in select * from public.menu_items where menu_version_id = v_source.id loop
+    insert into public.menu_items (menu_version_id, dish_id, course, sort_order, preparation_notes, cross_contact_notes)
+    values (v_draft.id, r.dish_id, r.course, r.sort_order, r.preparation_notes, r.cross_contact_notes)
+    returning id into v_new_item;
+    insert into public.menu_item_cross_contact (menu_item_id, allergen_code)
+    select v_new_item, allergen_code from public.menu_item_cross_contact where menu_item_id = r.id;
+  end loop;
 end;
 $$;
 
@@ -2390,6 +2443,8 @@ revoke execute on function public.publish_menu(uuid, text, boolean, boolean) fro
 revoke execute on function public.event_dietary_report(uuid) from public, anon;
 revoke execute on function public.event_dietary_summary(uuid) from public, anon;
 grant execute on function public.create_menu_draft(uuid, boolean) to authenticated;
+revoke execute on function public.copy_menu_to_event(uuid, uuid) from public, anon;
+grant execute on function public.copy_menu_to_event(uuid, uuid) to authenticated;
 grant execute on function public.publish_menu(uuid, text, boolean, boolean) to authenticated;
 grant execute on function public.event_dietary_report(uuid) to authenticated;
 grant execute on function public.event_dietary_summary(uuid) to authenticated;
@@ -3138,19 +3193,21 @@ returns table (user_id uuid, event_id uuid, category public.event_category, star
                title text, slug text, guests integer)
 language sql
 stable
-security definer
-set search_path = ''
+-- Deliberately not SECURITY DEFINER and no SET clause, so Postgres can inline it
+-- into the (SECURITY DEFINER) callers and push their filters down. Every name is
+-- schema-qualified.
 as $$
   select r.user_id, e.id, e.category, e.starts_at, e.title, e.slug,
          case when r.guest_status = 'approved' then r.guest_count else 0 end
-  from public.rsvps r
-  join public.events e on e.id = r.event_id
-  where r.status = 'going'
-    and e.status = 'published'
+  from public.events e
+  cross join lateral (
+    select count(*) filter (where c.checked_in_at is not null) * 2 < count(*) as few_checkins
+    from public.rsvps c where c.event_id = e.id and c.status = 'going'
+  ) k
+  join public.rsvps r on r.event_id = e.id and r.status = 'going'
+  where e.status = 'published'
     and coalesce(e.ends_at, e.starts_at + interval '3 hours') < now()
-    and (r.checked_in_at is not null
-         or (select count(*) filter (where c.checked_in_at is not null) * 2 < count(*)
-             from public.rsvps c where c.event_id = e.id and c.status = 'going'));
+    and (r.checked_in_at is not null or k.few_checkins);
 $$;
 
 -- A past shift "happened" unless it was a draft or its event was cancelled.

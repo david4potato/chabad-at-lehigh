@@ -6,6 +6,7 @@ import { z } from "zod";
 import { getViewer } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { dbErrorMessage, validationError, type ActionResult } from "@/lib/action-result";
+import type { TablesUpdate } from "@/lib/database.types";
 import { ALLERGEN_CODES, DIET_CODES } from "@/lib/allergens";
 import { safeNextPath } from "@/lib/safe-redirect";
 
@@ -36,11 +37,17 @@ async function updateProfile(formData: FormData, markOnboarded: boolean): Promis
   const parsed = profileSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return validationError(parsed.error);
 
+  // Only change what the form sent: the short welcome form leaves out nickname, class year and phone.
+  const { full_name, affiliation, preferred_name, class_year, phone } = parsed.data;
+  const update: TablesUpdate<"profiles"> = { full_name, affiliation };
+  if (formData.has("preferred_name")) update.preferred_name = preferred_name;
+  if (formData.has("phone")) update.phone = phone;
+  // Class year only applies to students and alumni.
+  if (formData.has("class_year") || (affiliation !== "student" && affiliation !== "alumni")) update.class_year = class_year;
+  if (markOnboarded) update.onboarded_at = new Date().toISOString();
+
   const supabase = await createClient();
-  const { error } = await supabase
-    .from("profiles")
-    .update({ ...parsed.data, ...(markOnboarded ? { onboarded_at: new Date().toISOString() } : {}) })
-    .eq("id", viewer.id);
+  const { error } = await supabase.from("profiles").update(update).eq("id", viewer.id);
   if (error) return { ok: false, error: dbErrorMessage(error) };
   revalidatePath("/", "layout");
   return { ok: true, message: "Saved." };

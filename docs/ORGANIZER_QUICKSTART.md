@@ -5,7 +5,7 @@ One page for the people who run Chabad at Lehigh. Detailed guides are in the app
 ## Sign in
 
 Open the site → **Sign in** → enter your email → tap the link in the email, or type the 6-digit code.
-No password. Once an admin gives you a role, a **Dashboard** button appears at the top.
+No password. Once an admin gives you a role, a **Dashboard** button appears (bottom bar on a phone, top bar on a computer).
 
 ## Your dashboard
 
@@ -24,11 +24,11 @@ No password. Once an admin gives you a role, a **Dashboard** button appears at t
 
 ## Every week (about 5 minutes)
 
-1. **Events → Past** → last week's dinner → **Duplicate for next week** → check the date → **Status: Published** → **Save event**.
-2. **Menu** tab → add dishes → tick the preparation confirmation → **Publish**.
-3. Share it: **Copy event link** for group chats, or **Invite people** on the Attendees tab. Need hands?
-   **Volunteers → New shift** (e.g. "Help cook", Thursday 4–7pm, 4 spots) — it shows on the event and on **Help out**.
-4. If **Overview** shows RSVPs needing approval, approve or decline them. Someone texts that they can't come?
+1. **Events → Past** → **Duplicate for next week** on last week's dinner. The menu and volunteer shifts come along
+   as drafts. Check the date → **Publish**.
+2. **Menu** tab → check the dishes → tick the preparation confirmation → **Publish menu**.
+3. Share it: **Copy event link** (top of the event) for group chats. Need more hands? **Volunteers → New shift**.
+4. If **Overview** shows **RSVPs to approve**, approve or decline them. Someone texts that they can't come?
    **Cancel RSVP** on the Attendees tab frees their seat for the waitlist.
 5. On the day: kitchen prints the **Dietary** tab; at the door, tap **Check in** on **Attendees & check-in**.
 
@@ -56,3 +56,19 @@ urgent in-app notification. There are no automatic emails or texts — use **Ema
 
 Never describe food as "safe", "allergen-free" or "guaranteed". Votes and suggestions are ideas, not safety
 information. Whenever ingredients or allergens change, post an **urgent** menu update — everyone who RSVP'd is notified in the app.
+
+## Note to send a new admin (copy and fill in)
+
+> Hi! The new Chabad at Lehigh site is ready: [site address]
+>
+> 1. Tap **Sign in** and enter [your email]. You'll get an email with a link and a 6-digit code — tap the link or
+>    type the code. No password.
+> 2. Add your name and tap **Continue**. The food-allergy screen after it is optional — tap **Skip for now**.
+> 3. Tap **Dashboard** (bottom bar on a phone, top bar on a computer). That's your admin panel; the **Getting started**
+>    list shows what to do first.
+>
+> - Post something: Dashboard → **Announcements** → **Post announcement**.
+> - Add an event: Dashboard → **Events** → **New event**, or **Past** → **Duplicate for next week** on last week's dinner.
+> - Need hands: Dashboard → **Volunteers** → **New shift**.
+> - Give someone access: Dashboard → **People & roles** → their email → Admin, Organizer or Kitchen staff → **Give role**.
+> - Stuck? Dashboard → **Help**.

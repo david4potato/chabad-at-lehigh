@@ -3,7 +3,7 @@ import { ArrowRight, Clock, Flame, HandHeart, MapPin, Phone, Salad, Mail, Naviga
 import { getViewer } from "@/lib/auth";
 import { getOrgSettings } from "@/lib/settings";
 import { safeNextPath } from "@/lib/safe-redirect";
-import { formatLongDate, formatTimeRange, relativeDay, spansDays } from "@/lib/time";
+import { formatLongDate, formatTimeRange, relativeDay, spansDays, SITE_TIME_ZONE } from "@/lib/time";
 import {
   getEventsMeta,
   getNextShabbatDinner,
@@ -35,7 +35,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
     viewer ? getUrgentNotifications(viewer.id) : Promise.resolve([]),
   ]);
   const isMember = viewer ? viewer.roles.some((r) => r !== "community_guest") : false;
-  const hour = Number(new Intl.DateTimeFormat("en-US", { hour: "numeric", hourCycle: "h23", timeZone: "America/New_York" }).format(new Date()));
+  const hour = Number(new Intl.DateTimeFormat("en-US", { hour: "numeric", hourCycle: "h23", timeZone: SITE_TIME_ZONE }).format(new Date()));
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
   return (

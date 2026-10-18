@@ -41,18 +41,21 @@ export function RoleChip({ userId, role, label }: { userId: string; role: Role; 
   const [result, setResult] = useState<ActionResult | null>(null);
   return (
     <span className="inline-flex flex-col">
-      <span className="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-stone-50 py-0.5 pl-2.5 pr-1 text-xs font-semibold text-ink">
+      <span className="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-stone-50 py-0.5 pl-2.5 text-xs font-semibold text-ink">
         {label}
+        {/* A 44px tap area around a small visible circle, so the chip stays compact. */}
         <button
           type="button"
           disabled={pending}
           onClick={() => {
             if (confirm(`Remove the ${label} role?`)) start(async () => setResult(await revokeRole(userId, role)));
           }}
-          className="flex size-6 items-center justify-center rounded-full text-muted hover:bg-stone-200 hover:text-ink"
+          className="group -mx-1.5 -my-2.5 flex size-11 items-center justify-center rounded-full text-muted hover:text-ink"
           aria-label={`Remove ${label} role`}
         >
-          <X className="size-3.5" aria-hidden="true" />
+          <span className="flex size-6 items-center justify-center rounded-full group-hover:bg-stone-200">
+            <X className="size-3.5" aria-hidden="true" />
+          </span>
         </button>
       </span>
       {result && !result.ok ? <span role="alert" className="mt-1 text-xs text-red-700">{result.error}</span> : null}
@@ -62,15 +65,21 @@ export function RoleChip({ userId, role, label }: { userId: string; role: Role; 
 
 export function PendingGrantChip({ email, role, label }: { email: string; role: Role; label: string }) {
   const [pending, start] = useTransition();
+  const [result, setResult] = useState<ActionResult | null>(null);
   return (
-    <button
-      type="button"
-      disabled={pending}
-      onClick={() => start(async () => void (await removePendingGrant(email, role)))}
-      className="inline-flex items-center gap-1 rounded-full border border-dashed border-stone-300 px-2.5 py-1 text-xs font-semibold text-muted hover:text-ink"
-      aria-label={`Cancel pending ${label} role for ${email}`}
-    >
-      {label} <X className="size-3.5" aria-hidden="true" />
-    </button>
+    <span className="inline-flex flex-col">
+      <button
+        type="button"
+        disabled={pending}
+        onClick={() => {
+          if (confirm(`Cancel the pending ${label} role for ${email}?`)) start(async () => setResult(await removePendingGrant(email, role)));
+        }}
+        className="inline-flex min-h-11 items-center gap-1 rounded-full border border-dashed border-stone-300 px-3 text-xs font-semibold text-muted hover:text-ink"
+        aria-label={`Cancel pending ${label} role for ${email}`}
+      >
+        {label} <X className="size-3.5" aria-hidden="true" />
+      </button>
+      {result && !result.ok ? <span role="alert" className="mt-1 text-xs text-red-700">{result.error}</span> : null}
+    </span>
   );
 }

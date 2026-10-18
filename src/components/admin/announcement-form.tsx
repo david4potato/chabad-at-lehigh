@@ -47,42 +47,50 @@ export function AnnouncementForm({
       <Field label="Message" htmlFor={`body-${p}`} errors={e?.body}>
         <Textarea id={`body-${p}`} name="body" rows={4} maxLength={4000} defaultValue={announcement?.body ?? ""} />
       </Field>
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Field label="Who sees it" htmlFor={`audience-${p}`}>
-          <Select id={`audience-${p}`} name="audience" defaultValue={announcement?.audience ?? "public"}>
-            <option value="public">Everyone</option>
-            <option value="members">Signed-in members</option>
-          </Select>
-        </Field>
-        <Field label="Status" htmlFor={`status-${p}`}>
-          <Select id={`status-${p}`} name="status" defaultValue={announcement?.status ?? "published"}>
-            <option value="published">Published</option>
-            <option value="draft">Draft (hidden)</option>
-          </Select>
-        </Field>
-        <Field label="Related event" htmlFor={`event-${p}`} hint="Optional">
-          <Select id={`event-${p}`} name="event_id" defaultValue={announcement?.event_id ?? ""}>
-            <option value="">None</option>
-            {events.map((ev) => (
-              <option key={ev.id} value={ev.id}>
-                {ev.title}
-              </option>
-            ))}
-          </Select>
-        </Field>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Show from" htmlFor={`publish-${p}`} hint="Blank = now" errors={e?.publish_at}>
-          <Input id={`publish-${p}`} name="publish_at" type="datetime-local" defaultValue={toDateTimeLocalValue(announcement?.publish_at)} />
-        </Field>
-        <Field label="Hide after" htmlFor={`expires-${p}`} hint="Blank = keep showing" errors={e?.expires_at}>
-          <Input id={`expires-${p}`} name="expires_at" type="datetime-local" defaultValue={toDateTimeLocalValue(announcement?.expires_at)} />
-        </Field>
-      </div>
-      <div className="flex flex-wrap gap-x-6">
-        <Checkbox name="is_pinned" label="Pin to the top" defaultChecked={announcement?.is_pinned ?? false} />
-        <Checkbox name="is_urgent" label="Mark as important" defaultChecked={announcement?.is_urgent ?? false} />
-      </div>
+      {/* Extras have good defaults (Everyone, Published, now). Closed fields still submit. */}
+      <details open={Boolean(announcement) || Boolean(e?.publish_at || e?.expires_at)} className="space-y-4">
+        <summary className="flex min-h-11 cursor-pointer items-center font-semibold text-brand-700">
+          More options: who sees it, schedule, pin
+        </summary>
+        <div className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-3">
+            <Field label="Who sees it" htmlFor={`audience-${p}`}>
+              <Select id={`audience-${p}`} name="audience" defaultValue={announcement?.audience ?? "public"}>
+                <option value="public">Everyone</option>
+                <option value="members">Signed-in members</option>
+              </Select>
+            </Field>
+            <Field label="Status" htmlFor={`status-${p}`}>
+              <Select id={`status-${p}`} name="status" defaultValue={announcement?.status ?? "published"}>
+                <option value="published">Published</option>
+                <option value="draft">Draft (hidden)</option>
+              </Select>
+            </Field>
+            <Field label="Related event" htmlFor={`event-${p}`} hint="Optional">
+              <Select id={`event-${p}`} name="event_id" defaultValue={announcement?.event_id ?? ""}>
+                <option value="">None</option>
+                {events.map((ev) => (
+                  <option key={ev.id} value={ev.id}>
+                    {ev.title}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Show from" htmlFor={`publish-${p}`} hint="Blank = now" errors={e?.publish_at}>
+              <Input id={`publish-${p}`} name="publish_at" type="datetime-local" defaultValue={toDateTimeLocalValue(announcement?.publish_at)} />
+            </Field>
+            <Field label="Hide after" htmlFor={`expires-${p}`} hint="Blank = keep showing" errors={e?.expires_at}>
+              <Input id={`expires-${p}`} name="expires_at" type="datetime-local" defaultValue={toDateTimeLocalValue(announcement?.expires_at)} />
+            </Field>
+          </div>
+          <div className="flex flex-wrap gap-x-6">
+            <Checkbox name="is_pinned" label="Pin to the top" defaultChecked={announcement?.is_pinned ?? false} />
+            <Checkbox name="is_urgent" label="Mark as important" defaultChecked={announcement?.is_urgent ?? false} />
+          </div>
+        </div>
+      </details>
       <div className="flex flex-wrap items-center gap-2">
         <SubmitButton>{announcement ? "Save" : "Post announcement"}</SubmitButton>
         {announcement ? (

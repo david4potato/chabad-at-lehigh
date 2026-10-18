@@ -4,6 +4,7 @@ import { requireRole } from "@/lib/auth";
 import { canViewDietary } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 import { getAdminEvent } from "@/lib/data/admin";
+import { formatDateTime, formatEventWhen } from "@/lib/time";
 import { allergenLabel, dietLabel, SEVERITY_LABELS, type Severity } from "@/lib/allergens";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -48,7 +49,13 @@ export default async function DietaryReportPage({ params }: PageProps<"/admin/ev
         <AdminEventHeader event={event} />
         <EventTabs eventId={event.id} active="dietary" roles={viewer.roles} />
       </div>
-      <h1 className="hidden text-xl font-bold print:block">Dietary report — {event.title}</h1>
+      {/* Weekly dinners share a title, so the printout carries the date and when it was printed. */}
+      <div className="hidden print:block">
+        <h1 className="text-xl font-bold">Dietary report — {event.title}</h1>
+        <p className="mt-1 text-sm">
+          {formatEventWhen(event.starts_at, event.ends_at)} · Printed {formatDateTime(new Date())}. RSVPs can change, so reprint on the day.
+        </p>
+      </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-900 ring-1 ring-red-200">
