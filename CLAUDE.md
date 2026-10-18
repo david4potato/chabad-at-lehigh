@@ -71,6 +71,7 @@ Read `docs/PHILOSOPHY.md` (when a feature conflicts with it, the feature changes
 
 ## Working with others (see CONTRIBUTING.md)
 
-- Branch from `main` and open a pull request; CI must pass. Never force-push.
-- Never read or print real `.env` files (`.env.example` is fine), deploy, or change the live Supabase database —
-  the owner does those. `.claude/settings.json` blocks or asks before most of these.
+- Branch from `main` and open a pull request; never push to `main` directly or force-push.
+- Never read or print real `.env` files (`.env.example` is fine).
+- Don't deploy or change the live Supabase database unless the owner asks for it in this session.
+  `.claude/settings.json` blocks or asks before the common forms of these; it is not a complete list.

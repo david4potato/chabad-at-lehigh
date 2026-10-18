@@ -9,4 +9,4 @@ if [ "${CLAUDE_CODE_REMOTE:-}" != "true" ]; then
 fi
 
 cd "$CLAUDE_PROJECT_DIR"
-npm install --no-audit --no-fund --prefer-offline
+npm install --no-audit --no-fund --prefer-offline >&2

@@ -1,6 +1,6 @@
 # Monthly dependency updates, grouped to keep pull requests few. CI runs every
-# check on each one; merge only when it's green. Security fixes come sooner,
-# from GitHub's Dependabot alerts.
+# check on each one; merge only when it's green. For faster security fixes, turn
+# on Dependabot security updates in Settings → Code security.
 version: 2
 updates:
   - package-ecosystem: npm
@@ -11,6 +11,10 @@ updates:
     groups:
       minor-and-patch:
         update-types: [minor, patch]
+      # Packages that must move together arrive in one pull request.
+      framework-majors:
+        patterns: [next, eslint-config-next, react, react-dom, "@types/react", "@types/react-dom"]
+        update-types: [major]
     ignore:
       # These move with Next.js and its ESLint config, not on their own.
       - dependency-name: "@types/node"

@@ -5,8 +5,10 @@ rules matter more than speed.
 
 ## Getting access
 
-The owner adds you on GitHub with the **Write** role (never Admin). You don't need Supabase, Vercel or email
-accounts: you work on your own computer against a local copy of the database with **[DEMO]** data.
+The owner invites you as a collaborator (GitHub → Settings → Collaborators). That lets you push branches and
+open pull requests. Before inviting anyone, the owner protects `main`, so changes reach it only through a pull
+request that passes CI and that the owner approves. You don't need Supabase, Vercel or email accounts: you work on your own computer against a
+local copy of the database with **[DEMO]** data.
 
 ## Run it
 
@@ -22,10 +24,10 @@ npm run dev                 # http://localhost:3000 — sign-in emails appear at
 
 ## Make a change
 
-1. Branch from `main`. One change per pull request.
+1. Branch from `main`. One change per pull request. Never push to `main` directly.
 2. Before you push: `npm run lint`, `npm run typecheck`, `npm test`. Database changes: `npm run test:db`.
-   Screens: `npm run build`, then `npm run test:e2e`.
-3. Open a pull request into `main`. CI runs every check; the owner reviews and merges. A merge to `main`
+   Screens: `npx playwright install chromium` (once), `npm run build`, then `npm run test:e2e`.
+3. Open a pull request into `main`. CI runs every check, and the owner reviews and merges. A merge to `main`
    updates the live site.
 
 ## Rules that never bend
@@ -45,8 +47,18 @@ The full list is [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md). The ones people trip 
 ## Using Claude Code
 
 - `CLAUDE.md` loads automatically, so Claude follows the project rules.
-- `.claude/settings.json` is shared by everyone: Claude can't read real `.env` files, deploy with the Vercel
-  CLI or force-push, and it asks before any command that changes the live database.
+- `.claude/settings.json` is shared. It's a seatbelt for Claude, not a lock: Claude won't open `.env` files with
+  its file tools or commands like `cat`, won't run the Vercel CLI or force-push in the usual forms, and asks
+  before pushing to `main`, merging, or the usual Supabase commands that touch the live project. Your own
+  `.claude/settings.local.json` (ignored by git) can add rules but can't lift these.
 - Claude Code on the web installs the npm packages when a session starts (`.claude/hooks/session-start.sh`).
-- Personal settings go in `.claude/settings.local.json`, which isn't committed. They can add rules but can't
-  lift the shared blocks.
+- What actually protects the live site and data: helpers have no Vercel or Supabase access, and `main` only
+  changes through a pull request the owner approves.
+
+## For the owner
+
+- Before running Claude on a helper's branch, open the pull request's **Files changed**. If it touches
+  `.claude/`, `CLAUDE.md`, `AGENTS.md`, `.github/`, `package.json`, `package-lock.json` or `scripts/`, read those
+  changes first, and turn off the Supabase connector for that session.
+- Keep `main` protected (Settings → Branches): require a pull request with 1 approval and Code Owner review, and
+  require both CI checks. On a free GitHub account this works only while the repo is public.
