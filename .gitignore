@@ -51,3 +51,6 @@ supabase/.branches
 /blob-report
 /playwright/.cache
 *.bundle
+
+# personal Claude Code settings
+.claude/settings.local.json

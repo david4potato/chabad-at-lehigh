@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "deny": [
+      "Read(.env)",
+      "Read(.env.local)",
+      "Read(.env.*.local)",
+      "Read(.env.development)",
+      "Read(.env.production)",
+      "Read(.env.test)",
+      "Read(.env.staging)",
+      "Read(.env.keys)",
+      "Bash(vercel *)",
+      "Bash(npx vercel*)",
+      "Bash(npx * vercel*)",
+      "Bash(npm exec vercel*)",
+      "Bash(pnpm dlx vercel*)",
+      "Bash(bunx vercel*)",
+      "Bash(git push --force*)",
+      "Bash(git push * --force*)",
+      "Bash(git push -f*)",
+      "Bash(git push -uf*)",
+      "Bash(git push * -f)",
+      "Bash(git push * -f *)",
+      "Bash(git push * -uf*)",
+      "Bash(git push * +*)",
+      "Bash(git push --mirror*)",
+      "Bash(git * push --force*)",
+      "Bash(git * push * --force*)",
+      "Bash(git * push -f*)",
+      "Bash(git * push * -f)",
+      "Bash(git * push * -f *)",
+      "Bash(git * push * +*)"
+    ],
+    "ask": [
+      "Bash(git push * main)",
+      "Bash(git push * HEAD:main*)",
+      "Bash(git push * main:main*)",
+      "Bash(gh pr merge*)",
+      "Bash(*supabase* link*)",
+      "Bash(*supabase* db push*)",
+      "Bash(*supabase* config push*)",
+      "Bash(*supabase* migration repair*)",
+      "Bash(*supabase* --linked*)",
+      "Bash(*supabase* --db-url*)",
+      "Bash(*supabase* --project-ref*)",
+      "Bash(psql *)",
+      "mcp__*__execute_sql",
+      "mcp__*__apply_migration",
+      "mcp__*__deploy_edge_function",
+      "mcp__*__create_edge_function_secret",
+      "mcp__*__create_project",
+      "mcp__*__pause_project",
+      "mcp__*__restore_project",
+      "mcp__*__create_branch",
+      "mcp__*__delete_branch",
+      "mcp__*__merge_branch",
+      "mcp__*__reset_branch",
+      "mcp__*__rebase_branch"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/session-start.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
