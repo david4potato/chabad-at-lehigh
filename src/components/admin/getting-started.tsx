@@ -26,7 +26,7 @@ export async function GettingStarted() {
       href: "/admin/people",
       done: (admins.count ?? 0) + (pendingAdmins.count ?? 0) >= 2,
     },
-    { label: "Check the contact details and add parking", href: "/admin/settings", done: Boolean(org.data?.updated_by) },
+    { label: "Check the contact details and parking", href: "/admin/settings", done: Boolean(org.data?.updated_by) },
     ...(hasDemo ? [{ label: "Remove the [DEMO] events and dishes", done: false, action: <RemoveDemoButton /> }] : []),
     { label: "Add your ingredients and dishes", href: "/admin/ingredients", done: (dishes.count ?? 0) > 0 },
     { label: "Create and publish your first event", href: "/admin/events/new", done: (events.count ?? 0) > 0 },

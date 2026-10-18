@@ -5,6 +5,9 @@ test.describe("admin panel", () => {
   test("admin sees the launch checklist, gives a role, updates settings and sees it in the audit log", async ({ page }) => {
     const future = uniqueEmail("future-organizer");
     const parking = `Street parking on Wyandotte Street (${Date.now()})`;
+    const [before] = await db<{ parking: string | null }>(
+      `select value ->> 'parking' as parking from public.app_settings where key = 'organization'`,
+    );
     try {
       await signInAs(page, "admin", { next: "/admin" });
       await expect(page.getByRole("heading", { name: "Getting started" })).toBeVisible();
@@ -30,7 +33,8 @@ test.describe("admin panel", () => {
     } finally {
       await db(`delete from public.pending_role_grants where email = $1`, [future]);
       await db(
-        `update public.app_settings set value = value || '{"parking": ""}'::jsonb, updated_by = null where key = 'organization'`,
+        `update public.app_settings set value = jsonb_set(value, '{parking}', to_jsonb($1::text)), updated_by = null where key = 'organization'`,
+        [before?.parking ?? ""],
       );
     }
   });
