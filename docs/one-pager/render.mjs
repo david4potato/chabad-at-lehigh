@@ -17,7 +17,16 @@ const overflow = await page.evaluate(() => {
 });
 if (overflow > 0) throw new Error(`Content overflows the page by ${overflow}px`);
 
-await page.pdf({ path: path.join(dir, "one-pager.pdf"), format: "Letter", printBackground: true, preferCSSPageSize: true });
+// SITE_URL fills in the "Site address" line for an emailed copy; without it the line stays blank for print.
+if (process.env.SITE_URL) {
+  await page.evaluate((url) => {
+    const line = document.querySelector(".address .line");
+    line.textContent = url;
+    Object.assign(line.style, { borderBottom: "none", transform: "none", width: "auto" });
+  }, process.env.SITE_URL);
+}
+
+await page.pdf({ path: path.join(dir, "one-pager.pdf"), format: "Letter", printBackground: true, preferCSSPageSize: true, tagged: true });
 await page.screenshot({ path: path.join(dir, "one-pager.png"), fullPage: false });
 await browser.close();
 console.log("Wrote one-pager.pdf and one-pager.png");

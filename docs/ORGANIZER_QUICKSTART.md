@@ -24,8 +24,8 @@ No password. Once an admin gives you a role, a **Dashboard** button appears (bot
 
 ## Every week (about 5 minutes)
 
-1. **Events → Past** → **Duplicate for next week** on last week's dinner. The menu and volunteer shifts come along
-   as drafts. Check the date → **Publish**.
+1. **Events → Past** → **Duplicate for next week** on last week's dinner. The menu comes along as a draft, and the
+   volunteer shifts open when you publish. Check the date → **Publish**.
 2. **Menu** tab → check the dishes → tick the preparation confirmation → **Publish menu**.
 3. Share it: **Copy event link** (top of the event) for group chats. Need more hands? **Volunteers → New shift**.
 4. If **Overview** shows **RSVPs to approve**, approve or decline them. Someone texts that they can't come?

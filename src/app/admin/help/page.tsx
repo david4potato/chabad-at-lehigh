@@ -30,7 +30,7 @@ const SECTIONS: Section[] = [
           draft copy one week later.
         </li>
         <li>
-          Check the copy: date, time and capacity. Its menu and volunteer shifts come along as drafts. Then press <strong>Publish</strong>.
+          Check the copy: date, time and capacity. Its menu comes along as a draft, and its volunteer shifts open when you publish. Then press <strong>Publish</strong>.
         </li>
         <li>
           On the <strong>Menu</strong> tab, check the dishes, tick the preparation confirmation and press <strong>Publish menu</strong>. (Kitchen staff
