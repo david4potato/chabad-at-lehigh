@@ -68,3 +68,9 @@ Read `docs/PHILOSOPHY.md` (when a feature conflicts with it, the feature changes
 - `npm run dev` · `npm run build` · `npm run lint` · `npm run typecheck` · `npm test` (unit)
 - `npm run db:start` (local Supabase via Docker) · `npm run db:reset` (migrations + DEMO seed)
 - `npm run test:db` (SQL/RLS tests) · `npm run test:e2e` (Playwright, needs local Supabase)
+
+## Working with others (see CONTRIBUTING.md)
+
+- Branch from `main` and open a pull request; CI must pass. Never force-push.
+- Never read or print real `.env` files (`.env.example` is fine), deploy, or change the live Supabase database —
+  the owner does those. `.claude/settings.json` blocks or asks before most of these.
