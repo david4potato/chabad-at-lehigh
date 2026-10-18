@@ -109,7 +109,7 @@ test.describe("organizer dashboard", () => {
       await expect(page).toHaveURL(/\/admin\/events\/[0-9a-f-]{36}\?duplicated=1/);
       const copyId = new URL(page.url()).pathname.split("/").pop()!;
       cleanup.push(copyId);
-      await expect(page.getByText(/the menu and volunteer shifts came too/i)).toBeVisible();
+      await expect(page.getByText(/the menu came too.*volunteer shifts open when you publish/i)).toBeVisible();
 
       const [copy] = await db<{ status: string; starts_at: Date }>(`select status, starts_at from events where id = $1`, [copyId]);
       expect(copy.status).toBe("draft");

@@ -19,9 +19,9 @@ export const metadata: Metadata = { title: "Edit event" };
 
 /** What else "Duplicate for next week" brought along, said plainly. */
 function copiedExtras(menu: boolean, shifts: boolean) {
-  if (menu && shifts) return "The menu and volunteer shifts came too, as drafts to check.";
+  if (menu && shifts) return "The menu came too, as a draft to check. The volunteer shifts open when you publish.";
   if (menu) return "The menu came too, as a draft to check.";
-  if (shifts) return "The volunteer shifts came too, as drafts to check.";
+  if (shifts) return "The volunteer shifts came too. They open when you publish.";
   return null;
 }
 

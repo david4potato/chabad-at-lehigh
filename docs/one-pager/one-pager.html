@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Chabad at Lehigh app — one page</title>
+<!-- Source for one-pager.pdf and one-pager.png. Rebuild with: node docs/one-pager/render.mjs -->
+<style>
+  @page { size: Letter; margin: 0; }
+  :root {
+    --cream: #fffaf2; --ink: #1d2433; --muted: #4a5466;
+    --brand-50: #eef4ff; --brand-100: #dbe6fe; --brand-600: #2557c7; --brand-700: #1d45a3; --brand-800: #1b3a82;
+    --gold-50: #fff8eb; --gold-200: #fdd98a; --gold-700: #9a5a0c; --gold-800: #7c4810;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 8.5in; height: 11in; }
+  body {
+    font-family: "Inter", "DejaVu Sans", sans-serif; color: var(--ink); background: var(--cream);
+    font-size: 10pt; line-height: 1.36; -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .page { width: 8.5in; height: 11in; padding: 0.4in 0.5in 0.34in; display: flex; flex-direction: column; gap: 0.13in; }
+  header {
+    background: var(--brand-800); color: #fff; border-radius: 14px; padding: 0.2in 0.26in;
+    display: flex; align-items: center; gap: 0.2in;
+  }
+  header img { width: 0.78in; height: 0.78in; flex: none; }
+  header h1 { font-family: "Inter Display", "Inter", sans-serif; font-size: 23pt; line-height: 1.1; font-weight: 700; letter-spacing: -0.01em; }
+  header p { font-size: 11.5pt; color: var(--brand-100); margin-top: 3px; text-wrap: balance; }
+  .chips { margin-left: auto; display: flex; flex-direction: column; gap: 5px; flex: none; }
+  .chip { background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.28); border-radius: 999px; padding: 3px 11px; font-size: 9pt; font-weight: 600; text-align: center; }
+  .lead { font-size: 11.5pt; color: var(--ink); padding: 0 0.04in; }
+  .lead strong { color: var(--brand-700); white-space: nowrap; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0.15in; }
+  .card { background: #fff; border-radius: 12px; border: 1px solid #ebe3d6; padding: 0.15in 0.18in 0.13in; }
+  .card h2 { font-family: "Inter Display", "Inter", sans-serif; font-size: 13pt; font-weight: 700; color: var(--brand-800); margin-bottom: 7px; display: flex; align-items: center; gap: 8px; }
+  .card h2 .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--brand-600); flex: none; }
+  .card.org h2 .dot { background: var(--gold-700); }
+  ul { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+  li { padding-left: 15px; position: relative; }
+  li::before { content: ""; position: absolute; left: 1px; top: 0.52em; width: 6px; height: 6px; border-radius: 2px; background: var(--brand-600); }
+  .card.org li::before { background: var(--gold-700); }
+  li b { font-weight: 650; }
+  .band { border-radius: 12px; padding: 0.13in 0.18in; }
+  .band h2 { font-family: "Inter Display", "Inter", sans-serif; font-size: 12pt; font-weight: 700; margin-bottom: 5px; }
+  .allergy { background: var(--gold-50); border: 1.5px solid var(--gold-200); }
+  .allergy h2 { color: var(--gold-800); }
+  .privacy { background: var(--brand-50); border: 1px solid var(--brand-100); }
+  .privacy h2 { color: var(--brand-800); }
+  .band ul { gap: 4px; }
+  .allergy li::before { background: var(--gold-700); }
+  .privacy li::before { background: var(--brand-600); }
+  .tags { display: inline-flex; gap: 5px; flex-wrap: wrap; vertical-align: middle; }
+  .tag { font-size: 9pt; font-weight: 700; border-radius: 5px; padding: 0 6px; border: 1px solid; }
+  .t-contains { color: #8a1c1c; border-color: #b85c5c; background: #fdf1f1; }
+  .t-may { color: var(--gold-800); border-color: var(--gold-700); background: #fff; }
+  .t-related { color: var(--brand-700); border-color: var(--brand-600); background: #fff; }
+  footer { margin-top: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 0.15in; align-items: end; }
+  .status { font-size: 9.2pt; color: var(--ink); text-wrap: balance; }
+  .status b { color: var(--ink); }
+  .address { font-size: 10pt; font-weight: 600; color: var(--ink); }
+  .address .line { display: inline-block; width: 2.45in; border-bottom: 1.5px solid var(--ink); margin-left: 6px; transform: translateY(-3px); }
+  .fine { grid-column: 1 / -1; font-size: 8.5pt; color: var(--muted); border-top: 1px solid #e6dccb; padding-top: 6px; display: flex; justify-content: space-between; gap: 12px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <img src="icon.png" alt="">
+    <div>
+      <h1>Chabad at Lehigh</h1>
+      <p>Shabbat dinners, events, menus and helping out — in one place</p>
+    </div>
+    <div class="chips">
+      <span class="chip">Free</span>
+      <span class="chip">Phone or computer</span>
+      <span class="chip">No password</span>
+    </div>
+  </header>
+
+  <p class="lead">A simple website for the Chabad House, with nothing to install.
+    <strong>Public events, their menus and directions need no account.</strong> To RSVP, sign in with your email.</p>
+
+  <div class="cols">
+    <section class="card">
+      <h2><span class="dot"></span>For students and guests</h2>
+      <ul>
+        <li><b>Shabbat dinner:</b> tap Going or Not going. Change it until the RSVP deadline. Guests and notes are optional extras.</li>
+        <li><b>Events:</b> a list or a month calendar, with filters such as Shabbat dinners. Add public events to Google or Apple Calendar.</li>
+        <li><b>Menus:</b> once a menu is posted, each dish shows its ingredients and allergens. No RSVP needed to see them.</li>
+        <li><b>Save your allergies</b> privately. If a posted dish contains or may contain one, you see an alert.</li>
+        <li><b>Help out:</b> sign up to cook, set up or clean up, and see how many spots are left.</li>
+        <li><b>Vote and suggest</b> dishes. These are ideas; the staff decide the menu.</li>
+        <li><b>Your activity:</b> events, Shabbat dinners and times you helped.</li>
+      </ul>
+    </section>
+    <section class="card org">
+      <h2><span class="dot"></span>For the people who run Chabad</h2>
+      <ul>
+        <li><b>One dashboard</b> on a phone or a computer: events, RSVPs, approvals, the automatic waitlist and check-in at the door.</li>
+        <li><b>Duplicate last week's dinner</b> in one tap. The menu comes along as a draft; volunteer shifts open when you publish.</li>
+        <li><b>Menus are published</b> only after staff confirm the ingredients, allergens and cross-contact notes match how the food will be made.</li>
+        <li><b>Kitchen staff</b> get a dietary report for each dinner, and every view is logged. Organizers see counts, not names.</li>
+        <li><b>Announcements, volunteer shifts, people and roles</b>, and a "This semester" summary of events, attendance and new faces.</li>
+        <li><b>A built-in Help guide</b> and a getting-started checklist.</li>
+      </ul>
+    </section>
+  </div>
+
+  <section class="band allergy">
+    <h2>Food allergies: what the app shows</h2>
+    <ul>
+      <li>Allergens come in three kinds, kept apart:
+        <span class="tags"><span class="tag t-contains">Contains</span><span class="tag t-may">May contain (cross-contact)</span><span class="tag t-related">Related (e.g. sesame oil vs. sesame seeds)</span></span></li>
+      <li>The app never calls food "safe", "allergen-free" or "guaranteed". It shows what the kitchen entered, and every menu shows who to ask.</li>
+      <li>With a serious allergy, always talk to the organizers before the meal.</li>
+    </ul>
+  </section>
+
+  <section class="band privacy">
+    <h2>Privacy</h2>
+    <ul>
+      <li>Sign in with an email link or a code. There are no passwords.</li>
+      <li>Your dietary details are seen only by you and, for events you RSVP to, by kitchen staff and admins through a logged report. You can turn that sharing off.</li>
+      <li>Delete your dietary details or your whole account any time in Profile &amp; settings.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p class="status"><b>Not launched yet.</b> Built and tested; it launches only after Chabad at Lehigh's organizers review it and hold a trial dinner.</p>
+    <p class="address">Site address:<span class="line"></span></p>
+    <p class="fine"><span>Free to use: no ads and no payments.</span><span>Chabad House: 306 Wyandotte Street, Bethlehem, PA</span></p>
+  </footer>
+</div>
+</body>
+</html>
