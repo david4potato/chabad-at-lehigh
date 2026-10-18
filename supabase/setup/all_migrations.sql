@@ -4,7 +4,7 @@
 -- Paste this whole file into Supabase → SQL Editor → New query → Run,
 -- ONCE, on a NEW project. It creates all tables, security rules and functions.
 -- Do not edit by hand; edit supabase/migrations/* and regenerate.
--- Files included: 20261017000100_core.sql, 20261017000200_events_rsvps.sql, 20261017000300_meals.sql, 20261017000400_community.sql, 20261017000500_app_helpers.sql, 20261017000600_housekeeping.sql, 20261017000700_account_deletion.sql, 20261017000800_invites.sql, 20261017000900_volunteering_and_stats.sql
+-- Files included: 20261017000100_core.sql, 20261017000200_events_rsvps.sql, 20261017000300_meals.sql, 20261017000400_community.sql, 20261017000500_app_helpers.sql, 20261017000600_housekeeping.sql, 20261017000700_account_deletion.sql, 20261017000800_invites.sql, 20261017000900_volunteering_and_stats.sql, 20261018000100_parking_default.sql
 -- =============================================================================
 
 -- >>>>>>>>>>>>>>>>>>>> 20261017000100_core.sql <<<<<<<<<<<<<<<<<<<<
@@ -3389,3 +3389,14 @@ grant execute on function public.staff_remove_signup(uuid, uuid) to authenticate
 grant execute on function public.get_people_activity(uuid[]) to authenticated;
 grant execute on function public.get_my_stats() to authenticated;
 grant execute on function public.get_staff_stats(timestamptz) to authenticated;
+
+
+-- >>>>>>>>>>>>>>>>>>>> 20261018000100_parking_default.sql <<<<<<<<<<<<<<<<<<<<
+
+-- Parking at the Chabad House, as the project owner described it (October 2026).
+-- Fills the field only while it is empty, so anything an admin already saved in
+-- Settings is kept. updated_by stays as it is: admins still confirm it in Settings.
+update public.app_settings
+set value = jsonb_set(value, '{parking}', to_jsonb('Usually up to about 15 parking spots at the Chabad House.'::text))
+where key = 'organization'
+  and coalesce(value ->> 'parking', '') = '';

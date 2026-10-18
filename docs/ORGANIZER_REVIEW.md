@@ -46,7 +46,7 @@ serious allergies.
 ## 5. Before launch
 
 - [ ] Demo content removed (Dashboard → Getting started → **Remove demo content**).
-- [ ] Contact details (pre-filled from public sources) confirmed, the phone number and parking added (Settings).
+- [ ] Contact details and parking (pre-filled) confirmed, the phone number added (Settings).
 - [ ] Sign-in emails arrive at a Lehigh and a Gmail address.
 - [ ] One dry run: create event → publish menu → RSVPs → check-in.
 
