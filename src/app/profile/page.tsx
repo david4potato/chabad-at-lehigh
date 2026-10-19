@@ -37,7 +37,7 @@ export default async function ProfilePage() {
       Icon: Bell,
     },
     { href: "/my-events", label: "My events", hint: "Your RSVPs", Icon: Ticket },
-    ...(isStaff(viewer.roles) ? [{ href: "/admin", label: "Organizer dashboard", hint: "Events, menus, RSVPs", Icon: LayoutDashboard }] : []),
+    ...(isStaff(viewer.roles) ? [{ href: "/admin", label: "Dashboard", hint: "Events, menus, RSVPs", Icon: LayoutDashboard }] : []),
   ];
 
   return (

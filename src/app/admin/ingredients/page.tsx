@@ -43,7 +43,8 @@ export default async function IngredientsPage({ searchParams }: PageProps<"/admi
               <details className="rounded-2xl border border-stone-200 bg-white shadow-sm">
                 <summary className="flex cursor-pointer list-none flex-wrap items-center gap-2 p-3.5">
                   <span className="font-semibold text-ink">{i.name}</span>
-                  {codes.length ? <AllergenBadges codes={codes} label={null} /> : <span className="text-xs text-muted">No allergens</span>}
+                  {codes.length ? <AllergenBadges codes={codes} label={null} /> : <span className="text-xs text-muted">No allergens marked</span>}
+                  <span className="ml-auto text-sm font-semibold text-brand-700">Edit</span>
                 </summary>
                 <div className="border-t border-stone-100 p-4">
                   <IngredientForm ingredient={{ id: i.id, name: i.name, notes: i.notes, allergens: codes }} />

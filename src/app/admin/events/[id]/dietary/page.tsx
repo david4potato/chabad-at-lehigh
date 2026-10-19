@@ -90,35 +90,22 @@ export default async function DietaryReportPage({ params }: PageProps<"/admin/ev
               {summary.not_shared} {summary.not_shared === 1 ? "person" : "people"} chose not to share dietary details. Please ask them directly.
             </Alert>
           ) : null}
-          <div className="mt-5 overflow-x-auto">
-            <table className="w-full min-w-[420px] text-left text-sm">
-              <caption className="sr-only">Allergen counts by severity</caption>
-              <thead>
-                <tr className="border-b border-stone-200 text-xs uppercase tracking-wide text-muted">
-                  <th scope="col" className="py-2 pr-3">Allergen</th>
-                  <th scope="col" className="px-2 py-2">Intolerance</th>
-                  <th scope="col" className="px-2 py-2">Allergy</th>
-                  <th scope="col" className="px-2 py-2">Severe</th>
-                </tr>
-              </thead>
-              <tbody>
-                {summary.allergens.length === 0 ? (
-                  <tr>
-                    <td colSpan={4} className="py-3 text-muted">No allergies shared yet.</td>
-                  </tr>
-                ) : (
-                  summary.allergens.map((a) => (
-                    <tr key={a.code} className="border-b border-stone-100">
-                      <th scope="row" className="py-2 pr-3 font-semibold text-ink">{a.label}</th>
-                      <td className="px-2 py-2">{a.intolerance}</td>
-                      <td className="px-2 py-2">{a.allergy}</td>
-                      <td className={`px-2 py-2 ${a.severe ? "font-bold text-red-800" : ""}`}>{a.severe}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+          {/* One line per allergen, severe first, so nothing is cut off on a phone. */}
+          {summary.allergens.length === 0 ? (
+            <p className="mt-5 text-sm text-muted">No allergies shared yet.</p>
+          ) : (
+            <ul aria-label="Allergen counts by severity" className="mt-5 divide-y divide-stone-100 border-y border-stone-100 text-sm">
+              {summary.allergens.map((a) => (
+                <li key={a.code} className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 py-2">
+                  <span className="font-semibold text-ink">{a.label}</span>
+                  <span className="text-muted">
+                    <span className={a.severe ? "font-bold text-red-800" : ""}>{a.severe} severe</span>
+                    {` · ${a.allergy} allergy · ${a.intolerance} intolerance`}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
           {summary.diets.length ? (
             <p className="mt-4 text-sm text-ink">
               <span className="font-semibold">Diets: </span>

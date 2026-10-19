@@ -12,7 +12,7 @@ import { ButtonLink } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert } from "@/components/ui/alert";
 import { EmptyState } from "@/components/ui/empty-state";
-import { CATEGORY_LABELS } from "@/components/events/event-utils";
+import { CATEGORY_LABELS, seatsText } from "@/components/events/event-utils";
 import { DuplicateEventButton } from "@/components/admin/duplicate-event-button";
 
 export const metadata: Metadata = { title: "Events" };
@@ -99,8 +99,7 @@ export default async function AdminEventsPage({ searchParams }: PageProps<"/admi
                         <>
                           {" · "}
                           <span className="font-semibold text-ink">
-                            {c.seatsTaken}
-                            {e.capacity ? ` / ${e.capacity}` : ""} {(e.capacity ?? c.seatsTaken) === 1 ? "seat" : "seats"}
+                            {seatsText(c.seatsTaken, e.capacity)}
                           </span>
                           {c.waitlist ? ` · ${c.waitlist} waitlist` : ""}
                           {c.pending ? <span className="font-semibold text-brand-800"> · {c.pending} need approval</span> : ""}

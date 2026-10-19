@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardTitle } from "@/components/ui/card";
 import { ButtonLink } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { seatsText } from "@/components/events/event-utils";
 import { Alert } from "@/components/ui/alert";
 import { GettingStarted } from "@/components/admin/getting-started";
 import { StatsRow } from "@/components/admin/stats-row";
@@ -122,8 +123,7 @@ export default async function AdminHome({ searchParams }: PageProps<"/admin">) {
                       ) : null}
                     </p>
                     <p className="text-sm text-muted">
-                      {formatShortDate(e.starts_at)} · {formatTime(e.starts_at)} · {c?.seatsTaken ?? 0}
-                      {e.capacity ? ` / ${e.capacity}` : ""} {(e.capacity ?? c?.seatsTaken ?? 0) === 1 ? "seat" : "seats"}
+                      {formatShortDate(e.starts_at)} · {formatTime(e.starts_at)} · {seatsText(c?.seatsTaken ?? 0, e.capacity)}
                       {c?.waitlist ? ` · ${c.waitlist} waitlist` : ""}
                       {c?.pending ? <span className="font-semibold text-brand-800"> · {c.pending} need approval</span> : null}
                     </p>
