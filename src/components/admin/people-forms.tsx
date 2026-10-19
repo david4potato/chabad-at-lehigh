@@ -37,25 +37,25 @@ export function GrantRoleForm() {
 }
 
 /** A role chip with a remove button (admins only). */
-export function RoleChip({ userId, role, label }: { userId: string; role: Role; label: string }) {
+export function RoleChip({ userId, name, role, label }: { userId: string; name: string; role: Role; label: string }) {
   const [pending, start] = useTransition();
   const [result, setResult] = useState<ActionResult | null>(null);
   return (
     <span className="inline-flex flex-col">
-      <span className="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-stone-50 py-0.5 pl-2.5 text-xs font-semibold text-ink">
+      <span className="inline-flex min-h-11 items-center rounded-full border border-stone-200 bg-stone-50 pl-3 text-sm font-semibold text-ink">
         {label}
-        {/* A 44px tap area around a small visible circle, so the chip stays compact. */}
+        {/* A full 44px tap target inside the chip, so it never overlaps the chip next to it. */}
         <button
           type="button"
           disabled={pending}
           onClick={() => {
-            if (confirm(`Remove the ${label} role?`)) start(async () => setResult(await revokeRole(userId, role)));
+            if (confirm(`Remove the ${label} role from ${name}?`)) start(async () => setResult(await revokeRole(userId, role)));
           }}
-          className="group -mx-1.5 -my-2.5 flex size-11 items-center justify-center rounded-full text-muted hover:text-ink"
-          aria-label={`Remove ${label} role`}
+          className="group flex size-11 shrink-0 items-center justify-center rounded-full text-muted hover:text-ink"
+          aria-label={`Remove ${label} role from ${name}`}
         >
-          <span className="flex size-6 items-center justify-center rounded-full group-hover:bg-stone-200">
-            <X className="size-3.5" aria-hidden="true" />
+          <span className="flex size-7 items-center justify-center rounded-full group-hover:bg-stone-200">
+            <X className="size-4" aria-hidden="true" />
           </span>
         </button>
       </span>

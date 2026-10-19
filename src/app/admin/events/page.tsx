@@ -4,7 +4,7 @@ import { Plus } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { canManageEvents, canManageMenus } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
-import { formatShortDate, formatTime } from "@/lib/time";
+import { formatShortDateMaybeYear, formatTime } from "@/lib/time";
 import { getEventCounts, pastFilter, upcomingFilter } from "@/lib/data/events";
 import { cn } from "@/lib/cn";
 import { PageHeader } from "@/components/ui/page-header";
@@ -12,7 +12,7 @@ import { ButtonLink } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert } from "@/components/ui/alert";
 import { EmptyState } from "@/components/ui/empty-state";
-import { CATEGORY_LABELS } from "@/components/events/event-utils";
+import { CATEGORY_LABELS, seatsText } from "@/components/events/event-utils";
 import { DuplicateEventButton } from "@/components/admin/duplicate-event-button";
 
 export const metadata: Metadata = { title: "Events" };
@@ -44,6 +44,16 @@ export default async function AdminEventsPage({ searchParams }: PageProps<"/admi
   const { data } = await query;
   const events = data ?? [];
   const counts = await getEventCounts(events.map((e) => e.id));
+  // Nothing upcoming? Point organizers at upcoming drafts that only need publishing.
+  let upcomingDrafts = 0;
+  if (organizer && tab === "upcoming" && events.length === 0) {
+    const { count } = await supabase
+      .from("events")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "draft")
+      .or(upcomingFilter());
+    upcomingDrafts = count ?? 0;
+  }
 
   return (
     <div>
@@ -67,7 +77,7 @@ export default async function AdminEventsPage({ searchParams }: PageProps<"/admi
             href={`/admin/events?tab=${t.key}`}
             aria-current={tab === t.key ? "page" : undefined}
             className={cn(
-              "inline-flex h-10 items-center rounded-full border px-4 text-sm font-semibold",
+              "inline-flex h-11 items-center rounded-full border px-4 text-sm font-semibold",
               tab === t.key ? "border-brand-700 bg-brand-700 text-white" : "border-stone-300 bg-white text-ink hover:bg-stone-50",
             )}
           >
@@ -80,7 +90,20 @@ export default async function AdminEventsPage({ searchParams }: PageProps<"/admi
         <EmptyState
           title={tab === "drafts" ? "No drafts" : tab === "past" ? "No past events yet" : "No upcoming events"}
           action={organizer && tab !== "past" ? <ButtonLink href="/admin/events/new">Create an event</ButtonLink> : undefined}
-        />
+        >
+          {upcomingDrafts > 0 ? (
+            <>
+              <p>
+                {upcomingDrafts === 1
+                  ? "You have 1 upcoming draft. Publish it to list it here."
+                  : `You have ${upcomingDrafts} upcoming drafts. Publish them to list them here.`}
+              </p>
+              <Link href="/admin/events?tab=drafts" className="inline-flex min-h-11 items-center font-semibold text-brand-700 hover:underline">
+                Open drafts
+              </Link>
+            </>
+          ) : null}
+        </EmptyState>
       ) : (
         <ul className="space-y-3">
           {events.map((e) => {
@@ -95,13 +118,12 @@ export default async function AdminEventsPage({ searchParams }: PageProps<"/admi
                     </div>
                     <p className="mt-1 font-bold text-ink">{e.title}</p>
                     <p className="text-sm text-muted">
-                      {formatShortDate(e.starts_at)} · {formatTime(e.starts_at)}
+                      {formatShortDateMaybeYear(e.starts_at)} · {formatTime(e.starts_at)}
                       {c ? (
                         <>
                           {" · "}
                           <span className="font-semibold text-ink">
-                            {c.seatsTaken}
-                            {e.capacity ? ` / ${e.capacity}` : ""} seats
+                            {seatsText(c.seatsTaken, e.capacity)}
                           </span>
                           {c.waitlist ? ` · ${c.waitlist} waitlist` : ""}
                           {c.pending ? <span className="font-semibold text-brand-800"> · {c.pending} need approval</span> : ""}

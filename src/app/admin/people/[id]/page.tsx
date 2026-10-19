@@ -83,12 +83,17 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
         {roles.length > 0 ? (
           <div className="mt-3 flex flex-wrap gap-1.5">
             {roles.map((r) => (
-              <RoleChip key={r} userId={person.id} role={r} label={ROLE_LABELS[r]} />
+              <RoleChip key={r} userId={person.id} name={name} role={r} label={ROLE_LABELS[r]} />
             ))}
           </div>
         ) : (
           <p className="mt-1 text-sm text-muted">No roles yet.</p>
         )}
+        {roles.includes("community_guest") && roles.length > 1 ? (
+          <p className="mt-2 text-sm text-muted">
+            {ROLE_LABELS.community_guest} is the starting role for accounts without a school email. Other roles add to it.
+          </p>
+        ) : null}
         <div className="mt-4">
           <PersonRoleForm email={person.email} available={available} />
         </div>

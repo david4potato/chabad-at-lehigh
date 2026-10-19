@@ -30,12 +30,14 @@ type Dish = {
   status: string;
 };
 
-export function DishForm({ dish, defaultName }: { dish?: Dish; defaultName?: string }) {
+export function DishForm({ dish, defaultName, eventId }: { dish?: Dish; defaultName?: string; eventId?: string }) {
   const [state, action] = useActionState(saveDish, initialActionState);
   const e = state.ok ? undefined : state.fieldErrors;
   return (
     <Form action={action} className="space-y-4">
       <input type="hidden" name="id" value={dish?.id ?? ""} />
+      {/* The event menu this dish was started from (?event=), for saveDish to pass on to the dish page. */}
+      {eventId ? <input type="hidden" name="event" value={eventId} /> : null}
       <Field label="Dish name" htmlFor="dish-name" errors={e?.name} required>
         <Input id="dish-name" name="name" required minLength={2} maxLength={120} defaultValue={dish?.name ?? defaultName ?? ""} />
       </Field>
@@ -60,7 +62,11 @@ export function DishForm({ dish, defaultName }: { dish?: Dish; defaultName?: str
             <option value="pareve">Pareve</option>
           </Select>
         </Field>
-        <Field label="Status" htmlFor="dish-status" hint="Proposed dishes can be voted on.">
+        <Field
+          label="Status"
+          htmlFor="dish-status"
+          hint="Proposed means you're still considering it. Active and proposed dishes can both go on a menu or up for a vote."
+        >
           <Select id="dish-status" name="status" defaultValue={dish?.status ?? "active"}>
             <option value="active">Active</option>
             <option value="proposed">Proposed</option>
@@ -80,25 +86,31 @@ export function DishForm({ dish, defaultName }: { dish?: Dish; defaultName?: str
 
 export function AddIngredientForm({ dishId, ingredients }: { dishId: string; ingredients: { id: string; name: string }[] }) {
   const [state, action] = useActionState(addDishIngredient, initialActionState);
-  const [mode, setMode] = useState<"existing" | "new">("existing");
+  const [picked, setPicked] = useState<"existing" | "new">(ingredients.length ? "existing" : "new");
+  // With nothing saved to pick from, only "Create new" makes sense.
+  const mode = ingredients.length ? picked : "new";
 
   return (
     <Form action={action} state={state} resetOnSuccess className="space-y-4">
       <input type="hidden" name="dish_id" value={dishId} />
-      <div className="flex gap-2" role="radiogroup" aria-label="Ingredient source">
-        {(["existing", "new"] as const).map((m) => (
-          <button
-            key={m}
-            type="button"
-            role="radio"
-            aria-checked={mode === m}
-            onClick={() => setMode(m)}
-            className={`h-10 rounded-full border px-4 text-sm font-semibold ${mode === m ? "border-brand-700 bg-brand-700 text-white" : "border-stone-300 bg-white"}`}
-          >
-            {m === "existing" ? "Pick existing" : "Create new"}
-          </button>
-        ))}
-      </div>
+      {ingredients.length ? (
+        <div className="flex gap-2" role="radiogroup" aria-label="Ingredient source">
+          {(["existing", "new"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              role="radio"
+              aria-checked={mode === m}
+              onClick={() => setPicked(m)}
+              className={`h-11 rounded-full border px-4 text-sm font-semibold ${mode === m ? "border-brand-700 bg-brand-700 text-white" : "border-stone-300 bg-white"}`}
+            >
+              {m === "existing" ? "Pick existing" : "Create new"}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <p className="text-sm text-muted">No saved ingredients to pick from yet. Add a new one here.</p>
+      )}
       {mode === "existing" ? (
         <Field label="Ingredient" htmlFor="ingredient_id">
           <Select id="ingredient_id" name="ingredient_id" required defaultValue="">
@@ -153,8 +165,10 @@ export function RemoveIngredientButton({ dishId, ingredientId, name }: { dishId:
       <button
         type="button"
         disabled={pending}
-        onClick={() => run(() => removeDishIngredient(dishId, ingredientId))}
-        className="flex size-9 items-center justify-center rounded-full text-muted hover:bg-red-50 hover:text-red-700"
+        onClick={() => {
+          if (confirm(`Remove ${name} from this dish?`)) run(() => removeDishIngredient(dishId, ingredientId));
+        }}
+        className="flex size-11 items-center justify-center rounded-full text-muted hover:bg-red-50 hover:text-red-700"
         aria-label={`Remove ${name}`}
       >
         <Trash2 className="size-4" aria-hidden="true" />
@@ -250,7 +264,7 @@ export function SuggestionReviewForm({ suggestion }: { suggestion: { id: string;
           <Input id={`resp-${suggestion.id}`} name="staff_response" maxLength={1000} defaultValue={suggestion.staff_response ?? ""} />
         </Field>
       </div>
-      <SubmitButton variant="secondary" size="sm">
+      <SubmitButton variant="secondary" size="sm" className="min-h-11">
         Save
       </SubmitButton>
       <FormMessage state={state} />

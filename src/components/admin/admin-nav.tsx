@@ -21,13 +21,13 @@ export const ADMIN_NAV: Item[] = [
   { href: "/admin/help", label: "Help", show: () => true },
 ];
 
-/** Horizontal, scrollable section nav for the organizer dashboard. */
+/** Section nav for the dashboard. It wraps onto more lines on a phone, so every section and the current one stay visible. */
 export function AdminNav({ roles }: { roles: Role[] }) {
   const pathname = usePathname();
   const items = ADMIN_NAV.filter((i) => i.show(roles));
   return (
-    <nav aria-label="Dashboard sections" className="-mx-4 mb-6 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-      <ul className="flex w-max gap-1 rounded-2xl border border-stone-200 bg-white p-1 shadow-sm">
+    <nav aria-label="Dashboard sections" className="mb-6">
+      <ul className="flex flex-wrap gap-1 rounded-2xl border border-stone-200 bg-white p-1 shadow-sm">
         {items.map((item) => {
           const active = item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href);
           return (
@@ -36,7 +36,7 @@ export function AdminNav({ roles }: { roles: Role[] }) {
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "block rounded-xl px-3.5 py-2 text-sm font-semibold whitespace-nowrap transition-colors",
+                  "flex min-h-11 items-center rounded-xl px-3.5 text-sm font-semibold whitespace-nowrap transition-colors",
                   active ? "bg-brand-700 text-white" : "text-muted hover:bg-stone-100 hover:text-ink",
                 )}
               >

@@ -27,7 +27,7 @@ const DB_ERROR_MESSAGES: Record<string, string> = {
   invalid_state: "That RSVP can't be changed that way.",
   rsvp_not_found: "We couldn't find that RSVP.",
   no_guests: "This RSVP has no guests.",
-  last_admin: "You can't remove the last admin. Add another admin first.",
+  last_admin: "You can't remove the last admin. Someone else needs the Admin role and has to sign in once first.",
   invalid_email: "Please enter a valid email address.",
   invalid_decision: "Please choose Approve or Decline.",
   no_emails: "Add at least one email address.",

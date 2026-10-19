@@ -4,10 +4,12 @@ A warm, mobile-first hub for Chabad at Lehigh: Shabbat dinner RSVPs, events, men
 ingredients and allergens, private dietary preferences, and a simple organizer dashboard.
 
 - **Hosting:** Vercel · **Database, sign-in, storage:** Supabase · both free plans, one codebase.
+- **Going live:** [GO_LIVE.md](GO_LIVE.md) — the steps to launch, and an index of every key document.
 - **Set it up:** [SETUP.md](SETUP.md) — numbered beginner guide with an environment-variable checklist.
 - **Before real use:** organizers sign off on [docs/ORGANIZER_REVIEW.md](docs/ORGANIZER_REVIEW.md).
   Dish votes are never proof that food is safe for someone with an allergy.
 - **Philosophy:** [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md) — the rules the product never breaks.
+- **Decisions:** [docs/DECISIONS.md](docs/DECISIONS.md) — what was decided, why, and what is still open.
 - **Organizers:** one-page [docs/ORGANIZER_QUICKSTART.md](docs/ORGANIZER_QUICKSTART.md), plus a built-in guide at
   **Dashboard → Help**. Admins get a **Getting started** checklist (incl. one-click demo removal).
 - **Helping out:** [CONTRIBUTING.md](CONTRIBUTING.md) — run it locally, the rules, and the shared Claude Code settings.

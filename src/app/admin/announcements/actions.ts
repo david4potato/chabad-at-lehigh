@@ -48,15 +48,36 @@ export async function saveAnnouncement(_prev: ActionResult, formData: FormData):
   });
   if (!parsed.success) return validationError(parsed.error);
   const { id, publish_at, ...values } = parsed.data;
-  const row = { ...values, publish_at: publish_at ?? new Date().toISOString() };
+  const nowIso = new Date().toISOString();
+  const row = { ...values, publish_at: publish_at ?? nowIso };
 
   const supabase = await createClient();
+  // A new post that would already be hidden: say so instead of "Posted".
+  if (!id && row.status === "published" && row.expires_at && row.expires_at <= nowIso) {
+    const fieldErrors = { expires_at: ["This time has passed. Clear it or pick a later time."] };
+    return { ok: false, error: "Please fix the highlighted fields.", fieldErrors };
+  }
+  // Publishing a draft whose "Show from" time has passed: it goes live now, so it
+  // sorts with today's posts instead of under the day the draft was started.
+  let publishingDraft = false;
+  if (id && row.status === "published") {
+    const { data: before } = await supabase.from("announcements").select("status").eq("id", id).maybeSingle();
+    publishingDraft = before?.status === "draft";
+    if (publishingDraft && row.publish_at < nowIso) {
+      if (row.expires_at && row.expires_at <= nowIso) {
+        const fieldErrors = { expires_at: ["This time has passed. Clear it or pick a later time."] };
+        return { ok: false, error: "Please fix the highlighted fields.", fieldErrors };
+      }
+      row.publish_at = nowIso;
+    }
+  }
+
   const { error } = id
     ? await supabase.from("announcements").update(row).eq("id", id)
     : await supabase.from("announcements").insert(row);
   if (error) return { ok: false, error: dbErrorMessage(error) };
   revalidate();
-  if (id) return { ok: true, message: "Saved." };
+  if (id && !publishingDraft) return { ok: true, message: "Saved." };
   if (row.status === "draft") return { ok: true, message: "Saved as a draft." };
   if (row.publish_at > new Date().toISOString()) return { ok: true, message: `Scheduled for ${formatDateTime(row.publish_at)}.` };
   return { ok: true, message: "Posted. It's live now." };

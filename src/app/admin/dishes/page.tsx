@@ -29,7 +29,7 @@ export default async function DishesPage({ searchParams }: PageProps<"/admin/dis
   // whole dish_allergens view hit the API's 1,000-row cap with a few hundred dishes.)
   let query = supabase
     .from("dishes")
-    .select("id, name, category, kosher_type, status, allergens:dish_allergens(allergen_code)")
+    .select("id, name, category, kosher_type, status, allergens:dish_allergens(allergen_code), ingredients:dish_ingredients(count)")
     .eq("status", status)
     .order("name")
     .limit(LIMIT);
@@ -66,7 +66,7 @@ export default async function DishesPage({ searchParams }: PageProps<"/admin/dis
               key={s}
               href={`/admin/dishes?status=${s}`}
               aria-current={s === status ? "page" : undefined}
-              className={cn("inline-flex h-10 items-center rounded-full border px-4 text-sm font-semibold capitalize", s === status ? "border-brand-700 bg-brand-700 text-white" : "border-stone-300 bg-white")}
+              className={cn("inline-flex h-11 items-center rounded-full border px-4 text-sm font-semibold capitalize", s === status ? "border-brand-700 bg-brand-700 text-white" : "border-stone-300 bg-white")}
             >
               {s}
             </Link>
@@ -95,8 +95,10 @@ export default async function DishesPage({ searchParams }: PageProps<"/admin/dis
                 <div className="mt-2">
                   {allergens.get(d.id)?.length ? (
                     <AllergenBadges codes={allergens.get(d.id)!} />
-                  ) : (
+                  ) : d.ingredients[0]?.count ? (
                     <p className="text-xs text-muted">No allergens in listed ingredients.</p>
+                  ) : (
+                    <Badge tone="amber">No ingredients yet</Badge>
                   )}
                 </div>
               </Link>

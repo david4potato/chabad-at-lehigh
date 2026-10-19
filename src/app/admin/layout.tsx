@@ -11,7 +11,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
   return (
     <div>
       <div className="print:hidden">
-        <p className="mb-2 text-sm font-semibold text-gold-700">Organizer dashboard</p>
+        <p className="mb-2 text-sm font-semibold text-gold-700">Dashboard</p>
         <AdminNav roles={viewer.roles} />
       </div>
       {children}

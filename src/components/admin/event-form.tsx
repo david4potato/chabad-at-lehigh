@@ -188,6 +188,9 @@ export function EventForm({
               <Input id="contact_phone" name="contact_phone" type="tel" maxLength={40} defaultValue={event?.contact_phone ?? ""} />
             </Field>
           </div>
+        </Section>
+
+        <Section title="Event link" description="The end of this event's web address.">
           <Field
             label="Web address"
             htmlFor="slug"
