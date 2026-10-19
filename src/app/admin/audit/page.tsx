@@ -35,7 +35,7 @@ const ACTION_LABELS: Record<string, string> = {
   "menu_items.insert": "Dish added to menu",
   "menu_items.update": "Menu dish changed",
   "menu_items.delete": "Dish removed from menu",
-  "announcements.insert": "Announcement posted",
+  "announcements.insert": "Announcement created",
   "announcements.update": "Announcement changed",
   "announcements.delete": "Announcement deleted",
   "app_settings.insert": "Settings changed",
@@ -250,7 +250,7 @@ export default async function AuditPage({ searchParams }: PageProps<"/admin/audi
     <div>
       <PageHeader
         title="Audit log"
-        description="A record of changes to roles, settings, events, menus, RSVPs, volunteers and announcements, plus every view of the named dietary report. Entries can't be edited or deleted. Newest 200 shown."
+        description="A record of changes to roles, settings, events, menus and announcements, staff decisions on RSVPs, people taken off volunteer shifts, and every view of the named dietary report. Entries can't be edited or deleted. Newest 200 shown."
       />
       <nav aria-label="Filter by type" className="mb-4">
         <div className="flex flex-wrap gap-2">
@@ -278,7 +278,12 @@ export default async function AuditPage({ searchParams }: PageProps<"/admin/audi
               <li key={row.id} className="grid gap-1 px-4 py-3 text-sm sm:grid-cols-[170px_1fr_1.2fr] sm:gap-4">
                 <span className="text-muted">{formatDateTime(row.created_at)}</span>
                 <span>
-                  <span className="font-semibold text-ink">{ACTION_LABELS[row.action] ?? humanize(row.action)}</span>
+                  {/* With no one behind it, removing a pending role is the first sign-in applying it. */}
+                  <span className="font-semibold text-ink">
+                    {row.action === "pending_role_grants.delete" && !row.actor_ref
+                      ? "Pending role applied at first sign-in"
+                      : (ACTION_LABELS[row.action] ?? humanize(row.action))}
+                  </span>
                   <span className="block text-xs text-muted">
                     {/* actor_ref is kept after the person deletes their account. */}
                     {row.actor?.full_name || row.actor?.email || (row.actor_ref ? "Deleted account" : "System")}

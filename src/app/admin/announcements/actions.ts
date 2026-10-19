@@ -52,6 +52,11 @@ export async function saveAnnouncement(_prev: ActionResult, formData: FormData):
   const row = { ...values, publish_at: publish_at ?? nowIso };
 
   const supabase = await createClient();
+  // A new post that would already be hidden: say so instead of "Posted".
+  if (!id && row.status === "published" && row.expires_at && row.expires_at <= nowIso) {
+    const fieldErrors = { expires_at: ["This time has passed. Clear it or pick a later time."] };
+    return { ok: false, error: "Please fix the highlighted fields.", fieldErrors };
+  }
   // Publishing a draft whose "Show from" time has passed: it goes live now, so it
   // sorts with today's posts instead of under the day the draft was started.
   let publishingDraft = false;

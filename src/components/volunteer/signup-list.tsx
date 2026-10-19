@@ -24,7 +24,7 @@ export function SignupList({
   shiftId: string;
   signups: SignupListItem[];
   onRemove?: (shiftId: string, userId: string) => Promise<ActionResult>;
-  /** False once the shift has started or isn't open, so nobody else can take the spot. */
+  /** False once the shift has started, isn't open, or its event isn't published, so nobody else can take the spot. */
   reopensSpot?: boolean;
   emptyText?: string;
 }) {
