@@ -76,6 +76,11 @@ const SECTIONS: Section[] = [
         <li>
           Once people have RSVP&apos;d, a published event can&apos;t go back to <strong>Draft</strong>. Cancel it instead, so they hear about it.
         </li>
+        <li>
+          Something that happens every week or every few weeks (dinners, a cooking group, a class)? Open the event and use{" "}
+          <strong>Repeat this event on more dates</strong>. Choose how often and how many dates, as drafts or published. Each date becomes its own
+          event with the menu (as a draft) and the volunteer shifts. Dates that already have the event are skipped.
+        </li>
         <li>Times are always {SITE.timeZoneLabel}.</li>
       </ul>
     ),
@@ -210,6 +215,10 @@ const SECTIONS: Section[] = [
         <li>
           <A href="/admin/volunteers/new">Volunteers → New shift</A>: a title (&ldquo;Help cook Shabbat dinner&rdquo;), the time, how many spots, and
           optionally the event it&apos;s for. Or open an event and press <strong>Add a volunteer shift</strong>.
+        </li>
+        <li>
+          A shift that happens every week on its own, like a cooking crew? Set <strong>Repeat</strong> when you create it, and each week gets its own
+          shift. Shifts on an event come along when you repeat the event.
         </li>
         <li>
           <strong>Open</strong> shifts show on the <A href="/volunteer">Help out</A> page and on their event&apos;s page. People sign up with one tap and

@@ -7,6 +7,7 @@ import { viewerWithRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { dbErrorMessage, validationError, type ActionResult } from "@/lib/action-result";
 import { siteLocalToUtcIso } from "@/lib/time";
+import { repeatStarts } from "@/lib/recurrence";
 import { hasStarted } from "@/lib/data/volunteer";
 
 const ORGANIZERS = ["organizer", "admin"] as const;
@@ -72,18 +73,36 @@ function revalidateShifts(id?: string) {
   revalidatePath("/events/[slug]", "page");
 }
 
+const repeatWeeks = z.coerce.number().int().min(0).max(12).catch(0);
+
 export async function createShift(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
   if (!(await viewerWithRole(ORGANIZERS))) return FORBIDDEN;
   const parsed = parseShiftForm(formData);
   if (!parsed.success) return validationError(parsed.error);
-  const values = parsed.data;
+  const values = { ...parsed.data, starts_at: parsed.data.starts_at! };
+  // Only for shifts on their own: a weekly copy tied to the same event would land on the wrong day.
+  const more = repeatWeeks.parse(formData.get("repeat_weeks") ?? 0);
+  if (more > 0 && values.event_id) {
+    return {
+      ok: false,
+      error: "Please fix the highlighted fields.",
+      fieldErrors: { repeat_weeks: ["Shifts on an event can't repeat. Repeat the event instead, and its shifts come along."] },
+    };
+  }
 
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("volunteer_shifts")
-    .insert({ ...values, starts_at: values.starts_at! })
-    .select("id")
-    .single();
+  if (more > 0) {
+    // Each week at the same clock time; the end moves with the start.
+    const length = values.ends_at ? new Date(values.ends_at).getTime() - new Date(values.starts_at).getTime() : null;
+    const starts = [values.starts_at, ...repeatStarts(values.starts_at, 1, more, new Date(values.starts_at))];
+    const { error } = await supabase.from("volunteer_shifts").insert(
+      starts.map((s) => ({ ...values, starts_at: s, ends_at: length === null ? null : new Date(new Date(s).getTime() + length).toISOString() })),
+    );
+    if (error) return saveError(error);
+    revalidateShifts();
+    redirect(`/admin/volunteers?added=${starts.length}`);
+  }
+  const { data, error } = await supabase.from("volunteer_shifts").insert(values).select("id").single();
   if (error) return saveError(error);
   revalidateShifts(data.id);
   redirect(`/admin/volunteers/${data.id}?saved=1`);

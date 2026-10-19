@@ -79,6 +79,47 @@ test.describe("organizer dashboard", () => {
     await studentPage.close();
   });
 
+  test("organizer repeats an event every two weeks, and repeating again skips dates that exist", async ({ page }) => {
+    // Not a Shabbat dinner, so tests that pick "the next Shabbat dinner" never see the copies.
+    const title = `E2E Cooking Class ${Date.now()}`;
+    const [source] = await db<{ id: string; starts_at: Date }>(
+      `insert into events (slug, title, category, status, starts_at, ends_at)
+       values ($1, $2, 'social', 'published', now() + interval '3 days', now() + interval '3 days 2 hours')
+       returning id, starts_at`,
+      [`e2e-class-${Date.now()}`, title],
+    );
+
+    try {
+      await signInAs(page, "organizer", { next: `/admin/events/${source.id}` });
+      await page.getByText("Repeat this event on more dates").click();
+      await page.getByRole("combobox", { name: "Repeat", exact: true }).selectOption("2");
+      await page.getByLabel("How many more dates").fill("3");
+      await page.getByRole("button", { name: "Add dates" }).click();
+      await expect(page.getByText(/Added 3 events: .* to .*\. They're drafts/)).toBeVisible();
+
+      const copies = await db<{ starts_at: Date; status: string }>(
+        `select starts_at, status from events where title = $1 and id <> $2 order by starts_at`,
+        [title, source.id],
+      );
+      expect(copies.map((c) => c.status)).toEqual(["draft", "draft", "draft"]);
+      copies.forEach((c, i) => {
+        // Every two weeks at the same clock time (an hour either way across a daylight-saving change).
+        const days = (new Date(c.starts_at).getTime() - new Date(source.starts_at).getTime()) / 86_400_000;
+        expect(Math.abs(days - 14 * (i + 1))).toBeLessThan(0.1);
+      });
+
+      // Asking for one more date than before adds only the new one.
+      await page.getByRole("combobox", { name: "Repeat", exact: true }).selectOption("2");
+      await page.getByLabel("How many more dates").fill("4");
+      await page.getByRole("button", { name: "Add dates" }).click();
+      await expect(page.getByText(/Added 1 event: .*Skipped 3 dates that already have this event\./)).toBeVisible();
+      const [{ count }] = await db<{ count: string }>(`select count(*) from events where title = $1`, [title]);
+      expect(Number(count)).toBe(5);
+    } finally {
+      await db(`delete from events where title = $1`, [title]);
+    }
+  });
+
   test("organizer duplicates last week's dinner with its menu and shifts, then publishes it", async ({ page }) => {
     // Not a Shabbat dinner, so other tests that pick "the next Shabbat dinner" never see the copy.
     const title = `E2E Weekly Dinner ${Date.now()}`;
