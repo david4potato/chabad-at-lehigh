@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CalendarPlus, Clock, MapPin } from "lucide-react";
-import { SITE } from "@/config/site";
+import { OG_IMAGE, SITE } from "@/config/site";
 import { getViewer } from "@/lib/auth";
 import { isStaff } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
@@ -38,9 +38,9 @@ export async function generateMetadata({ params }: PageProps<"/events/[slug]">):
     title,
     description,
     alternates: { canonical: url },
-    // A page-level openGraph replaces the layout's whole object, so siteName and type are repeated.
-    openGraph: { title, description, url, siteName: SITE.name, type: "website" },
-    twitter: { card: "summary", title, description },
+    // A page-level openGraph replaces the layout's whole object, so siteName, type and the image are repeated.
+    openGraph: { title, description, url, siteName: SITE.name, type: "website", images: [OG_IMAGE] },
+    twitter: { card: "summary_large_image", title, description, images: [OG_IMAGE] },
   };
 }
 
