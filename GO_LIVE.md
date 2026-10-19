@@ -10,13 +10,15 @@ long it takes and what must come first. [SETUP.md](SETUP.md) has the full refere
   `https://chabad-at-lehigh.vercel.app`. Anyone with the address can open it. Every page asks search engines not to
   list it.
 - **Database:** David created the Supabase project on 18 October 2026. Step 1 checks whether it's loaded.
-- **Still open on the code side:** the database efficiency changes wait for David's approval. They don't block
-  launch.
+- **Still open on the code side:** nothing that blocks launch.
 
 ## David's steps
 
 1. **Load the database** (5 min). Comes first.
-   - Supabase → the project → **Table Editor**. If `events`, `rsvps` and `dishes` are listed, go to step 2.
+   - Supabase → the project → **Table Editor**. If `events`, `rsvps` and `dishes` are listed, the database was
+     loaded earlier: run `supabase/migrations/20261019000100_efficiency.sql` once in **SQL Editor → New query** (it
+     adds the indexes measured in [docs/SCALING.md](docs/SCALING.md); running it again does no harm), then go to
+     step 2.
    - Otherwise: **SQL Editor → New query** → paste all of `supabase/setup/all_migrations.sql` → **Run**. Expect
      *Success*.
    - New query → paste `supabase/scripts/bootstrap_admin.sql` with your own sign-in email → **Run**.
@@ -128,7 +130,6 @@ they say yes: the address carries their name, so register it in an account they 
 - No link to students, and no posts or announcements.
 - Search listing stays off.
 - Demo content is removed before anyone outside the test group sees the site.
-- The database efficiency changes aren't run on the live database until David approves them.
 - No license file until David and the directors agree ([docs/DECISIONS.md](docs/DECISIONS.md)).
 - No domain is bought until the directors say yes.
 - The bot check (Turnstile) needs both keys set together, or none. Half of it breaks sign-in.

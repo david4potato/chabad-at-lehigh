@@ -6,23 +6,23 @@
 -- =============================================================================
 
 -- private.attended_events() (get_my_stats, get_staff_stats, get_person_history, get_people_activity) reads only this index.
-create index rsvps_going_event_idx on public.rsvps (event_id)
+create index if not exists rsvps_going_event_idx on public.rsvps (event_id)
   include (user_id, checked_in_at, guest_count, guest_status) where status = 'going';
 
 -- staff_invite_to_event() and admin_grant_role() find each person by email.
-create index profiles_email_idx on public.profiles (email);
+create index if not exists profiles_email_idx on public.profiles (email);
 
 -- Deleting an event deletes its notifications (ON DELETE CASCADE).
-create index notifications_event_idx on public.notifications (event_id) where event_id is not null;
+create index if not exists notifications_event_idx on public.notifications (event_id) where event_id is not null;
 
 -- Deleting an account clears it from the audit log (ON DELETE SET NULL).
-create index audit_events_actor_idx on public.audit_events (actor_id) where actor_id is not null;
+create index if not exists audit_events_actor_idx on public.audit_events (actor_id) where actor_id is not null;
 
 -- Deleting an account clears it from RSVPs that person checked in (ON DELETE SET NULL).
-create index rsvps_checked_in_by_idx on public.rsvps (checked_in_by) where checked_in_by is not null;
+create index if not exists rsvps_checked_in_by_idx on public.rsvps (checked_in_by) where checked_in_by is not null;
 
 -- Deleting an account clears it from RSVPs that person approved or declined (ON DELETE SET NULL).
-create index rsvps_decided_by_idx on public.rsvps (decided_by) where decided_by is not null;
+create index if not exists rsvps_decided_by_idx on public.rsvps (decided_by) where decided_by is not null;
 
 -- -----------------------------------------------------------------------------
 -- Counts on event lists and the Help out page: check the viewer's role and
