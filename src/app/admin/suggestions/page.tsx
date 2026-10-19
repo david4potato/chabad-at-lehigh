@@ -12,17 +12,18 @@ import { SuggestionReviewForm } from "@/components/admin/menu/library-forms";
 export const metadata: Metadata = { title: "Suggestions" };
 
 const TABS = [
-  { key: "new", label: "New" },
-  { key: "under_review", label: "Under review" },
-  { key: "accepted", label: "Accepted" },
-  { key: "declined", label: "Declined" },
+  { key: "new", label: "New", empty: "No new suggestions" },
+  { key: "under_review", label: "Under review", empty: "Nothing under review" },
+  { key: "accepted", label: "Accepted", empty: "No accepted suggestions" },
+  { key: "declined", label: "Declined", empty: "No declined suggestions" },
 ] as const;
 const KIND = { dish: "Dish", ingredient: "Ingredient", feedback: "Feedback" } as Record<string, string>;
 
 export default async function SuggestionsPage({ searchParams }: PageProps<"/admin/suggestions">) {
   await requireRole(["organizer", "kitchen_staff", "admin"], "/admin/suggestions");
   const params = await searchParams;
-  const tab = TABS.find((t) => t.key === params.status)?.key ?? "new";
+  const current = TABS.find((t) => t.key === params.status) ?? TABS[0];
+  const tab = current.key;
   const supabase = await createClient();
   const { data } = await supabase
     .from("dish_suggestions")
@@ -41,7 +42,7 @@ export default async function SuggestionsPage({ searchParams }: PageProps<"/admi
               key={t.key}
               href={`/admin/suggestions?status=${t.key}`}
               aria-current={t.key === tab ? "page" : undefined}
-              className={cn("inline-flex h-10 items-center rounded-full border px-4 text-sm font-semibold", t.key === tab ? "border-brand-700 bg-brand-700 text-white" : "border-stone-300 bg-white")}
+              className={cn("inline-flex h-11 items-center rounded-full border px-4 text-sm font-semibold", t.key === tab ? "border-brand-700 bg-brand-700 text-white" : "border-stone-300 bg-white")}
             >
               {t.label}
             </Link>
@@ -49,7 +50,11 @@ export default async function SuggestionsPage({ searchParams }: PageProps<"/admi
         </div>
       </nav>
       {(data ?? []).length === 0 ? (
-        <EmptyState title="Nothing here" />
+        <EmptyState title={current.empty}>
+          {tab === "new"
+            ? "People can suggest a dish or ingredient, or share feedback, from the menu on an event page. New ones show up here."
+            : `Suggestions show up here when you set their status to ${current.label}.`}
+        </EmptyState>
       ) : (
         <ul className="space-y-3">
           {(data ?? []).map((s) => (

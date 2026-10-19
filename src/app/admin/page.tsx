@@ -4,13 +4,14 @@ import { ArrowRight, CalendarPlus, ChefHat, Lightbulb, Megaphone, UserCheck } fr
 import { requireRole } from "@/lib/auth";
 import { canManageEvents, canManageMenus, isAdmin } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
-import { formatShortDate, formatTime } from "@/lib/time";
+import { formatShortDateMaybeYear, formatTime } from "@/lib/time";
 import { getEventCounts, upcomingFilter } from "@/lib/data/events";
 import { formatSince, parseStaffStats, semesterStart } from "@/lib/stats";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardTitle } from "@/components/ui/card";
 import { ButtonLink } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { seatsText } from "@/components/events/event-utils";
 import { Alert } from "@/components/ui/alert";
 import { GettingStarted } from "@/components/admin/getting-started";
 import { StatsRow } from "@/components/admin/stats-row";
@@ -76,7 +77,9 @@ export default async function AdminHome({ searchParams }: PageProps<"/admin">) {
 
       {isAdmin(viewer.roles) ? <GettingStarted /> : null}
 
-      {!showApprovals && !showSuggestions ? <p className="text-muted">Nothing needs your attention. Enjoy your day.</p> : null}
+      {!showApprovals && !showSuggestions ? (
+        <p className="text-muted">{organizer ? "No RSVPs or menu suggestions are waiting." : "No menu suggestions are waiting."}</p>
+      ) : null}
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {showApprovals ? (
@@ -98,7 +101,7 @@ export default async function AdminHome({ searchParams }: PageProps<"/admin">) {
       <Card>
         <div className="flex items-center justify-between">
           <CardTitle>Upcoming events</CardTitle>
-          <Link href="/admin/events" className="text-sm font-semibold text-brand-700 hover:underline">
+          <Link href="/admin/events" className="inline-flex min-h-11 items-center text-sm font-semibold text-brand-700 hover:underline">
             All events
           </Link>
         </div>
@@ -122,16 +125,21 @@ export default async function AdminHome({ searchParams }: PageProps<"/admin">) {
                       ) : null}
                     </p>
                     <p className="text-sm text-muted">
-                      {formatShortDate(e.starts_at)} · {formatTime(e.starts_at)} · {c?.seatsTaken ?? 0}
-                      {e.capacity ? ` / ${e.capacity}` : ""} seats
+                      {formatShortDateMaybeYear(e.starts_at)} · {formatTime(e.starts_at)} · {seatsText(c?.seatsTaken ?? 0, e.capacity)}
                       {c?.waitlist ? ` · ${c.waitlist} waitlist` : ""}
                       {c?.pending ? <span className="font-semibold text-brand-800"> · {c.pending} need approval</span> : null}
                     </p>
                   </div>
-                  <div className="flex gap-2">
-                    {organizer ? <ButtonLink href={`/admin/events/${e.id}/attendees`} size="sm">Attendees</ButtonLink> : null}
+                  <div className="flex flex-wrap gap-2">
+                    {organizer ? (
+                      <ButtonLink href={`/admin/events/${e.id}/attendees`} size="sm" className="min-h-11">
+                        Attendees
+                      </ButtonLink>
+                    ) : null}
                     {menus && e.has_meal ? (
-                      <ButtonLink href={`/admin/events/${e.id}/menu`} size="sm" variant="secondary">Menu</ButtonLink>
+                      <ButtonLink href={`/admin/events/${e.id}/menu`} size="sm" className="min-h-11" variant="secondary">
+                        Menu
+                      </ButtonLink>
                     ) : null}
                   </div>
                 </li>

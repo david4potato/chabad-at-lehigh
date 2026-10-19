@@ -92,6 +92,11 @@ export const CANCEL_AFTER_CLOSE_MESSAGE = "New RSVPs are closed. If you can't ma
 
 export type CapacityInfo = { text: string; tone: "muted" | "gold" | "amber" } | null;
 
+/** For organizers: "3 / 60 seats", "1 / 1 seat", or "4 going" when there is no limit. */
+export function seatsText(taken: number, capacity: number | null): string {
+  return capacity == null ? `${taken} going` : `${taken} / ${plural(capacity, "seat")}`;
+}
+
 /** "12 spots left", "Only 3 spots left", "Full · waitlist open" or "18 going". */
 export function capacityInfo(
   capacity: number | null,

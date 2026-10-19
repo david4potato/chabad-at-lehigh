@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CATEGORY_FILTERS, approvalNote, guestApprovalNote, isEventCategory } from "./event-utils";
+import { CATEGORY_FILTERS, approvalNote, guestApprovalNote, isEventCategory, seatsText } from "./event-utils";
 
 describe("isEventCategory", () => {
   it("accepts every real category", () => {
@@ -31,5 +31,17 @@ describe("approval notes", () => {
     expect(guestApprovalNote("auto")).toBeNull();
     expect(guestApprovalNote("all_need_approval")).toBeNull();
     expect(guestApprovalNote("guests_need_approval")).toBe("Guests you bring are confirmed by an organizer.");
+  });
+});
+
+describe("seatsText", () => {
+  it("counts seats against the capacity, with the right plural", () => {
+    expect(seatsText(3, 60)).toBe("3 / 60 seats");
+    expect(seatsText(0, 1)).toBe("0 / 1 seat");
+  });
+
+  it("says how many are going when there is no limit", () => {
+    expect(seatsText(0, null)).toBe("0 going");
+    expect(seatsText(1, null)).toBe("1 going");
   });
 });

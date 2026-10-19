@@ -14,7 +14,7 @@ export function EventTabs({ eventId, active, roles }: { eventId: string; active:
   ];
   return (
     <nav aria-label="Event sections" className="-mx-4 mb-6 overflow-x-auto border-b border-stone-200 px-4 sm:mx-0 sm:px-0">
-      <ul className="flex w-max gap-4">
+      <ul className="flex w-max gap-2">
         {tabs
           .filter((t) => t.show)
           .map((t) => (
@@ -23,7 +23,7 @@ export function EventTabs({ eventId, active, roles }: { eventId: string; active:
                 href={t.href}
                 aria-current={t.key === active ? "page" : undefined}
                 className={cn(
-                  "-mb-px block border-b-2 px-1 pb-3 text-sm font-semibold whitespace-nowrap",
+                  "-mb-px flex min-h-11 items-end border-b-2 px-2 pb-3 text-sm font-semibold whitespace-nowrap",
                   t.key === active ? "border-brand-700 text-brand-800" : "border-transparent text-muted hover:text-ink",
                 )}
               >

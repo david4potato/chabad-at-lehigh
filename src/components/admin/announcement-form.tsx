@@ -29,7 +29,8 @@ export function AnnouncementForm({
   onDone,
 }: {
   announcement?: AnnouncementRow;
-  events: { id: string; title: string }[];
+  /** Labels include the date, since weekly events share a title. */
+  events: { id: string; label: string }[];
   onDone?: () => void;
 }) {
   const [state, action] = useActionState(saveAnnouncement, initialActionState);
@@ -71,7 +72,7 @@ export function AnnouncementForm({
                 <option value="">None</option>
                 {events.map((ev) => (
                   <option key={ev.id} value={ev.id}>
-                    {ev.title}
+                    {ev.label}
                   </option>
                 ))}
               </Select>

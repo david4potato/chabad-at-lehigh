@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useActionState, useRef, useState, useTransition, type MouseEvent } from "react";
-import { AlertTriangle, Trash2 } from "lucide-react";
+import { AlertTriangle, ChevronDown, Trash2 } from "lucide-react";
 import {
   addMenuItem,
   addOption,
@@ -26,6 +26,7 @@ import { Form } from "@/components/ui/form";
 import { FormMessage } from "@/components/ui/form-message";
 import { Alert } from "@/components/ui/alert";
 import { AllergenBadges } from "@/components/menu/allergen-badges";
+import { plural } from "@/components/events/event-utils";
 
 export type DishOption = { id: string; name: string; category: string; status: string };
 
@@ -109,7 +110,7 @@ export function MenuItemEditor({ eventId, item }: { eventId: string; item: MenuI
                 <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
                 <span>
                   This dish has no ingredients yet — add them under{" "}
-                  <Link href={`/admin/dishes/${item.dish.id}`} className="underline">
+                  <Link href={`/admin/dishes/${item.dish.id}?event=${eventId}`} className="underline">
                     Dishes
                   </Link>{" "}
                   before publishing.
@@ -128,14 +129,17 @@ export function MenuItemEditor({ eventId, item }: { eventId: string; item: MenuI
             if (confirm(`Remove ${item.dish.name} from this menu?`)) remove.run(() => removeMenuItem(eventId, item.id));
           }}
           disabled={remove.pending}
-          className="flex size-10 shrink-0 items-center justify-center rounded-full text-muted hover:bg-red-50 hover:text-red-700"
+          className="flex size-11 shrink-0 items-center justify-center rounded-full text-muted hover:bg-red-50 hover:text-red-700"
           aria-label={`Remove ${item.dish.name}`}
         >
           <Trash2 className="size-4" aria-hidden="true" />
         </button>
       </div>
-      <details className="mt-3">
-        <summary className="cursor-pointer text-sm font-semibold text-brand-700">Edit course, preparation and cross-contact</summary>
+      <details className="group mt-1">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1 text-sm font-semibold text-brand-700 [&::-webkit-details-marker]:hidden">
+          Edit course, preparation and cross-contact
+          <ChevronDown className="size-4 shrink-0 transition-transform group-open:rotate-180" aria-hidden="true" />
+        </summary>
         <Form key={savedKey} action={action} data-dish={item.dish.name} className="mt-3 space-y-4">
           <input type="hidden" name="event_id" value={eventId} />
           <input type="hidden" name="item_id" value={item.id} />
@@ -180,6 +184,18 @@ export function MenuItemEditor({ eventId, item }: { eventId: string; item: MenuI
 export function AddDishForm({ eventId, versionId, dishes }: { eventId: string; versionId: string; dishes: DishOption[] }) {
   const [state, action] = useActionState(addMenuItem, initialActionState);
   const byCategory = COURSE_ORDER.map((c) => ({ c, list: dishes.filter((d) => d.category === c) })).filter((g) => g.list.length);
+  // ?event= lets the dish pages link back to this menu.
+  const newDishHref = `/admin/dishes/new?event=${eventId}`;
+  if (dishes.length === 0) {
+    return (
+      <p className="text-sm text-muted">
+        No active or proposed dishes yet.{" "}
+        <Link href={newDishHref} className="inline-flex min-h-11 items-center font-semibold text-brand-700 hover:underline">
+          Create your first dish.
+        </Link>
+      </p>
+    );
+  }
   return (
     <Form action={action} state={state} resetOnSuccess className="space-y-3">
       <input type="hidden" name="event_id" value={eventId} />
@@ -203,7 +219,7 @@ export function AddDishForm({ eventId, versionId, dishes }: { eventId: string; v
       </Field>
       <div className="flex flex-wrap items-center gap-3">
         <SubmitButton variant="secondary">Add to menu</SubmitButton>
-        <Link href="/admin/dishes/new" className="text-sm font-semibold text-brand-700 hover:underline">
+        <Link href={newDishHref} className="inline-flex min-h-11 items-center text-sm font-semibold text-brand-700 hover:underline">
           Create a new dish
         </Link>
       </div>
@@ -269,7 +285,7 @@ export function PublishForm({
             <Textarea id="change-summary" name="change_summary" rows={2} maxLength={1000} required />
           </Field>
         ) : null}
-        <div className="rounded-xl border border-amber-300 bg-amber-50 p-3">
+        <div className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-1">
           <Checkbox
             name="confirm"
             required
@@ -295,7 +311,7 @@ export function PublishForm({
         <Button
           variant="ghost"
           size="sm"
-          className="text-red-700 hover:bg-red-50"
+          className="min-h-11 text-red-700 hover:bg-red-50"
           disabled={discard.pending}
           onClick={() => {
             if (confirm("Discard this draft? The published menu (if any) stays as it is.")) discard.run(() => discardDraft(eventId, versionId));
@@ -318,8 +334,8 @@ export function MenuUpdateForm({ eventId, versionId }: { eventId: string; versio
       <Field label="Message" htmlFor="update-message" hint="e.g. “We ran out of rice pilaf; serving roasted potatoes instead — see the menu for its ingredients.”">
         <Textarea id="update-message" name="message" rows={2} minLength={3} maxLength={1000} required />
       </Field>
-      <div className="flex gap-2 rounded-xl border border-amber-300 bg-amber-50 p-3">
-        <AlertTriangle className="mt-1 size-4 shrink-0 text-amber-800" aria-hidden="true" />
+      <div className="flex gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-1">
+        <AlertTriangle className="mt-3 size-4 shrink-0 text-amber-800" aria-hidden="true" />
         <Checkbox
           name="urgent"
           label="Urgent — notify everyone who RSVP'd in the app now"
@@ -354,7 +370,7 @@ export function VotingOptions({
       <div className="flex flex-wrap items-center gap-3">
         <span className="text-sm font-semibold text-ink">Voting is {open ? "open" : "closed"}.</span>
         {canToggle ? (
-          <Button size="sm" variant="secondary" disabled={toggle.pending} onClick={() => toggle.run(() => setVotingOpen(eventId, !open))}>
+          <Button size="sm" variant="secondary" className="min-h-11" disabled={toggle.pending} onClick={() => toggle.run(() => setVotingOpen(eventId, !open))}>
             {open ? "Close voting" : "Open voting"}
           </Button>
         ) : (
@@ -365,13 +381,13 @@ export function VotingOptions({
       {options.length ? (
         <ul className="divide-y divide-stone-100 rounded-xl border border-stone-200">
           {options.map((o) => (
-            <li key={o.dish_id} className="flex items-center justify-between gap-3 px-3 py-2">
+            <li key={o.dish_id} className="flex items-center justify-between gap-3 py-1 pl-3 pr-1">
               <span className="font-medium text-ink">{o.name}</span>
-              <span className="ml-auto text-sm font-semibold text-ink">{o.votes} votes</span>
+              <span className="ml-auto text-sm font-semibold text-ink">{plural(o.votes, "vote")}</span>
               <button
                 type="button"
                 onClick={() => remove.run(() => removeOption(eventId, o.dish_id))}
-                className="flex size-9 items-center justify-center rounded-full text-muted hover:bg-stone-100"
+                className="flex size-11 shrink-0 items-center justify-center rounded-full text-muted hover:bg-stone-100"
                 aria-label={`Remove ${o.name} from voting`}
               >
                 <Trash2 className="size-4" aria-hidden="true" />
@@ -383,22 +399,31 @@ export function VotingOptions({
         <p className="text-sm text-muted">No options yet.</p>
       )}
       <FormMessage state={remove.result} />
-      <Form action={action} state={state} resetOnSuccess className="flex flex-col gap-2 sm:flex-row sm:items-end">
-        <input type="hidden" name="event_id" value={eventId} />
-        <Field label="Add an option" htmlFor="option-dish" className="flex-1">
-          <Select id="option-dish" name="dish_id" required defaultValue="">
-            <option value="" disabled>
-              Choose a dish…
-            </option>
-            {available.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.name}
+      {available.length === 0 ? (
+        <p className="text-sm text-muted">
+          No other dishes to add.{" "}
+          <Link href={`/admin/dishes/new?event=${eventId}`} className="inline-flex min-h-11 items-center font-semibold text-brand-700 hover:underline">
+            Create a dish.
+          </Link>
+        </p>
+      ) : (
+        <Form action={action} state={state} resetOnSuccess className="flex flex-col gap-2 sm:flex-row sm:items-end">
+          <input type="hidden" name="event_id" value={eventId} />
+          <Field label="Add an option" htmlFor="option-dish" className="flex-1">
+            <Select id="option-dish" name="dish_id" required defaultValue="">
+              <option value="" disabled>
+                Choose a dish…
               </option>
-            ))}
-          </Select>
-        </Field>
-        <SubmitButton variant="secondary">Add</SubmitButton>
-      </Form>
+              {available.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <SubmitButton variant="secondary">Add</SubmitButton>
+        </Form>
+      )}
       <FormMessage state={state} />
     </div>
   );

@@ -54,7 +54,7 @@ test.describe("people history", () => {
       const personLink = page.getByRole("link", { name, exact: true });
       const row = page.getByRole("listitem").filter({ has: personLink });
       await expect(row.getByText(`Came 1 time · last ${shortDate(startsAt)}`, { exact: true })).toBeVisible();
-      await expect(row.getByRole("button", { name: "Remove Student role", exact: true })).toBeVisible();
+      await expect(row.getByRole("button", { name: `Remove Student role from ${name}`, exact: true })).toBeVisible();
       // The grant form is still on the page.
       await expect(page.getByRole("button", { name: "Give role", exact: true })).toBeVisible();
 
@@ -65,7 +65,7 @@ test.describe("people history", () => {
       await expect(page.getByText(SITE.campus.studentLabel, { exact: true })).toBeVisible();
 
       const roles = page.getByRole("region", { name: "Roles" });
-      await expect(roles.getByRole("button", { name: "Remove Student role", exact: true })).toBeVisible();
+      await expect(roles.getByRole("button", { name: `Remove Student role from ${name}`, exact: true })).toBeVisible();
       await expect(roles.getByRole("combobox", { name: "Add a role", exact: true })).toBeVisible();
 
       const activity = page.getByRole("region", { name: "Activity" });

@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/auth";
 import { getAdminEvent } from "@/lib/data/admin";
 import { getAttendees } from "@/lib/data/attendees";
 import { getEventCounts } from "@/lib/data/events";
+import { isPast } from "@/lib/time";
 import { EventTabs } from "@/components/admin/event-tabs";
 import { AdminEventHeader } from "@/components/admin/event-header";
 import { AttendeeList } from "@/components/admin/attendee-list";
@@ -37,14 +38,23 @@ export default async function AttendeesPage({ params }: PageProps<"/admin/events
           </div>
         ))}
       </dl>
-      <AttendeeList eventId={event.id} attendees={attendees} capacity={event.capacity} seatsTaken={c?.seatsTaken ?? 0} />
+      <AttendeeList
+        eventId={event.id}
+        attendees={attendees}
+        capacity={event.capacity}
+        seatsTaken={c?.seatsTaken ?? 0}
+        ended={isPast(event.starts_at, event.ends_at)}
+        status={event.status}
+      />
       <Card className="mt-8">
         <CardTitle>Invite people</CardTitle>
         <p className="mb-4 mt-1 text-sm text-muted">Send members an in-app invitation. To share anywhere, use Copy event link at the top.</p>
         <InvitePeople eventId={event.id} published={event.status === "published"} />
       </Card>
       <p className="mt-6 text-sm text-muted">Allergy and dietary details are on the Dietary tab (names are visible to kitchen staff and admins only).</p>
-      <p className="mt-2 text-sm text-muted">If you check in at least half the people going, only checked-in people count in the stats.</p>
+      <p className="mt-2 text-sm text-muted">
+        For attendance numbers, everyone going counts as having come. If you check in at least half of them, only the people you checked in count.
+      </p>
     </div>
   );
 }

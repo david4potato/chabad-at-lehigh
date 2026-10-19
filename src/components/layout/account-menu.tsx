@@ -89,7 +89,7 @@ export function AccountMenu({ displayName, email, staff }: Props) {
           </Link>
           {staff ? (
             <Link href="/admin" className={item}>
-              <LayoutDashboard className="size-4 text-muted" aria-hidden="true" /> Organizer dashboard
+              <LayoutDashboard className="size-4 text-muted" aria-hidden="true" /> Dashboard
             </Link>
           ) : null}
           <div className="my-1 border-t border-stone-100" />
