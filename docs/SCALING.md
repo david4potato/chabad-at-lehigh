@@ -12,14 +12,15 @@ more is built for other communities until real use calls for it.
 - **Indexes** on the lookups pages run most (events by date, RSVPs by event and by person, notifications by
   person, volunteer shifts by event and by time).
 - **Times** are stored in UTC (`timestamptz`) and shown in the community's time zone (`SITE.timeZone` in
-  `src/config/site.ts`).
+  `src/config/site.ts`). Two notification functions in SQL repeat the zone ([REPLICATE.md](REPLICATE.md#time-zone)).
 - **Mostly bounded lists.** Most list queries have a row cap (500 at most). A few still load every matching
-  row: My Events, an event's attendees, the allergen and ingredient lookups on the Dishes pages, dishes in the
-  menu editor, and pending roles in People & roles. The database API returns at most 1,000 rows per query, so
-  past that these lists are cut short without an error.
+  row: My Events, an event's attendees and its dietary report, the allergen and ingredient lookups and the dish
+  vote counts on the Dishes pages and event menus, dishes in the menu editor, and pending roles in People &
+  roles. The database API returns at most 1,000 rows per query (Supabase's default), so past that these lists
+  are cut short without an error.
 - **Nothing slow inside a request.** Notifications are written inside the database, by the same functions and
-  triggers that change RSVPs, events, menus and shifts. The app sends no email itself: Supabase sends sign-in
-  emails, and "Email everyone going" opens the organizer's own email app.
+  triggers that change RSVPs, events, menus and shifts, and by the one that sends invitations. The app sends no
+  email itself: Supabase sends sign-in emails, and "Email everyone going" opens the organizer's own email app.
 - **Rate limits** in Postgres on RSVPs, votes, suggestions, volunteer sign-ups and invitations. Supabase limits
   sign-in emails.
 - **Hosting.** Vercel runs each page request on its own and adds capacity as traffic grows; images and scripts

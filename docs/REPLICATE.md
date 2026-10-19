@@ -32,7 +32,9 @@ To try changes on your own computer you need Node.js 20.9+ (22 recommended) and 
 
 ## Make your copy
 
-1. Once the owner agrees, fork this repository on GitHub. If you can't see it, ask the owner for access.
+1. Once the owner agrees, fork this repository on GitHub into an account or organization your community controls.
+   If the repository is private by then, ask the owner whether you can push the code to your own repository
+   instead: GitHub deletes forks of a private repository when access is removed.
 2. Clone your fork and run it locally with **[DEMO]** data:
 
    ```bash
@@ -57,7 +59,7 @@ details and the address are in **Dashboard → Settings**, and a few files still
 
 | Field | Where it shows | What to put |
 | --- | --- | --- |
-| `name` | Header, page titles, link previews, the app name on phones, the welcome page, calendar feeds | Your community's full name. Put the same name in Settings (see below). |
+| `name` | Header, home page, page titles, link previews, the app name on phones, the welcome page, the Announcements and Help out descriptions, calendar feeds | Your community's full name. Put the same name in Settings (see below). |
 | `shortName` | Under the icon when someone adds the site to a phone's home screen | A shorter form of the name |
 | `slug` | Calendar event ids and the calendar file name | Lowercase letters, numbers and dashes. Choose it once, before launch: calendar apps use it to tell events apart, so changing it later can show events twice. |
 | `description` | Search results and link previews | One or two sentences about what the site is for |
@@ -86,8 +88,9 @@ Two things to know:
 - **No student email domain?** `studentEmailDomains` needs at least one entry. The sign-in hint reads the first
   one, and an empty list fails `npm run typecheck`. Without a domain, nobody becomes a Student automatically. The
   approval mode "Guests and community members need approval" then confirms only staff and anyone an admin gives
-  Student in **People & roles**. Everyone else waits for approval. Its hint still says students are confirmed
-  automatically. Change that hint in `src/components/admin/event-form.tsx`, and the sign-in hint in
+  Student in **People & roles**. Everyone else waits for approval. Two texts still say students get in
+  automatically: that mode's hint in `src/components/admin/event-form.tsx` and the Student role description in
+  `src/lib/roles.ts` (shown in People & roles). Change them, and the sign-in hint in
   `src/app/sign-in/sign-in-form.tsx`, before launch.
 
 ## Everything else to change
@@ -108,8 +111,9 @@ sign-in. That is simpler than editing the migrations, and it keeps later updates
 
 All of these are **must**:
 
-- Until an admin saves Settings, Find Us, the footer and the allergy contact next to every menu show the original
-  community's details. Replace every field before you share the site's address.
+- Until an admin replaces them in Settings, Find Us, the footer, the allergy contact next to every menu, the
+  contact card on events that have no contact of their own, and the contact email on Privacy and Profile show
+  the original community's details. Replace every field before you share the site's address.
 - Add a phone number. It is shown as the allergy contact.
 - Save the student domains before anyone else signs in. People get Student or Community guest at their first
   sign-in, and changing the domains later doesn't change existing accounts.
@@ -120,7 +124,7 @@ Saving Settings ticks "Check the contact details and parking" in the **Getting s
 
 | What | File | Action | How |
 | --- | --- | --- | --- |
-| Link-preview image | `public/og-image.png`, made by `scripts/render-og-image.mjs` | Must | The name and tagline are typed into the script, not read from `site.ts`. Edit them, run `npx playwright install chromium` once, then `node scripts/render-og-image.mjs`. |
+| Link-preview image | `public/og-image.png`, made by `scripts/render-og-image.mjs` | Must | The name and the line under it are typed into the script, not read from `site.ts`; the line matches the fixed text in `OG_IMAGE.alt`. Edit them, run `npx playwright install chromium` once, then `node scripts/render-og-image.mjs`. |
 | Sign-in email headings | `supabase/templates/magic_link.html`, `supabase/templates/confirmation.html` | Must | The first line names the original community. Edit it, then paste each file into Supabase (SETUP step 7). Your hosted project doesn't read these files. |
 | Code owner | `.github/CODEOWNERS` | Must | It names the original owner. Put your GitHub username there. |
 | Time zone in notifications | Two database functions | Must, if your zone isn't `America/New_York` | See [Time zone](#time-zone). |
@@ -132,7 +136,7 @@ Saving Settings ticks "Check the contact details and parking" in the **Getting s
 | Local Supabase settings | `supabase/config.toml` | Should | `project_id` (change it if two copies run on one computer) and the two email subjects. Local only. |
 | First-admin script | `supabase/scripts/bootstrap_admin.sql` | Optional | The placeholder email has a campus domain. You replace it with your own email anyway. |
 | Colors | `src/app/globals.css`, `#fffaf2` in `src/app/manifest.ts` and `src/app/layout.tsx`, inline colors in the email templates and `scripts/render-og-image.mjs` | Optional | The comment in `globals.css` says every text color meets WCAG AA. Check contrast again if you change them. |
-| Icons | `public/icon-192.png`, `public/icon-512.png`, `src/app/icon.svg`, `src/app/apple-icon.png`, `src/app/favicon.ico`, `docs/one-pager/icon.png` | Optional | A flame on blue, no text. Only `icon.svg` can be edited as text; the others need an image editor. The preview image uses `icon-512.png`. |
+| Icons | `public/icon-192.png`, `public/icon-512.png`, `src/app/icon.svg`, `src/app/apple-icon.png`, `src/app/favicon.ico`, `docs/one-pager/icon.png` | Optional | A flame on blue, no text. Only `icon.svg` can be edited as text; the others need an image editor. The preview image uses `icon-512.png`. The header logo is the `Flame` icon in `src/components/layout/logo.tsx`. |
 | Names | `package.json`, `package-lock.json`, `.env.example`, `scripts/bundle-sql.mjs` | Optional | The package name, comments and the header line of the SQL bundle. |
 
 Leave `vercel.json` (a daily keep-alive that works in any zone), `.github/workflows/ci.yml`, `.claude/`,
@@ -177,8 +181,9 @@ CI runs the unit, database and end-to-end tests. They are written so that editin
 
 - **Unit tests** check the time and calendar logic against the original slug and time zone. `src/test-setup.ts`
   pins those two values for every unit test, so they pass whatever `site.ts` says. Leave that file as it is.
-- **End-to-end tests** read the name, labels and time zone from `site.ts`, and the student domain from the local
-  database.
+  `src/config/site.test.ts` checks your real values instead: a valid time zone, a well-formed slug and domains.
+- **End-to-end tests** read the name, the student label and the time zone from `site.ts`, and the student domain
+  from the local database.
 - **Database tests** (all of `supabase/tests/*.sql`) sign up at the original campus domain to get Student
   accounts. They pass as long as the migrations keep that domain as the starting value, which they do when you
   change domains in Settings. If you edit the domain in the migration instead, change it in those files too.
@@ -208,12 +213,13 @@ for the original community, so some steps name it. Use your own values there:
 ## Rules that never change
 
 Your copy can change names, colors and wording. It can't weaken these. They come from
-[PHILOSOPHY.md](PHILOSOPHY.md) and the meal and allergy rules in `CLAUDE.md`.
+[PHILOSOPHY.md](PHILOSOPHY.md) and `CLAUDE.md` (its key decisions and its meal and allergy rules).
 
 - Never call food "safe", "allergen-free", "free of" an allergen or "guaranteed". Votes and ingredient lists are
   never evidence of safety.
 - **Contains**, **May contain** and **Related** stay separate.
-- Votes and suggestions are advice. Staff confirm how food is prepared before a menu is published.
+- Votes and suggestions are advice, and every screen with voting says so. Staff approve the final menu and
+  confirm how food is prepared before it is published.
 - Every menu shows the meal disclaimer and how to reach the organizer.
 - Dietary details are private. Only the person sees them, plus kitchen staff and admins through an audited report.
   Organizers see counts, not names.
@@ -252,8 +258,9 @@ Then, for each update:
 GitHub's **Sync fork** button does the same merge straight into `main`, before CI has checked it. A branch and a
 pull request are safer.
 
-After launch, your own database changes are new migration files too. Never edit a migration that has already
-run on your live database. Then run `npm run db:types` and `npm run db:bundle`.
+After launch, add your own database changes as new migration files too, and never edit a migration that has
+already run on your live database. After adding one, apply it locally (`npx supabase db reset`), then run
+`npm run db:types` and `npm run db:bundle`.
 
 ## One shared site for many communities
 

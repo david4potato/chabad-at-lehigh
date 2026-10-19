@@ -27,6 +27,6 @@ These rules shape every screen and every server action. When a feature conflicts
     or low-cost plans.
 11. **Organizers decide.** The app supports the people who run Chabad at Lehigh. Menus, approvals and capacity are
     their calls, not the software's.
-12. **Configurable, not hard-coded.** Bethlehem is where we start, not the limit. Names, contacts, addresses, student
-    email domains and the time zone live in one place, so another campus or community could adapt the app. Nothing
-    more is built for that until real use calls for it.
+12. **Configurable, not hard-coded.** Bethlehem is where we start, not the limit. Names, the campus and the time zone
+    live in `src/config/site.ts`, and contacts, addresses and student email domains in Dashboard → Settings, so another
+    campus or community could adapt the app. Nothing more is built for that until real use calls for it.
