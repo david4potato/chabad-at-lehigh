@@ -95,3 +95,5 @@ hosted Supabase, Vercel, email sender and domain are verified by the checklist a
 - `cacheComponents` is off (pages are personalized by the sign-in cookie). A future Next.js major may
   require Cache Components; see `node_modules/next/dist/docs/01-app/02-guides/migrating-to-cache-components.md`.
 - Schema changes: add a file in `supabase/migrations/`, then `npm run db:types` and `npm run db:bundle`.
+- Passing the app to new volunteers or another community: [HANDOFF.md](HANDOFF.md). A copy for another community:
+  [docs/REPLICATE.md](docs/REPLICATE.md). What scales and what to change when: [docs/SCALING.md](docs/SCALING.md).
