@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { SITE } from "../src/config/site";
 import { firstShabbatSlug } from "./helpers";
 
 test.describe("public browsing (signed out)", () => {
@@ -42,6 +43,14 @@ test.describe("public browsing (signed out)", () => {
       const res = await request.get(new URL(image!).pathname);
       expect(res.status()).toBe(200);
       expect(res.headers()["content-type"]).toContain("image/png");
+    }
+  });
+
+  test("search engines are asked not to list the site before launch", async ({ page }) => {
+    test.skip(SITE.listInSearchEngines, "The site is launched and may be listed.");
+    for (const path of ["/", `/events/${await firstShabbatSlug()}`]) {
+      await page.goto(path);
+      await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
     }
   });
 

@@ -18,6 +18,11 @@ export const SITE = {
   footerBlurb: "A warm home away from home for Lehigh students and the community. Everyone is welcome.",
   /** Footer note so nobody mistakes the site for the university's own. */
   independenceNote: "An independent organization, not run by Lehigh University.",
+  /**
+   * Whether search engines may list the site. Keep it off until the organizers approve the launch, so the
+   * community's name doesn't show up in search results before then.
+   */
+  listInSearchEngines: false,
   /** Location name pre-filled on new events when an address is set in Settings. */
   houseName: "Chabad House",
   /** Named in the admin launch checklist as someone to give admin access to. */
