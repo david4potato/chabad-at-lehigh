@@ -66,28 +66,22 @@ const SETTING_LABELS: Record<string, string> = {
   student_email_domains: "Student email domains",
 };
 
-// Friendly names for the columns listed in "changed" (the trigger records names, never values).
+// Friendly names for the columns listed in "changed" (the trigger records names, never
+// values). Others read fine with underscores as spaces ("contact_name" -> "contact name").
 const FIELD_LABELS: Record<string, string> = {
-  title: "title",
   slug: "web address",
-  summary: "summary",
-  description: "description",
   category: "type",
   visibility: "who can see it",
   starts_at: "start time",
   ends_at: "end time",
   location_name: "place",
   location_address: "address",
-  capacity: "capacity",
   rsvp_enabled: "RSVPs on or off",
   rsvp_deadline: "RSVP deadline",
   approval_mode: "approval",
   max_guests_per_rsvp: "guests allowed",
   has_meal: "meal",
   menu_voting_open: "dish voting",
-  contact_name: "contact name",
-  contact_email: "contact email",
-  contact_phone: "contact phone",
   body: "message",
   audience: "who sees it",
   is_pinned: "pinned",
@@ -95,10 +89,7 @@ const FIELD_LABELS: Record<string, string> = {
   publish_at: "show from",
   expires_at: "hide after",
   event_id: "related event",
-  change_summary: "change summary",
-  kitchen_notes: "kitchen notes",
   prep_confirmed_at: "prep check",
-  value: "value",
 };
 
 // Bookkeeping columns that change alongside real edits; not worth showing.
@@ -195,21 +186,16 @@ export default async function AuditPage({ searchParams }: PageProps<"/admin/audi
       ? supabase.from("announcements").select("id, title").in("id", announcementIds)
       : none<{ id: string; title: string }>(),
     shiftIds.length ? supabase.from("volunteer_shifts").select("id, title").in("id", shiftIds) : none<{ id: string; title: string }>(),
+    // Menu entries don't store their event, so read its title with the menu.
     menuIds.length
-      ? supabase.from("menu_versions").select("id, version, event_id").in("id", menuIds)
-      : none<{ id: string; version: number; event_id: string }>(),
+      ? supabase.from("menu_versions").select("id, version, event:events(title)").in("id", menuIds)
+      : none<{ id: string; version: number; event: { title: string } | null }>(),
   ]);
   const titles = new Map((events ?? []).map((e) => [e.id, e.title]));
   const names = new Map((people ?? []).map((p) => [p.id, p.full_name || p.email]));
   const announcementTitles = new Map((announcements ?? []).map((a) => [a.id, a.title]));
   const shiftTitles = new Map((shifts ?? []).map((s) => [s.id, s.title]));
   const menuById = new Map((menus ?? []).map((m) => [m.id, m]));
-  // A menu's event can be one this page hasn't loaded yet (menu entries don't store it).
-  const menuEventIds = [...new Set((menus ?? []).map((m) => m.event_id).filter((id) => !titles.has(id)))];
-  if (menuEventIds.length) {
-    const { data: more } = await supabase.from("events").select("id, title").in("id", menuEventIds);
-    for (const e of more ?? []) titles.set(e.id, e.title);
-  }
 
   const eventName = (id: unknown) => {
     const title = typeof id === "string" ? titles.get(id) : undefined;
@@ -230,12 +216,10 @@ export default async function AuditPage({ searchParams }: PageProps<"/admin/audi
         return info.event_id ? eventName(info.event_id) : undefined;
       case "menu_versions": {
         const menu = id ? menuById.get(id) : undefined;
-        const eventId = menu?.event_id ?? info.event_id;
-        if (!menu && !eventId) return "Deleted menu";
-        const title = typeof eventId === "string" ? titles.get(eventId) : undefined;
-        return [title ? `Menu: ${title}` : "Menu", menu && info.version === undefined ? `version ${menu.version}` : null]
-          .filter(Boolean)
-          .join(", ");
+        const title = menu?.event?.title ?? titles.get(str(info.event_id) ?? "");
+        if (!title) return "Deleted menu";
+        // "Menu published" entries carry the version in their details already.
+        return menu && info.version === undefined ? `Menu: ${title} (version ${menu.version})` : `Menu: ${title}`;
       }
       case "user_roles":
         return withRole(personName(id));
