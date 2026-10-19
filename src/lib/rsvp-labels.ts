@@ -8,7 +8,8 @@ export const RSVP_STATUS_LABEL: Record<Enums["rsvp_status"], string> = {
   waitlist: "Waitlist",
   pending: "Needs approval",
   not_going: "Not going",
-  declined: "Declined",
+  // An organizer turned the request down; "Declined" alone reads like the guest said no.
+  declined: "Request declined",
 };
 
 export const GUEST_STATUS_LABEL: Record<Enums["guest_status"], string> = {

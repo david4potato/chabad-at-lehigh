@@ -94,7 +94,7 @@ const SECTIONS: Section[] = [
           <strong>Approve / Decline</strong> a pending RSVP first. If they&apos;re bringing guests, <strong>Approve guests / Decline guests</strong> shows
           up next. People get a notification.
         </li>
-        <li>Declined someone by mistake? Open the <strong>Declined</strong> filter and tap <strong>Undo decline</strong>.</li>
+        <li>Declined someone by mistake? Open the <strong>Request declined</strong> filter and tap <strong>Undo decline</strong>.</li>
         <li>
           Someone wants to bring more guests after theirs were approved? They set guests to 0, save, then add them all again. The guests need approval
           again.
@@ -107,7 +107,10 @@ const SECTIONS: Section[] = [
           Under the list, <strong>Email everyone going</strong> opens your email app with everyone in BCC. <strong>Download spreadsheet</strong> gives a
           CSV (no dietary data).
         </li>
-        <li>If you check in at least half the people going, only checked-in people count in the stats.</li>
+        <li>
+          For attendance numbers, everyone going counts as having come. If you check in at least half of them, only the people you checked in
+          count.
+        </li>
         <li>Allergy details are on the <strong>Dietary</strong> tab, not here.</li>
       </ul>
     ),

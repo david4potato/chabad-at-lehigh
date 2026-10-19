@@ -13,15 +13,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button, buttonClasses } from "@/components/ui/button";
 import { Input } from "@/components/ui/field";
 
-// "Declined" alone reads like the guest said no. This status is an organizer turning down a request.
-const STATUS_LABEL = { ...RSVP_STATUS_LABEL, declined: "Request declined" };
-
 const FILTERS = [
   { key: "going", label: "Going" },
   { key: "approval", label: "Needs approval" },
   { key: "waitlist", label: "Waitlist" },
-  { key: "not_going", label: STATUS_LABEL.not_going },
-  { key: "declined", label: STATUS_LABEL.declined },
+  { key: "not_going", label: RSVP_STATUS_LABEL.not_going },
+  { key: "declined", label: RSVP_STATUS_LABEL.declined },
 ] as const;
 type FilterKey = (typeof FILTERS)[number]["key"];
 
@@ -36,6 +33,7 @@ export function AttendeeList({
   capacity,
   seatsTaken,
   ended,
+  status,
 }: {
   eventId: string;
   attendees: Attendee[];
@@ -43,6 +41,7 @@ export function AttendeeList({
   seatsTaken: number;
   /** The event is over: the database refuses to cancel RSVPs from then on. */
   ended: boolean;
+  status: "draft" | "published" | "cancelled";
 }) {
   const approvals = attendees.filter((a) => matches(a, "approval")).length;
   const [filter, setFilter] = useState<FilterKey>(approvals > 0 ? "approval" : "going");
@@ -77,7 +76,8 @@ export function AttendeeList({
         setPendingIds((s) => new Set([...s].filter((id) => id !== a.id)));
         setResults((m) => ({ ...m, [a.id]: r }));
         const text = r.ok ? r.message : r.error;
-        if (text) setAnnouncement(`${a.name}: ${text}`);
+        // A no-break space makes a repeat of the same message still count as new text.
+        if (text) setAnnouncement((prev) => (prev === `${a.name}: ${text}` ? `${prev}\u00a0` : `${a.name}: ${text}`));
       });
     });
   };
@@ -132,9 +132,11 @@ export function AttendeeList({
         <p className="rounded-2xl border border-dashed border-stone-300 bg-white/60 p-6 text-center text-sm text-muted">
           {attendees.length > 0
             ? "No one here."
-            : ended
+            : ended || status === "cancelled"
               ? "No one RSVP'd to this event."
-              : "No RSVPs yet. Share the event link or invite people below."}
+              : status === "draft"
+                ? "No RSVPs yet. Publish the event so people can RSVP."
+                : "No RSVPs yet. Share the event link or invite people below."}
         </p>
       ) : (
         <ul className="space-y-2">
@@ -153,7 +155,7 @@ export function AttendeeList({
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="font-bold text-ink">{a.name}</p>
-                      <Badge tone={STATUS_TONE[a.status]}>{STATUS_LABEL[a.status]}</Badge>
+                      <Badge tone={STATUS_TONE[a.status]}>{RSVP_STATUS_LABEL[a.status]}</Badge>
                       <Badge>{MEMBER_LABEL[a.member]}</Badge>
                     </div>
                     <p className="truncate text-sm text-muted">{a.email}</p>

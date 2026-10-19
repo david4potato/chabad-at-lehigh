@@ -44,6 +44,7 @@ export default async function AttendeesPage({ params }: PageProps<"/admin/events
         capacity={event.capacity}
         seatsTaken={c?.seatsTaken ?? 0}
         ended={isPast(event.starts_at, event.ends_at)}
+        status={event.status}
       />
       <Card className="mt-8">
         <CardTitle>Invite people</CardTitle>

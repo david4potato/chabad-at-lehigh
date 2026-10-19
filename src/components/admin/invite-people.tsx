@@ -32,7 +32,7 @@ export function InvitePeople({ eventId, published }: { eventId: string; publishe
         <Field
           label="Email addresses"
           htmlFor="invite-emails"
-          hint="Separate with commas or new lines, or paste from an email's To line. People with an account get an in-app invitation. Others get no email from us. We'll list them so you can send the link yourself."
+          hint="Separate with commas or new lines, or paste from an email's To line. We don't send emails. People with an account get an in-app invitation. We'll list the others so you can send them the link."
         >
           <Textarea id="invite-emails" name="emails" rows={3} required placeholder={`sarah@${SITE.campus.studentEmailDomains[0]}, josh@gmail.com`} />
         </Field>
