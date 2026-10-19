@@ -36,6 +36,7 @@ more is built for other communities until real use calls for it.
 | Public pages slow down under heavy traffic | Cache the parts of public event pages that don't depend on who is signed in. Cache Components is off today (`next.config.ts`); read `node_modules/next/dist/docs/01-app/02-guides/migrating-to-cache-components.md` first |
 | Organizers want automatic email or text reminders | Send them from a scheduled job or queue, never inside a page request |
 | The database nears the Free plan's size limit, or people rely on it daily | Supabase Pro: daily backups and no pausing (see the cost table in [SETUP.md](../SETUP.md)) |
+| Organizers want roles of their own, or admins limited to one area | Today there are five fixed roles (student, community guest, organizer, kitchen staff, admin), checked in SQL and row level security. A new role or a scoped admin means a migration, new checks in the database functions and policies, and tests |
 | A second community wants the app | Decide between the two models below |
 
 ## A second community: two models
