@@ -55,7 +55,7 @@ export function SettingsForm({ org, domains }: { org: OrgSettings; domains: stri
         <Field
           label="Domains"
           htmlFor="student_email_domains"
-          hint="People who sign in with these addresses automatically get the Student role. Separate with commas."
+          hint="New accounts with these addresses get the Student role automatically. Existing accounts don't change; give them the role in People & roles. Separate with commas."
           errors={e?.student_email_domains}
         >
           <Input id="student_email_domains" name="student_email_domains" maxLength={500} defaultValue={domains.join(", ")} />

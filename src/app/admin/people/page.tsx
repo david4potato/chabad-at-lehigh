@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { ROLES, ROLE_DESCRIPTIONS, ROLE_LABELS, type Role } from "@/lib/roles";
@@ -26,8 +26,10 @@ export default async function PeoplePage({ searchParams }: PageProps<"/admin/peo
     .order("created_at", { ascending: false })
     .limit(50);
   if (q) {
-    // Only letters, numbers and email punctuation reach the filter string.
-    const safe = q.replace(/[^\p{L}\p{N}@.\-+' ]/gu, " ").trim();
+    // Only letters, numbers and email punctuation reach the filter string (no commas or
+    // parentheses, which PostgREST reads as syntax). "_" is an ilike wildcard for one
+    // character, so it still matches a literal underscore in an email.
+    const safe = q.replace(/[^\p{L}\p{N}@.\-+'_ ]/gu, " ").trim();
     query = query.or(`email.ilike.%${safe}%,full_name.ilike.%${safe}%,preferred_name.ilike.%${safe}%`);
   }
   const [{ data: people, count }, { data: pending }] = await Promise.all([
@@ -59,8 +61,11 @@ export default async function PeoplePage({ searchParams }: PageProps<"/admin/peo
         to people who truly need them.
       </Alert>
 
-      <details className="rounded-[var(--radius-card)] border border-stone-200 bg-white p-4 shadow-sm">
-        <summary className="cursor-pointer font-semibold text-ink">What each role can do</summary>
+      <details className="group rounded-[var(--radius-card)] border border-stone-200 bg-white px-4 py-1 shadow-sm">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1 font-semibold text-ink [&::-webkit-details-marker]:hidden">
+          What each role can do
+          <ChevronDown className="size-4 shrink-0 transition-transform group-open:rotate-180" aria-hidden="true" />
+        </summary>
         <dl className="mt-3 space-y-2 text-sm">
           {ROLES.map((r) => (
             <div key={r}>
@@ -69,15 +74,20 @@ export default async function PeoplePage({ searchParams }: PageProps<"/admin/peo
             </div>
           ))}
         </dl>
+        <p className="my-3 text-sm text-muted">
+          Every new account starts as {ROLE_LABELS.student} (school email) or {ROLE_LABELS.community_guest} (any other
+          email). Roles you give are added on top, so staff often show one of these too.
+        </p>
       </details>
 
       {(pending ?? []).length > 0 ? (
         <Card>
           <CardTitle>Waiting for first sign-in</CardTitle>
+          <p className="mt-1 text-sm text-muted">These roles start working the first time each person signs in.</p>
           <ul className="mt-3 space-y-2">
             {(pending ?? []).map((p) => (
               <li key={`${p.email}-${p.role}`} className="flex flex-wrap items-center gap-2 text-sm">
-                <span className="font-medium text-ink">{p.email}</span>
+                <span className="min-w-0 font-medium break-all text-ink">{p.email}</span>
                 <PendingGrantChip email={p.email} role={p.role as Role} label={ROLE_LABELS[p.role as Role]} />
               </li>
             ))}
@@ -116,7 +126,13 @@ export default async function PeoplePage({ searchParams }: PageProps<"/admin/peo
               )}
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {(p.roles ?? []).map(({ role }) => (
-                  <RoleChip key={role} userId={p.id} role={role as Role} label={ROLE_LABELS[role as Role]} />
+                  <RoleChip
+                    key={role}
+                    userId={p.id}
+                    name={p.full_name || p.preferred_name || p.email}
+                    role={role as Role}
+                    label={ROLE_LABELS[role as Role]}
+                  />
                 ))}
               </div>
             </li>

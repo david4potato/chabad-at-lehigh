@@ -3,6 +3,8 @@ import Link from "next/link";
 import { SITE } from "@/config/site";
 import { requireRole } from "@/lib/auth";
 import { getOrgSettings } from "@/lib/settings";
+import { createClient } from "@/lib/supabase/server";
+import { formatShortDateMaybeYear } from "@/lib/time";
 import { EventForm } from "@/components/admin/event-form";
 import { createEvent } from "../actions";
 
@@ -10,7 +12,20 @@ export const metadata: Metadata = { title: "New event" };
 
 export default async function NewEventPage() {
   await requireRole(["organizer", "admin"], "/admin/events/new");
-  const org = await getOrgSettings();
+  const supabase = await createClient();
+  const [org, { data: lastDinner }] = await Promise.all([
+    getOrgSettings(),
+    // The most recent Shabbat dinner that has started: the one to copy for next week.
+    supabase
+      .from("events")
+      .select("id, starts_at")
+      .eq("category", "shabbat_dinner")
+      .eq("status", "published")
+      .lte("starts_at", new Date().toISOString())
+      .order("starts_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
   // Same fallback as Find Us: map search text if set, else the last lines of the address.
   const addr =
     org.map_query.trim() ||
@@ -23,11 +38,27 @@ export default async function NewEventPage() {
       .join(", ");
   return (
     <div className="mx-auto max-w-3xl">
-      <Link href="/admin/events" className="text-sm font-semibold text-brand-700 hover:underline">
+      <Link href="/admin/events" className="inline-flex min-h-11 items-center text-sm font-semibold text-brand-700 hover:underline">
         ← All events
       </Link>
       <h1 className="mb-1 mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">New event</h1>
-      <p className="mb-6 text-muted">Start as a draft, then publish when it&apos;s ready. Tip: duplicate last week&apos;s Shabbat dinner instead.</p>
+      <p className="text-muted">Start as a draft, then publish when it&apos;s ready.</p>
+      {lastDinner ? (
+        <p className="mb-6 text-muted">
+          Planning a Shabbat dinner? Open{" "}
+          <Link
+            href={`/admin/events/${lastDinner.id}`}
+            className="inline-flex min-h-11 items-center font-semibold text-brand-700 hover:underline"
+          >
+            the last one ({formatShortDateMaybeYear(lastDinner.starts_at)})
+          </Link>{" "}
+          and press <strong>Duplicate for next week</strong> near the top.
+        </p>
+      ) : (
+        <p className="mb-6 text-muted">
+          After your first Shabbat dinner, you can copy it each week with <strong>Duplicate for next week</strong> on its page.
+        </p>
+      )}
       <EventForm
         action={createEvent}
         defaults={{ location_name: addr ? SITE.houseName : "", location_address: addr }}

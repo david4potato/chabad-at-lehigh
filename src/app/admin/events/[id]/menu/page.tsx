@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { ChevronDown } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { canManageEvents } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 import { getAdminEvent } from "@/lib/data/admin";
-import { groupByCourse, parseEventMenu } from "@/lib/menu";
+import { groupByCourse, optionalOnlyAllergens, parseEventMenu, type MenuItem } from "@/lib/menu";
 import { formatDateTime, formatLongDate } from "@/lib/time";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert } from "@/components/ui/alert";
+import { AllergenBadges } from "@/components/menu/allergen-badges";
+import { plural } from "@/components/events/event-utils";
 import { EventTabs } from "@/components/admin/event-tabs";
 import { AdminEventHeader } from "@/components/admin/event-header";
 import {
@@ -57,6 +61,9 @@ export default async function MenuAdminPage({ params, searchParams }: PageProps<
   const published = all.find((v) => v.status === "published") ?? null;
   const menu = parseEventMenu(menuRes.data);
   const draftItems = draft && menu?.version?.id === draft.id ? menu.items : [];
+  // The call above returns the draft while there is one, so the live menu then needs its own read.
+  const liveMenu = published && draft ? parseEventMenu((await supabase.rpc("get_event_menu", { p_event_id: event.id })).data) : menu;
+  const liveItems = published && liveMenu?.version?.id === published.id ? liveMenu.items : [];
   const kitchenNotes = menu?.version?.kitchen_notes ?? null;
   const updateList = updates ?? [];
   const voteMap = new Map((votes ?? []).map((v) => [v.dish_id, v.votes]));
@@ -72,7 +79,20 @@ export default async function MenuAdminPage({ params, searchParams }: PageProps<
       </div>
       {notice ? <Alert tone="success">{notice}</Alert> : null}
       {!event.has_meal ? (
-        <Alert tone="info">This event isn&apos;t marked as having a meal, so the menu won&apos;t show on the event page. Turn on &ldquo;This event has a meal&rdquo; in Details.</Alert>
+        <Alert tone="info">
+          This event isn&apos;t marked as having a meal, so the menu won&apos;t show on the event page.{" "}
+          {canManageEvents(viewer.roles) ? (
+            <>
+              Turn on &ldquo;This event has a meal&rdquo; in{" "}
+              <Link href={`/admin/events/${event.id}`} className="font-semibold underline">
+                Details
+              </Link>
+              .
+            </>
+          ) : (
+            <>Ask an organizer to turn on &ldquo;This event has a meal&rdquo;.</>
+          )}
+        </Alert>
       ) : null}
 
       <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr] lg:items-start">
@@ -80,9 +100,12 @@ export default async function MenuAdminPage({ params, searchParams }: PageProps<
           <Card>
             <CardTitle>{draft ? `Draft — version ${draft.version}` : "Menu"}</CardTitle>
             {published ? (
-              <p className="mt-1 text-sm text-muted">
-                Live now: version {published.version}, published {formatLongDate(published.published_at!)}.
-              </p>
+              <>
+                <p className="mt-1 text-sm text-muted">
+                  Live now: version {published.version}, published {formatLongDate(published.published_at!)}.
+                </p>
+                {liveItems.length ? <LiveMenu items={liveItems} open={!draft} /> : null}
+              </>
             ) : (
               <p className="mt-1 text-sm text-muted">Nothing is published yet. People see &ldquo;Menu coming soon&rdquo;.</p>
             )}
@@ -189,5 +212,45 @@ export default async function MenuAdminPage({ params, searchParams }: PageProps<
         </div>
       </div>
     </div>
+  );
+}
+
+/** The published menu, read-only: what people see on the event page now. Folded while a draft is open. */
+function LiveMenu({ items, open }: { items: MenuItem[]; open: boolean }) {
+  return (
+    <details open={open} className="group mt-3 rounded-xl bg-stone-50 px-3 text-sm">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1 font-semibold text-brand-700 [&::-webkit-details-marker]:hidden">
+        Live menu ({plural(items.length, "dish", "dishes")})
+        <ChevronDown className="size-4 transition-transform group-open:rotate-180" aria-hidden="true" />
+      </summary>
+      <div className="space-y-3 pb-3">
+        {groupByCourse(items).map((g) => (
+          <div key={g.course}>
+            <p className="mb-1 text-xs font-bold uppercase tracking-wide text-muted">{g.label}</p>
+            <ul className="divide-y divide-stone-100 rounded-xl border border-stone-200 bg-white">
+              {g.items.map((item) => (
+                <li key={item.id} className="space-y-1.5 px-3 py-2.5">
+                  <p className="font-semibold text-ink">{item.dish.name}</p>
+                  {item.dish.allergens.length ? (
+                    <AllergenBadges codes={item.dish.allergens} optionalOnly={optionalOnlyAllergens(item.dish)} />
+                  ) : item.dish.ingredients.length === 0 ? (
+                    <p className="text-xs font-medium text-amber-900">No ingredients listed.</p>
+                  ) : (
+                    <p className="text-xs text-muted">No allergens listed in its ingredients.</p>
+                  )}
+                  {item.cross_contact_allergens.length ? <AllergenBadges codes={item.cross_contact_allergens} kind="may_contain" /> : null}
+                  {item.cross_contact_notes ? (
+                    <p className="text-xs text-ink">
+                      <span className="font-semibold">Cross-contact: </span>
+                      {item.cross_contact_notes}
+                    </p>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </details>
   );
 }

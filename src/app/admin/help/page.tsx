@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { SITE } from "@/config/site";
 import { requireRole } from "@/lib/auth";
-import { isAdmin } from "@/lib/roles";
+import { canManageEvents, isAdmin } from "@/lib/roles";
 import { PageHeader } from "@/components/ui/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Alert } from "@/components/ui/alert";
@@ -289,14 +289,17 @@ const SECTIONS: Section[] = [
 
 export default async function HelpPage() {
   const viewer = await requireRole(["organizer", "kitchen_staff", "admin"], "/admin/help");
-  // Admin-only pages would just send others back to the dashboard.
-  const sections = isAdmin(viewer.roles) ? SECTIONS : SECTIONS.filter((s) => s.who !== "Admins");
+  // Pages a role can't open would just send them back to the dashboard, so organizer and
+  // admin guides only show to those roles. Shared guides show to all staff.
+  const organizer = canManageEvents(viewer.roles);
+  const admin = isAdmin(viewer.roles);
+  const sections = SECTIONS.filter((s) => (s.who === "Admins" ? admin : s.who === "Organizers" ? organizer : true));
   return (
     <div className="mx-auto max-w-3xl">
       <OpenHashDetails />
       <PageHeader title="How to use the dashboard" description="Short, practical guides. Tap a topic to open it." />
       <Alert tone="info" className="mb-6">
-        New here? Start with <strong>Your weekly Shabbat dinner routine</strong>. Anything you can&apos;t see in the menu above needs a role from an admin.
+        New here? Start with <strong>{sections[0].title.split(" — ")[0]}</strong>. Anything you can&apos;t see in the menu above needs a role from an admin.
       </Alert>
       <nav aria-label="Help topics" className="mb-6 flex flex-wrap gap-2">
         {sections.map((s) => (

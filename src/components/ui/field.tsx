@@ -24,7 +24,8 @@ export function Select({ className, ...props }: ComponentProps<"select">) {
 
 export function Checkbox({ className, label, hint, ...props }: ComponentProps<"input"> & { label: ReactNode; hint?: ReactNode }) {
   return (
-    <label className="flex cursor-pointer items-start gap-3 rounded-xl p-1">
+    // min-h-11 keeps the whole row a 44px tap target; items-start keeps long labels aligned with the box.
+    <label className="flex min-h-11 cursor-pointer items-start gap-3 rounded-xl px-1 py-2.5">
       <input
         type="checkbox"
         className={cn("mt-0.5 size-5 shrink-0 rounded border-stone-400 accent-brand-700", className)}

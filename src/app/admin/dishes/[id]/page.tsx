@@ -15,8 +15,10 @@ export default async function DishPage({ params, searchParams }: PageProps<"/adm
   const [{ id }, query] = await Promise.all([params, searchParams]);
   await requireRole(["organizer", "kitchen_staff", "admin"], `/admin/dishes/${id}`);
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
+  // Opened from an event's menu (?event=): only used to link back to that menu.
+  const eventId = typeof query.event === "string" && /^[0-9a-f-]{36}$/i.test(query.event) ? query.event : null;
   const supabase = await createClient();
-  const [{ data: dish }, { data: items }, { data: ingredients }] = await Promise.all([
+  const [{ data: dish }, { data: items }, { data: ingredients }, { data: fromEvent }] = await Promise.all([
     supabase.from("dishes").select("id, name, description, category, kosher_type, diet_tags, status").eq("id", id).maybeSingle(),
     supabase
       .from("dish_ingredients")
@@ -24,6 +26,7 @@ export default async function DishPage({ params, searchParams }: PageProps<"/adm
       .eq("dish_id", id)
       .order("sort_order"),
     supabase.from("ingredients").select("id, name").order("name"),
+    eventId ? supabase.from("events").select("id, title").eq("id", eventId).maybeSingle() : Promise.resolve({ data: null }),
   ]);
   if (!dish) notFound();
 
@@ -35,10 +38,16 @@ export default async function DishPage({ params, searchParams }: PageProps<"/adm
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <Link href="/admin/dishes" className="text-sm font-semibold text-brand-700 hover:underline">
-          ← All dishes
-        </Link>
-        <h1 className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">{dish.name}</h1>
+        {fromEvent ? (
+          <Link href={`/admin/events/${fromEvent.id}/menu`} className="inline-flex min-h-11 items-center text-sm font-semibold text-brand-700 hover:underline">
+            ← Back to the {fromEvent.title} menu
+          </Link>
+        ) : (
+          <Link href="/admin/dishes" className="inline-flex min-h-11 items-center text-sm font-semibold text-brand-700 hover:underline">
+            ← All dishes
+          </Link>
+        )}
+        <h1 className="mt-1 text-2xl font-extrabold tracking-tight sm:text-3xl">{dish.name}</h1>
       </div>
       {query.created ? <Alert tone="success">Dish created. Now add its ingredients below.</Alert> : null}
       <Alert tone="info">

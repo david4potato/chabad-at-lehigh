@@ -8,17 +8,20 @@ import type { Attendee } from "@/lib/data/attendees";
 import { GUEST_STATUS_LABEL, MEMBER_LABEL, RSVP_STATUS_LABEL } from "@/lib/rsvp-labels";
 import { formatDateTime } from "@/lib/time";
 import { cn } from "@/lib/cn";
+import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonClasses } from "@/components/ui/button";
 import { Input } from "@/components/ui/field";
-import { FormMessage } from "@/components/ui/form-message";
+
+// "Declined" alone reads like the guest said no. This status is an organizer turning down a request.
+const STATUS_LABEL = { ...RSVP_STATUS_LABEL, declined: "Request declined" };
 
 const FILTERS = [
   { key: "going", label: "Going" },
   { key: "approval", label: "Needs approval" },
   { key: "waitlist", label: "Waitlist" },
-  { key: "not_going", label: "Not going" },
-  { key: "declined", label: "Declined" },
+  { key: "not_going", label: STATUS_LABEL.not_going },
+  { key: "declined", label: STATUS_LABEL.declined },
 ] as const;
 type FilterKey = (typeof FILTERS)[number]["key"];
 
@@ -32,18 +35,23 @@ export function AttendeeList({
   attendees,
   capacity,
   seatsTaken,
+  ended,
 }: {
   eventId: string;
   attendees: Attendee[];
   capacity: number | null;
   seatsTaken: number;
+  /** The event is over: the database refuses to cancel RSVPs from then on. */
+  ended: boolean;
 }) {
   const approvals = attendees.filter((a) => matches(a, "approval")).length;
   const [filter, setFilter] = useState<FilterKey>(approvals > 0 ? "approval" : "going");
   const [query, setQuery] = useState("");
-  const [result, setResult] = useState<ActionResult | null>(null);
+  // Each row shows its own result, so it's next to the buttons on a phone.
+  const [results, setResults] = useState<Record<string, ActionResult>>({});
+  const [announcement, setAnnouncement] = useState("");
   const [copied, setCopied] = useState(false);
-  const [pendingId, setPendingId] = useState<string | null>(null);
+  const [pendingIds, setPendingIds] = useState<ReadonlySet<string>>(new Set());
   const [, start] = useTransition();
 
   const goingEmails = attendees.filter((a) => a.status === "going" && a.email).map((a) => a.email);
@@ -53,16 +61,26 @@ export function AttendeeList({
   const mailDisabled = goingEmails.length === 0 || tooManyForMailto;
   const fits = (seats: number) => capacity === null || seatsTaken + seats <= capacity;
   const q = query.trim().toLowerCase();
+  // A row you acted on stays (with its result) until you change the filter, so an approved
+  // person doesn't vanish from Needs approval before you see what happened.
   const visible = attendees.filter(
-    (a) => matches(a, filter) && (!q || a.name.toLowerCase().includes(q) || a.email.toLowerCase().includes(q)),
+    (a) => (matches(a, filter) || a.id in results) && (!q || a.name.toLowerCase().includes(q) || a.email.toLowerCase().includes(q)),
   );
 
-  const run = (id: string, fn: () => Promise<ActionResult>) =>
+  const run = (a: Attendee, fn: () => Promise<ActionResult>) => {
+    // Set outside the transition: state set inside an async transition only shows once it ends.
+    setPendingIds((s) => new Set(s).add(a.id));
     start(async () => {
-      setPendingId(id);
-      setResult(await fn());
-      setPendingId(null);
+      const r = await fn();
+      // Updates after an await need their own transition to land together with the refreshed list.
+      start(() => {
+        setPendingIds((s) => new Set([...s].filter((id) => id !== a.id)));
+        setResults((m) => ({ ...m, [a.id]: r }));
+        const text = r.ok ? r.message : r.error;
+        if (text) setAnnouncement(`${a.name}: ${text}`);
+      });
     });
+  };
 
   return (
     <div className="space-y-4">
@@ -76,7 +94,10 @@ export function AttendeeList({
                 type="button"
                 role="tab"
                 aria-selected={filter === f.key}
-                onClick={() => setFilter(f.key)}
+                onClick={() => {
+                  setFilter(f.key);
+                  setResults({});
+                }}
                 className={cn(
                   "inline-flex h-11 items-center gap-1.5 rounded-full border px-4 text-sm font-semibold",
                   filter === f.key ? "border-brand-700 bg-brand-700 text-white" : "border-stone-300 bg-white text-ink",
@@ -102,14 +123,25 @@ export function AttendeeList({
         />
       </div>
 
-      <FormMessage state={result} />
+      {/* Always in the page so screen readers hear each row's result. */}
+      <p className="sr-only" role="status">
+        {announcement}
+      </p>
 
       {visible.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-stone-300 bg-white/60 p-6 text-center text-sm text-muted">No one here.</p>
+        <p className="rounded-2xl border border-dashed border-stone-300 bg-white/60 p-6 text-center text-sm text-muted">
+          {attendees.length > 0
+            ? "No one here."
+            : ended
+              ? "No one RSVP'd to this event."
+              : "No RSVPs yet. Share the event link or invite people below."}
+        </p>
       ) : (
         <ul className="space-y-2">
           {visible.map((a) => {
-            const busy = pendingId === a.id;
+            const busy = pendingIds.has(a.id);
+            const r: ActionResult | undefined = results[a.id];
+            const rowMessage = r ? (r.ok ? r.message : r.error) : undefined;
             const guestsPending = a.guest_count > 0 && a.guest_status === "pending";
             // Seats this person needs if confirmed now (approved guests count too).
             const needed = 1 + (a.guest_status === "approved" ? a.guest_count : 0);
@@ -121,7 +153,7 @@ export function AttendeeList({
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="font-bold text-ink">{a.name}</p>
-                      <Badge tone={STATUS_TONE[a.status]}>{RSVP_STATUS_LABEL[a.status]}</Badge>
+                      <Badge tone={STATUS_TONE[a.status]}>{STATUS_LABEL[a.status]}</Badge>
                       <Badge>{MEMBER_LABEL[a.member]}</Badge>
                     </div>
                     <p className="truncate text-sm text-muted">{a.email}</p>
@@ -141,14 +173,14 @@ export function AttendeeList({
                   <div className="flex flex-wrap gap-2 md:justify-end">
                     {a.status === "pending" ? (
                       <>
-                        <Button disabled={busy} onClick={() => run(a.id, () => decideRsvp(eventId, a.id, "approve"))}>
+                        <Button disabled={busy} onClick={() => run(a, () => decideRsvp(eventId, a.id, "approve"))}>
                           Approve
                         </Button>
                         <Button
                           variant="secondary"
                           disabled={busy}
                           onClick={() => {
-                            if (confirm(`Decline ${a.name}'s RSVP? They'll be notified.`)) run(a.id, () => decideRsvp(eventId, a.id, "decline"));
+                            if (confirm(`Decline ${a.name}'s RSVP? They'll be notified.`)) run(a, () => decideRsvp(eventId, a.id, "decline"));
                           }}
                         >
                           Decline
@@ -156,7 +188,7 @@ export function AttendeeList({
                       </>
                     ) : null}
                     {a.status === "waitlist" && fits(needed) ? (
-                      <Button variant="secondary" disabled={busy} onClick={() => run(a.id, () => decideRsvp(eventId, a.id, "approve"))}>
+                      <Button variant="secondary" disabled={busy} onClick={() => run(a, () => decideRsvp(eventId, a.id, "approve"))}>
                         Confirm
                       </Button>
                     ) : null}
@@ -166,7 +198,7 @@ export function AttendeeList({
                         className="h-auto min-h-11 whitespace-normal py-2 text-left"
                         disabled={busy}
                         onClick={() => {
-                          if (confirm(`Confirm ${a.name} even though the event is full?`)) run(a.id, () => decideRsvp(eventId, a.id, "approve", true));
+                          if (confirm(`Confirm ${a.name} even though the event is full?`)) run(a, () => decideRsvp(eventId, a.id, "approve", true));
                         }}
                       >
                         Confirm anyway (over capacity)
@@ -175,7 +207,7 @@ export function AttendeeList({
                     {guestsPending && a.status !== "pending" && a.status !== "not_going" && a.status !== "declined" ? (
                       <>
                         {guestsFit ? (
-                          <Button variant="secondary" disabled={busy} onClick={() => run(a.id, () => decideGuests(eventId, a.id, "approve"))}>
+                          <Button variant="secondary" disabled={busy} onClick={() => run(a, () => decideGuests(eventId, a.id, "approve"))}>
                             Approve guests
                           </Button>
                         ) : (
@@ -185,7 +217,7 @@ export function AttendeeList({
                             disabled={busy}
                             onClick={() => {
                               if (confirm(`Approve ${a.name}'s guests even though there aren't enough seats?`))
-                                run(a.id, () => decideGuests(eventId, a.id, "approve", true));
+                                run(a, () => decideGuests(eventId, a.id, "approve", true));
                             }}
                           >
                             Approve guests anyway (over capacity)
@@ -195,7 +227,7 @@ export function AttendeeList({
                           variant="ghost"
                           disabled={busy}
                           onClick={() => {
-                            if (confirm(`Decline ${a.name}'s guests? They'll be notified.`)) run(a.id, () => decideGuests(eventId, a.id, "decline"));
+                            if (confirm(`Decline ${a.name}'s guests? They'll be notified.`)) run(a, () => decideGuests(eventId, a.id, "decline"));
                           }}
                         >
                           Decline guests
@@ -207,18 +239,18 @@ export function AttendeeList({
                         variant="secondary"
                         disabled={busy}
                         onClick={() => {
-                          if (confirm(`Undo the decline for ${a.name}? They'll be notified.`)) run(a.id, () => decideRsvp(eventId, a.id, "approve"));
+                          if (confirm(`Undo the decline for ${a.name}? They'll be notified.`)) run(a, () => decideRsvp(eventId, a.id, "approve"));
                         }}
                       >
                         Undo decline
                       </Button>
                     ) : null}
-                    {(a.status === "going" || a.status === "waitlist" || a.status === "pending") && !a.checked_in_at ? (
+                    {!ended && (a.status === "going" || a.status === "waitlist" || a.status === "pending") && !a.checked_in_at ? (
                       <Button
                         variant="ghost"
                         disabled={busy}
                         onClick={() => {
-                          if (confirm(`Cancel ${a.name}'s RSVP? They'll be marked as not going and notified.`)) run(a.id, () => cancelRsvp(eventId, a.id));
+                          if (confirm(`Cancel ${a.name}'s RSVP? They'll be marked as not going and notified.`)) run(a, () => cancelRsvp(eventId, a.id));
                         }}
                       >
                         Cancel RSVP
@@ -230,10 +262,12 @@ export function AttendeeList({
                         variant={a.checked_in_at ? "secondary" : "primary"}
                         disabled={busy}
                         aria-pressed={Boolean(a.checked_in_at)}
-                        onClick={() => run(a.id, () => setCheckIn(eventId, a.id, !a.checked_in_at))}
+                        onClick={() => run(a, () => setCheckIn(eventId, a.id, !a.checked_in_at))}
                         className="w-full min-w-36 md:w-auto"
                       >
-                        {a.checked_in_at ? (
+                        {busy ? (
+                          "Saving…"
+                        ) : a.checked_in_at ? (
                           <>
                             <Check className="size-4" aria-hidden="true" /> Checked in
                           </>
@@ -244,6 +278,12 @@ export function AttendeeList({
                     ) : null}
                   </div>
                 </div>
+                {rowMessage ? (
+                  // Not a live region itself: the status line above the list announces it once.
+                  <Alert tone={r?.ok ? "success" : "danger"} role="none" className="mt-3">
+                    {rowMessage}
+                  </Alert>
+                ) : null}
               </li>
             );
           })}
