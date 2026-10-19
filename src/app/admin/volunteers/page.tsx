@@ -68,6 +68,11 @@ export default async function AdminVolunteersPage({ searchParams }: PageProps<"/
           </ButtonLink>
         }
       />
+      {typeof params.added === "string" && /^\d+$/.test(params.added) ? (
+        <Alert tone="success" className="mb-4">
+          Added {params.added} weekly shifts. Open one to change it on its own.
+        </Alert>
+      ) : null}
       {params.deleted ? (
         <Alert tone="success" className="mb-4">
           {params.deleted === "notified" ? "Shift deleted. People signed up get a notification." : "Shift deleted."}

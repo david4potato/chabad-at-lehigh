@@ -125,4 +125,31 @@ test.describe("help out", () => {
       await db(`delete from public.volunteer_shifts where title = $1`, [title]);
     }
   });
+  test("an organizer sets up a weekly cooking shift for three weeks", async ({ page }) => {
+    const title = `E2E weekly cooking ${Date.now()}`;
+    try {
+      await signInAs(page, "organizer", { next: "/admin/volunteers/new" });
+      await page.getByLabel("What's the job?").fill(title);
+      await page.getByLabel("Starts").fill(siteLocal(2, "16:00"));
+      await page.getByLabel("Ends").fill(siteLocal(2, "18:00"));
+      await page.getByRole("combobox", { name: "Repeat" }).selectOption("2");
+      await page.getByRole("button", { name: "Create shift" }).click();
+
+      await expect(page).toHaveURL(/\/admin\/volunteers\?added=3/);
+      await expect(page.getByText("Added 3 weekly shifts.", { exact: false })).toBeVisible();
+      const shifts = await db<{ starts_at: Date; ends_at: Date }>(
+        `select starts_at, ends_at from public.volunteer_shifts where title = $1 order by starts_at`,
+        [title],
+      );
+      expect(shifts).toHaveLength(3);
+      for (const [i, s] of shifts.entries()) {
+        // A week apart (an hour either way across a daylight-saving change), each two hours long.
+        const days = (new Date(s.starts_at).getTime() - new Date(shifts[0].starts_at).getTime()) / 86_400_000;
+        expect(Math.abs(days - 7 * i)).toBeLessThan(0.1);
+        expect(new Date(s.ends_at).getTime() - new Date(s.starts_at).getTime()).toBe(2 * 60 * 60 * 1000);
+      }
+    } finally {
+      await db(`delete from public.volunteer_shifts where title = $1`, [title]);
+    }
+  });
 });

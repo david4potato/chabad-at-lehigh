@@ -11,6 +11,7 @@ import { EventTabs } from "@/components/admin/event-tabs";
 import { AdminEventHeader } from "@/components/admin/event-header";
 import { EventForm } from "@/components/admin/event-form";
 import { DuplicateEventButton } from "@/components/admin/duplicate-event-button";
+import { RepeatEventForm } from "@/components/admin/repeat-event-form";
 import { PublishDraftButton } from "@/components/admin/publish-draft-button";
 import { EventShiftsAdmin } from "@/components/volunteer/event-shifts-admin";
 import { deleteEvent, updateEvent } from "../actions";
@@ -63,6 +64,7 @@ export default async function EditEventPage({ params, searchParams }: PageProps<
       ) : (
         <div className="mb-4">
           <DuplicateEventButton id={event.id} variant="secondary" />
+          {event.status !== "cancelled" ? <RepeatEventForm eventId={event.id} /> : null}
         </div>
       )}
       <EventShiftsAdmin eventId={event.id} shifts={shifts} />
