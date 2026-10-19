@@ -10,9 +10,7 @@ export async function SiteFooter() {
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-[1.4fr_1fr]">
         <div className="space-y-3">
           <p className="text-lg font-extrabold text-ink">{org.name || SITE.name}</p>
-          <p className="max-w-md text-sm text-muted">
-            A warm home away from home for Lehigh students and the community. Everyone is welcome.
-          </p>
+          <p className="max-w-md text-sm text-muted">{SITE.footerBlurb}</p>
           <div className="flex flex-col gap-2 text-sm">
             {org.address ? (
               <address className="not-italic">
@@ -48,9 +46,8 @@ export async function SiteFooter() {
       </div>
       <div className="border-t border-stone-100">
         <p className="mx-auto max-w-6xl px-4 py-4 text-xs text-muted sm:px-6">
-          © {new Date().getFullYear()} {org.name || SITE.name}. An independent organization, not run by Lehigh
-          University. Menus and allergen details are provided by our organizers — please contact them directly about
-          serious allergies.
+          © {new Date().getFullYear()} {org.name || SITE.name}. {SITE.independenceNote} Menus and allergen details are
+          provided by our organizers — please contact them directly about serious allergies.
         </p>
       </div>
     </footer>

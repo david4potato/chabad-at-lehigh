@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { z } from "zod";
+import { SITE } from "@/config/site";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { ROLES, ROLE_LABELS, type Role } from "@/lib/roles";
@@ -15,7 +16,7 @@ import { PersonHistoryView, parsePersonHistory } from "@/components/admin/person
 export const metadata: Metadata = { title: "Person" };
 
 const AFFILIATION_LABELS: Record<string, string> = {
-  student: "Lehigh student",
+  student: SITE.campus.studentLabel,
   community: "Community member",
   alumni: "Alumni",
   parent: "Parent",

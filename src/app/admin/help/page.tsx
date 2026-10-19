@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { SITE } from "@/config/site";
 import { requireRole } from "@/lib/auth";
 import { isAdmin } from "@/lib/roles";
 import { PageHeader } from "@/components/ui/page-header";
@@ -75,7 +76,7 @@ const SECTIONS: Section[] = [
         <li>
           Once people have RSVP&apos;d, a published event can&apos;t go back to <strong>Draft</strong>. Cancel it instead, so they hear about it.
         </li>
-        <li>Times are always Bethlehem, PA time.</li>
+        <li>Times are always {SITE.timeZoneLabel}.</li>
       </ul>
     ),
   },
@@ -279,7 +280,7 @@ const SECTIONS: Section[] = [
         <li><strong>&ldquo;I want my data removed.&rdquo;</strong> They can delete dietary info or their whole account in <strong>Profile &amp; settings</strong>.</li>
         <li>
           <strong>&ldquo;I want to change my sign-in email.&rdquo;</strong> Only the site owner can, in Supabase → Authentication → Users. If the new
-          address is a Lehigh one, an admin then gives them the <strong>Student</strong> role again in People &amp; roles.
+          address is a {SITE.campus.name} one, an admin then gives them the <strong>Student</strong> role again in People &amp; roles.
         </li>
       </ul>
     ),

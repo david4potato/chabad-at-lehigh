@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { invitePeople, type InviteResult } from "@/app/admin/events/[id]/attendees/actions";
+import { SITE } from "@/config/site";
 import { Field, Input, Textarea } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { FormMessage } from "@/components/ui/form-message";
@@ -33,7 +34,7 @@ export function InvitePeople({ eventId, published }: { eventId: string; publishe
           htmlFor="invite-emails"
           hint="Separate with commas or new lines, or paste from an email's To line. People with an account get an in-app invitation."
         >
-          <Textarea id="invite-emails" name="emails" rows={3} required placeholder="sarah@lehigh.edu, josh@gmail.com" />
+          <Textarea id="invite-emails" name="emails" rows={3} required placeholder={`sarah@${SITE.campus.studentEmailDomains[0]}, josh@gmail.com`} />
         </Field>
         <Field label="Personal message (optional)" htmlFor="invite-message">
           <Input id="invite-message" name="message" maxLength={500} placeholder="Hope you can make it!" />

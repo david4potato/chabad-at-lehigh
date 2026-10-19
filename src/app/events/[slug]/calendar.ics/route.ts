@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { SITE } from "@/config/site";
 import { getEventBySlug } from "@/lib/data/events";
 import { getSiteUrl } from "@/lib/env";
 import { icsEscape, icsFold, icsStamp } from "@/lib/ics";
@@ -17,11 +18,11 @@ export async function GET(_request: Request, ctx: RouteContext<"/events/[slug]/c
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Chabad at Lehigh//Events//EN",
+    `PRODID:-//${SITE.name}//Events//EN`,
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",
-    `UID:${event.id}@chabad-at-lehigh`,
+    `UID:${event.id}@${SITE.slug}`,
     `DTSTAMP:${icsStamp(new Date())}`,
     `DTSTART:${icsStamp(start)}`,
     `DTEND:${icsStamp(end)}`,

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE } from "@/config/site";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { getOrgSettings } from "@/lib/settings";
@@ -14,7 +15,7 @@ export default async function SettingsPage() {
     getOrgSettings(),
     supabase.from("app_settings").select("value").eq("key", "student_email_domains").maybeSingle(),
   ]);
-  const domains = Array.isArray(data?.value) ? (data.value as string[]) : ["lehigh.edu"];
+  const domains = Array.isArray(data?.value) ? (data.value as string[]) : [...SITE.campus.studentEmailDomains];
   return (
     <div className="mx-auto max-w-3xl">
       <PageHeader title="Settings" description="Contact details, address and who counts as a student." />

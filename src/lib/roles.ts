@@ -2,6 +2,7 @@
 // supabase/migrations (can_manage_events, can_manage_menus, can_view_dietary),
 // which are the real enforcement point. The app uses these to decide what to
 // show and to fail fast in server actions.
+import { SITE } from "@/config/site";
 
 export const ROLES = ["student", "community_guest", "organizer", "kitchen_staff", "admin"] as const;
 export type Role = (typeof ROLES)[number];
@@ -15,7 +16,7 @@ export const ROLE_LABELS: Record<Role, string> = {
 };
 
 export const ROLE_DESCRIPTIONS: Record<Role, string> = {
-  student: "Can RSVP, vote on dishes and suggest menu ideas. Given automatically to Lehigh email addresses.",
+  student: `Can RSVP, vote on dishes and suggest menu ideas. Given automatically to ${SITE.campus.name} email addresses.`,
   community_guest: "Can RSVP (some events may need organizer approval), vote and suggest.",
   organizer: "Creates events and announcements, manages RSVPs, check-in and menus. Sees allergy counts only, not names.",
   kitchen_staff: "Manages dishes, ingredients and menus, and can view the named dietary report for events.",

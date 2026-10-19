@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { SITE } from "@/config/site";
 import { viewerWithRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { dbErrorMessage, validationError, type ActionResult } from "@/lib/action-result";
@@ -30,7 +31,7 @@ const schema = z.object({
     // Checked as one list so the error shows under the field (not at "student_email_domains.1").
     .superRefine((list, ctx) => {
       const bad = list.filter((d) => !/^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(d));
-      if (bad.length) ctx.addIssue({ code: "custom", message: `${bad.join(", ")} isn't a domain. Use domains like lehigh.edu.` });
+      if (bad.length) ctx.addIssue({ code: "custom", message: `${bad.join(", ")} isn't a domain. Use domains like ${SITE.campus.studentEmailDomains[0]}.` });
       if (list.length > 10) ctx.addIssue({ code: "custom", message: "Up to 10 domains." });
     }),
 });

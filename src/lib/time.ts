@@ -1,6 +1,8 @@
-// All event times are shown in Bethlehem, PA time regardless of where the
-// server runs (Vercel servers use UTC).
-export const SITE_TIME_ZONE = "America/New_York";
+import { SITE } from "@/config/site";
+
+// All event times are shown in the site time zone (SITE.timeZone) regardless
+// of where the server runs (Vercel servers use UTC).
+export const SITE_TIME_ZONE = SITE.timeZone;
 
 type DateInput = string | number | Date;
 const toDate = (d: DateInput) => (d instanceof Date ? d : new Date(d));
@@ -83,7 +85,7 @@ const monthShort = fmt({ month: "short" });
 
 /** "October 2026" for a calendar month (month is 1-12). */
 export function formatMonthYear(year: number, month: number): string {
-  // Noon UTC on the 15th is the same day and month in Bethlehem.
+  // Noon UTC on the 15th is in the same month in site time.
   return monthYear.format(new Date(Date.UTC(year, month - 1, 15, 12)));
 }
 
@@ -95,7 +97,7 @@ export function formatMonthShort(year: number, month: number): string {
 /** "Friday, October 23" for a site-time day key like "2026-10-23". */
 export function formatDayKey(key: string): string {
   const [y, m, d] = key.split("-").map(Number);
-  // Noon UTC is 7 or 8 AM the same day in Bethlehem.
+  // Noon UTC is the same day in site time (true from UTC-12 to UTC+11).
   return formatLongDate(Date.UTC(y, m - 1, d, 12));
 }
 

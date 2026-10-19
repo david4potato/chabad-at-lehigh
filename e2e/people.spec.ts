@@ -1,5 +1,6 @@
 import { expect, test, type Locator } from "@playwright/test";
-import { db, signIn, signInAs, signOut, uniqueEmail } from "./helpers";
+import { SITE } from "../src/config/site";
+import { db, signIn, signInAs, signOut, studentDomain, uniqueEmail } from "./helpers";
 
 // Person history on Dashboard → People & roles (admins only).
 // Each test makes its own users and removes the rows it inserts.
@@ -13,8 +14,8 @@ function stat(region: Locator, label: string) {
 }
 
 const zoned = (options: Intl.DateTimeFormatOptions) =>
-  new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", ...options });
-// Matches the app: the year is added when the date isn't in the current year (New York time).
+  new Intl.DateTimeFormat("en-US", { timeZone: SITE.timeZone, ...options });
+// Matches the app: the year is added when the date isn't in the current year (site time).
 const yearOf = (d: Date) => zoned({ year: "numeric" }).format(d);
 const shortDate = (d: Date) =>
   zoned({ weekday: "short", month: "short", day: "numeric", ...(yearOf(d) !== yearOf(new Date()) ? { year: "numeric" } : {}) }).format(d);
@@ -30,7 +31,7 @@ test.describe("people history", () => {
   test("an admin sees how often a student came and opens their history", async ({ page }) => {
     const stamp = Date.now();
     const name = `E2E Person ${stamp}`;
-    const studentEmail = uniqueEmail("person", "lehigh.edu");
+    const studentEmail = uniqueEmail("person", await studentDomain());
     await signIn(page, studentEmail, { name, newAccount: true });
     await signOut(page);
     const studentId = await profileId(studentEmail);
@@ -61,7 +62,7 @@ test.describe("people history", () => {
       await expect(page).toHaveURL(new RegExp(`/admin/people/${studentId}$`));
       await expect(page.getByRole("heading", { name, level: 1 })).toBeVisible();
       await expect(page.getByRole("link", { name: studentEmail, exact: true })).toHaveAttribute("href", `mailto:${studentEmail}`);
-      await expect(page.getByText("Lehigh student", { exact: true })).toBeVisible();
+      await expect(page.getByText(SITE.campus.studentLabel, { exact: true })).toBeVisible();
 
       const roles = page.getByRole("region", { name: "Roles" });
       await expect(roles.getByRole("button", { name: "Remove Student role", exact: true })).toBeVisible();

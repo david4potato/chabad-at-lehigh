@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { SITE } from "@/config/site";
 import { buildCalendarFeed } from "@/lib/calendar";
 import { listCalendarFeedEvents, type FeedEventRow } from "@/lib/data/events";
 import { getSiteUrl } from "@/lib/env";
@@ -24,14 +25,14 @@ export async function GET() {
 
   const body = buildCalendarFeed(events, {
     siteUrl: getSiteUrl(),
-    name: "Chabad at Lehigh",
-    description: "Shabbat dinners, learning, holidays and more at Chabad at Lehigh.",
+    name: SITE.name,
+    description: `Shabbat dinners, learning, holidays and more at ${SITE.name}.`,
   });
 
   return new NextResponse(body, {
     headers: {
       "Content-Type": "text/calendar; charset=utf-8",
-      "Content-Disposition": 'inline; filename="chabad-at-lehigh.ics"',
+      "Content-Disposition": `inline; filename="${SITE.slug}.ics"`,
       "Cache-Control": "public, max-age=900",
     },
   });

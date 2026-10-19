@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CheckCircle2, Circle } from "lucide-react";
+import { SITE } from "@/config/site";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardTitle } from "@/components/ui/card";
 import { RemoveDemoButton } from "@/components/admin/remove-demo-button";
@@ -22,7 +23,7 @@ export async function GettingStarted() {
 
   const steps: Step[] = [
     {
-      label: "Give admin access to at least one more trusted person (e.g. the Greenbergs)",
+      label: `Give admin access to at least one more trusted person (e.g. ${SITE.adminExample})`,
       href: "/admin/people",
       done: (admins.count ?? 0) + (pendingAdmins.count ?? 0) >= 2,
     },

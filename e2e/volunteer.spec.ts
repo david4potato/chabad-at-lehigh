@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { SITE } from "../src/config/site";
 import { db, signInAs } from "./helpers";
 
 // "Help out" volunteer sign-ups. Each test makes its own user and removes the
@@ -10,10 +11,10 @@ function spotsText(left: number, slots: number) {
   return left <= 0 ? `${slots} of ${slots} ${noun} taken` : `${left} of ${slots} ${noun} left`;
 }
 
-/** A datetime-local value N days from now in Bethlehem time, e.g. "2026-10-20T14:00". */
+/** A datetime-local value N days from now in site time, e.g. "2026-10-20T14:00". */
 function siteLocal(daysAhead: number, hhmm: string) {
   const day = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/New_York",
+    timeZone: SITE.timeZone,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",

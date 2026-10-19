@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Clock, Flame, HandHeart, MapPin, Phone, Salad, Mail, Navigation } from "lucide-react";
+import { SITE } from "@/config/site";
 import { getViewer } from "@/lib/auth";
 import { getOrgSettings } from "@/lib/settings";
 import { safeNextPath } from "@/lib/safe-redirect";
@@ -48,14 +49,12 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
       ) : null}
 
       <div>
-        <p className="text-sm font-semibold text-gold-700">Chabad at Lehigh</p>
+        <p className="text-sm font-semibold text-gold-700">{SITE.name}</p>
         <h1 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
           {viewer ? `${greeting}, ${viewer.displayName}!` : "Welcome home."}
         </h1>
         {!viewer ? (
-          <p className="mt-1.5 max-w-xl text-base text-muted">
-            Shabbat dinners, learning and community for Lehigh students and friends. Everyone is welcome.
-          </p>
+          <p className="mt-1.5 max-w-xl text-base text-muted">{SITE.tagline}</p>
         ) : null}
       </div>
 

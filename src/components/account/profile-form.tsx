@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { SITE } from "@/config/site";
 import { initialActionState, type ActionResult } from "@/lib/action-result";
 import { cn } from "@/lib/cn";
 import { Field, Input } from "@/components/ui/field";
@@ -9,7 +10,7 @@ import { SubmitButton } from "@/components/ui/submit-button";
 import { FormMessage } from "@/components/ui/form-message";
 
 const AFFILIATIONS = [
-  { value: "student", label: "Lehigh student" },
+  { value: "student", label: SITE.campus.studentLabel },
   { value: "community", label: "Community member" },
   { value: "alumni", label: "Alumni" },
   { value: "parent", label: "Parent" },
