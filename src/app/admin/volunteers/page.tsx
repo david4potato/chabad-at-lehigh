@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { requireRole } from "@/lib/auth";
-import { hiddenByEventLabel, listShiftsForAdmin, SHIFT_STATUS_LABEL, type AdminShift } from "@/lib/data/volunteer";
+import { ADMIN_SHIFT_LIMIT, hiddenByEventLabel, listShiftsForAdmin, SHIFT_STATUS_LABEL, type AdminShift } from "@/lib/data/volunteer";
 import { formatShortDate, formatTimeRange } from "@/lib/time";
 import { cn } from "@/lib/cn";
 import { PageHeader } from "@/components/ui/page-header";
@@ -104,6 +104,11 @@ export default async function AdminVolunteersPage({ searchParams }: PageProps<"/
           ))}
         </ul>
       )}
+      {shifts.length === ADMIN_SHIFT_LIMIT ? (
+        <p className="mt-4 text-sm text-muted">
+          {tab === "past" ? `Showing the ${ADMIN_SHIFT_LIMIT} most recent.` : `Showing the first ${ADMIN_SHIFT_LIMIT}, soonest first.`}
+        </p>
+      ) : null}
 
       <p className="mt-6 text-sm text-muted">
         People see open shifts on the{" "}

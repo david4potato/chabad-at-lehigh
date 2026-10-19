@@ -18,6 +18,7 @@ const TABS = [
   { key: "declined", label: "Declined" },
 ] as const;
 const KIND = { dish: "Dish", ingredient: "Ingredient", feedback: "Feedback" } as Record<string, string>;
+const LIMIT = 100;
 
 export default async function SuggestionsPage({ searchParams }: PageProps<"/admin/suggestions">) {
   await requireRole(["organizer", "kitchen_staff", "admin"], "/admin/suggestions");
@@ -29,7 +30,7 @@ export default async function SuggestionsPage({ searchParams }: PageProps<"/admi
     .select("id, kind, title, details, status, staff_response, created_at, event:events(title)")
     .eq("status", tab)
     .order("created_at", { ascending: false })
-    .limit(100);
+    .limit(LIMIT);
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -72,6 +73,7 @@ export default async function SuggestionsPage({ searchParams }: PageProps<"/admi
           ))}
         </ul>
       )}
+      {(data ?? []).length === LIMIT ? <p className="mt-4 text-sm text-muted">Showing the newest {LIMIT}.</p> : null}
     </div>
   );
 }

@@ -16,6 +16,8 @@ function stateOf(a: { status: string; publish_at: string; expires_at: string | n
   return { label: "Live", tone: "green" as const };
 }
 
+const LIMIT = 100;
+
 export default async function AdminAnnouncementsPage() {
   await requireRole(["organizer", "admin"], "/admin/announcements");
   const supabase = await createClient();
@@ -24,7 +26,7 @@ export default async function AdminAnnouncementsPage() {
       .from("announcements")
       .select("id, title, body, audience, status, is_pinned, is_urgent, publish_at, expires_at, event_id")
       .order("publish_at", { ascending: false })
-      .limit(100),
+      .limit(LIMIT),
     supabase.from("events").select("id, title").neq("status", "draft").order("starts_at", { ascending: false }).limit(50),
   ]);
   const now = new Date().getTime();
@@ -60,6 +62,7 @@ export default async function AdminAnnouncementsPage() {
           );
         })}
         {(rows ?? []).length === 0 ? <p className="text-sm text-muted">No announcements yet.</p> : null}
+        {(rows ?? []).length === LIMIT ? <p className="text-sm text-muted">Showing the newest {LIMIT}.</p> : null}
       </section>
     </div>
   );

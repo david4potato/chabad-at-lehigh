@@ -69,18 +69,20 @@ export default async function AuditPage({ searchParams }: PageProps<"/admin/audi
   const { data } = await query;
   const rows = data ?? [];
 
-  // Event titles for event rows, in one query (deleted events fall back to the id).
+  // Event titles for event rows (deleted events fall back to the id), and who got or lost
+  // a role (user_roles rows store the person's id; pending grants store the email).
+  // One query each, run together.
   const eventIds = [...new Set(rows.filter((r) => r.entity_type === "events" && r.entity_id).map((r) => r.entity_id!))];
-  const { data: events } = eventIds.length
-    ? await supabase.from("events").select("id, title").in("id", eventIds)
-    : { data: [] as { id: string; title: string }[] };
-  const titles = new Map((events ?? []).map((e) => [e.id, e.title]));
-
-  // Who got or lost a role: user_roles rows store the person's id (pending grants store the email).
   const personIds = [...new Set(rows.filter((r) => r.entity_type === "user_roles" && r.entity_id).map((r) => r.entity_id!))];
-  const { data: people } = personIds.length
-    ? await supabase.from("profiles").select("id, full_name, email").in("id", personIds)
-    : { data: [] as { id: string; full_name: string | null; email: string }[] };
+  const [{ data: events }, { data: people }] = await Promise.all([
+    eventIds.length
+      ? supabase.from("events").select("id, title").in("id", eventIds)
+      : Promise.resolve({ data: [] as { id: string; title: string }[] }),
+    personIds.length
+      ? supabase.from("profiles").select("id, full_name, email").in("id", personIds)
+      : Promise.resolve({ data: [] as { id: string; full_name: string | null; email: string }[] }),
+  ]);
+  const titles = new Map((events ?? []).map((e) => [e.id, e.title]));
   const names = new Map((people ?? []).map((p) => [p.id, p.full_name || p.email]));
 
   const subjectOf = (entityType: string, entityId: string | null) => {

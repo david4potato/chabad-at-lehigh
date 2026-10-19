@@ -10,12 +10,14 @@ import { IngredientForm } from "@/components/admin/menu/library-forms";
 
 export const metadata: Metadata = { title: "Ingredients" };
 
+const LIMIT = 300;
+
 export default async function IngredientsPage({ searchParams }: PageProps<"/admin/ingredients">) {
   await requireRole(["organizer", "kitchen_staff", "admin"], "/admin/ingredients");
   const params = await searchParams;
   const q = typeof params.q === "string" ? params.q.trim().slice(0, 80) : "";
   const supabase = await createClient();
-  let query = supabase.from("ingredients").select("id, name, notes, allergens:ingredient_allergens(allergen_code)").order("name").limit(300);
+  let query = supabase.from("ingredients").select("id, name, notes, allergens:ingredient_allergens(allergen_code)").order("name").limit(LIMIT);
   if (q) query = query.ilike("name", `%${q.replace(/[%_]/g, "")}%`);
   const { data } = await query;
 
@@ -53,6 +55,9 @@ export default async function IngredientsPage({ searchParams }: PageProps<"/admi
           );
         })}
       </ul>
+      {(data ?? []).length === LIMIT ? (
+        <p className="text-sm text-muted">Showing the first {LIMIT}, A to Z. Search to find others.</p>
+      ) : null}
     </div>
   );
 }

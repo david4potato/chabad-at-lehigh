@@ -12,6 +12,8 @@ import { DeleteNotificationButton, MarkAllReadButton, MarkReadOnView } from "@/c
 
 export const metadata: Metadata = { title: "Notifications" };
 
+const LIMIT = 50;
+
 export default async function NotificationsPage() {
   const viewer = await requireViewer("/notifications");
   const supabase = await createClient();
@@ -20,7 +22,7 @@ export default async function NotificationsPage() {
     .select("id, title, body, link, is_urgent, read_at, created_at")
     .eq("user_id", viewer.id)
     .order("created_at", { ascending: false })
-    .limit(50);
+    .limit(LIMIT);
   const items = data ?? [];
   const hasUnread = items.some((n) => !n.read_at);
 
@@ -63,6 +65,7 @@ export default async function NotificationsPage() {
           ))}
         </ul>
       )}
+      {items.length === LIMIT ? <p className="mt-4 text-sm text-muted">Showing your newest {LIMIT}.</p> : null}
     </div>
   );
 }

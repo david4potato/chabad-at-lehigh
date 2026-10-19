@@ -125,11 +125,14 @@ export async function listOpenShifts(
 
 export type AdminShift = Shift & { taken: number };
 
+/** Most shifts listShiftsForAdmin returns (the page says so when it's full). */
+export const ADMIN_SHIFT_LIMIT = 200;
+
 /** Upcoming (not yet started, or started in the last few hours) or past shifts, for organizers. */
 export async function listShiftsForAdmin(tab: "upcoming" | "past"): Promise<AdminShift[]> {
   const supabase = await createClient();
   const cutoff = new Date(Date.now() - 3 * HOUR).toISOString();
-  let query = supabase.from("volunteer_shifts").select(SHIFT_COLUMNS).limit(200);
+  let query = supabase.from("volunteer_shifts").select(SHIFT_COLUMNS).limit(ADMIN_SHIFT_LIMIT);
   query =
     tab === "past"
       ? query.lt("starts_at", cutoff).order("starts_at", { ascending: false })
