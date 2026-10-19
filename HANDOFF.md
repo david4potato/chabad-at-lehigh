@@ -28,17 +28,56 @@ paste it in. A Gmail app password belongs to one person's account, so move to a 
 first. The app doesn't use the database password; reset it in Supabase → **Project Settings → Database** if the
 person who saved it leaves.
 
-## 2. Passing it to new volunteers in the same community
+## 2. Account ownership and transfer
+
+Today one person owns the GitHub repository, the Vercel project and the Supabase project. When the community takes
+them over, or new volunteers do, go in this order:
+
+1. **Choose the new owner.** An account or organization the community controls, so the site doesn't depend on one
+   person.
+2. **Supabase.** The new owner first invites the current owner to their organization: a project only moves into an
+   organization the current owner belongs to. Then the current owner uses the transfer option in **Project
+   Settings → General**. The database, sign-in and their settings move with it. A Free organization has no daily
+   backups and pauses idle projects, so keep the project on Pro once people rely on it. Then check
+   **Authentication → SMTP Settings**: the email sender's password may belong to the old owner.
+3. **GitHub.** Transfer the repository in **Settings → General → Danger Zone**, and the new owner accepts it. A
+   repository on a personal account has no admin role, so adding the new owner as a collaborator isn't enough.
+4. **Vercel.** A project only moves into a team the current owner belongs to, and the free Hobby plan has no
+   members. So either:
+   - The new owner imports the repository into their own Vercel account as a new project, and adds the two
+     Supabase values (**Settings → Environment Variables**) and any custom address (**Settings → Domains**). A new
+     project gets a new `vercel.app` address, so update Site URL and Redirect URLs in Supabase → **Authentication →
+     URL Configuration** ([SETUP.md](SETUP.md) step 17), or sign-in links break. Then the old owner deletes the old
+     project.
+   - Or the new owner makes a paid Pro team and invites the current owner, who transfers the project there. Then
+     check **Settings → Environment Variables**, **Settings → Domains** and **Settings → Git**.
+5. **Domain.** If there's a custom address, move its registrar account too, or make sure the new team can reach
+   whoever manages its DNS.
+6. **Remove the old owner** from GitHub, Vercel and Supabase once everything works. After a transfer, GitHub keeps
+   them as a collaborator.
+
+Only the current owner can start a transfer, and the new owner has to let them in first, as each step says.
+
+**Public or private code.** On Vercel's free Hobby plan, a private repository deploys only commits whose author is
+the Vercel account owner. Commits by anyone else are blocked, and so are previews of their pull requests. A private
+repository in a GitHub organization doesn't deploy on Hobby at all. GitHub's free plan also protects `main` only in
+public repositories (see [CONTRIBUTING.md](CONTRIBUTING.md)). So choose one:
+
+- Keep the repository public while others help.
+- Keep it private, and have the owner merge every pull request with **Create a merge commit**. A squash or rebase
+  merge keeps the helper as the author, and Vercel blocks it.
+- Move to a paid Vercel Pro team. Each helper whose commits deploy needs a paid seat.
+
+People's data is never in the repository, only the code.
+
+## 3. Passing it to new volunteers in the same community
 
 1. **Admins.** A current admin adds the new people in **Dashboard → People & roles**, with the role each needs. It
    works before they've signed in. Keep at least two admins. The database won't remove the last one.
 2. **Step down.** Once the new admins have signed in, remove the roles of everyone who is leaving in **People &
    roles**. Start with Admin and Kitchen staff: they see names next to allergies.
-3. **Accounts.** Add the new people to the GitHub repository and the Supabase project, and move the Vercel project
-   to an account they control (or a paid Pro team). GitHub, Vercel and Supabase each have a transfer option in the
-   project's settings, and only an account's current owner can use it. Then remove the people who are leaving
-   from all three: anyone in the Supabase project can read every table, dietary details included. After moving
-   the GitHub repository, check that Vercel still deploys from it (Vercel → **Settings → Git**).
+3. **Accounts.** Add the new people to GitHub and Supabase, or move the accounts to them as in section 2. Then remove
+   the people who are leaving: anyone in the Supabase project can read every table, dietary details included.
 4. **Code owner.** If `main` requires code owner review ("For the owner" in [CONTRIBUTING.md](CONTRIBUTING.md)),
    put the new owner's GitHub username in `.github/CODEOWNERS`.
 5. **Contacts.** Update the contact name, email and phone in **Dashboard → Settings**. The phone is shown as the
@@ -48,7 +87,7 @@ person who saved it leaves.
    are in [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md) and "Rules that never change" in
    [docs/REPLICATE.md](docs/REPLICATE.md#rules-that-never-change).
 
-## 3. Starting a copy for another community
+## 4. Starting a copy for another community
 
 Follow [docs/REPLICATE.md](docs/REPLICATE.md) from the top. It covers permission, the fork, every file and
 setting to change, and setup with your own accounts. Three things matter most:
@@ -62,7 +101,7 @@ setting to change, and setup with your own accounts. Three things matter most:
 One shared site for many communities isn't built yet. [docs/SCALING.md](docs/SCALING.md) explains when it would
 be worth building.
 
-## 4. Data
+## 5. Data
 
 - **Nothing personal carries over.** A new copy starts with no people, events, RSVPs, dietary details or history.
   Only **Dashboard → Settings** starts filled in, with the original community's details, until you replace them.
@@ -80,7 +119,7 @@ be worth building.
 - **People leaving.** Anyone can delete their dietary details (**Profile & settings → Dietary & allergies**) or
   their whole account (**Profile & settings**). The last admin has to make someone else admin first.
 
-## 5. Updating safely
+## 6. Updating safely
 
 - Changes go through a branch and a pull request, and CI checks every pull request
   ([CONTRIBUTING.md](CONTRIBUTING.md)). The owner protects `main` as "For the owner" there describes. A merge to
@@ -90,7 +129,7 @@ be worth building.
 - A copy pulls updates from this repository as "Getting updates later" in [docs/REPLICATE.md](docs/REPLICATE.md)
   describes.
 
-## 6. Check that it works
+## 7. Check that it works
 
 1. Go through "Part G — Check it works" in [SETUP.md](SETUP.md) on a phone and a computer.
 2. Every field in **Dashboard → Settings** is current, including the allergy contact phone.
