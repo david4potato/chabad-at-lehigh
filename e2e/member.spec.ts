@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
-import { db, firstShabbatSlug, getSignInCode, uniqueEmail } from "./helpers";
+import { db, firstShabbatSlug, getSignInCode, studentDomain, uniqueEmail } from "./helpers";
 
 test.describe("students", () => {
   test("sign up, welcome, RSVP, change RSVP, see it in My Events", async ({ page }) => {
-    const email = uniqueEmail("student", "lehigh.edu");
+    const email = uniqueEmail("student", await studentDomain());
     const slug = await firstShabbatSlug();
 
     // Start from an RSVP button while signed out.
@@ -57,7 +57,7 @@ test.describe("students", () => {
   });
 
   test("saved allergies produce personal menu alerts (never a 'safe' label)", async ({ page }) => {
-    const email = uniqueEmail("allergy", "lehigh.edu");
+    const email = uniqueEmail("allergy", await studentDomain());
     const started = Date.now();
     await page.goto("/sign-in?next=/profile/dietary");
     await page.getByLabel("Email address").fill(email);

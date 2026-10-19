@@ -1,5 +1,5 @@
 // Pure helpers for the month calendar on /events and the calendar feed.
-// Day keys ("2026-10-23") are calendar days in site time (America/New_York).
+// Day keys ("2026-10-23") are calendar days in site time (SITE.timeZone).
 // Grid arithmetic is done on plain calendar dates in UTC, so daylight saving
 // changes can never skip or repeat a day.
 import { SITE } from "@/config/site";

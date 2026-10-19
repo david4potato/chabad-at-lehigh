@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { siteLocalToUtcIso } from "../src/lib/time";
 import { db, signInAs } from "./helpers";
 
 test.describe("organizer dashboard", () => {
@@ -21,8 +22,8 @@ test.describe("organizer dashboard", () => {
     await expect(page.getByText(/event created/i)).toBeVisible();
 
     const [event] = await db<{ id: string; slug: string; starts_at: Date }>(`select id, slug, starts_at from events where title = $1`, [title]);
-    // 7:00 PM in Bethlehem (EDT) is 23:00 UTC.
-    expect(new Date(event.starts_at).toISOString()).toBe("2030-05-01T23:00:00.000Z");
+    // 7:00 PM in site time (the conversion itself is unit-tested in src/lib/time.test.ts).
+    expect(new Date(event.starts_at).toISOString()).toBe(siteLocalToUtcIso("2030-05-01T19:00"));
 
     await page.goto(`/events/${event.slug}`);
     await expect(page.getByRole("heading", { name: title, level: 1 })).toBeVisible();

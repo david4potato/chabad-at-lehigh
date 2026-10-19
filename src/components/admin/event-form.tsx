@@ -112,7 +112,7 @@ export function EventForm({
 
         <Section
           title="When and where"
-          description="Times are in Bethlehem, PA time. Once published, changing the start time or place notifies everyone who RSVP'd in the app."
+          description={`Times are in ${SITE.timeZoneLabel}. Once published, changing the start time or place notifies everyone who RSVP'd in the app.`}
         >
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Starts" htmlFor="starts_at" errors={e?.starts_at} required>

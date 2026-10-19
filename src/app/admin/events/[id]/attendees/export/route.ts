@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { SITE } from "@/config/site";
 import { viewerWithRole } from "@/lib/auth";
 import { getAdminEvent } from "@/lib/data/admin";
 import { getAttendees } from "@/lib/data/attendees";
@@ -19,7 +20,7 @@ export async function GET(_request: Request, ctx: RouteContext<"/admin/events/[i
   const attendees = await getAttendees(event.id);
 
   // No dietary data here: that stays in the audited dietary report.
-  const header = ["Name", "Email", "Phone", "Type", "Status", "Guests", "Guest names", "Guest status", "Checked in", "Note", "RSVP'd at (Bethlehem time)"];
+  const header = ["Name", "Email", "Phone", "Type", "Status", "Guests", "Guest names", "Guest status", "Checked in", "Note", `RSVP'd at (${SITE.timeZoneShortLabel})`];
   const rows = attendees.map((a) => [
     a.name, a.email, a.phone, MEMBER_LABEL[a.member], RSVP_STATUS_LABEL[a.status], a.guest_count, a.guest_names,
     a.guest_count > 0 ? GUEST_STATUS_LABEL[a.guest_status] : "",

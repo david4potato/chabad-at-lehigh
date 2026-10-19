@@ -76,7 +76,7 @@ const SECTIONS: Section[] = [
         <li>
           Once people have RSVP&apos;d, a published event can&apos;t go back to <strong>Draft</strong>. Cancel it instead, so they hear about it.
         </li>
-        <li>Times are always Bethlehem, PA time.</li>
+        <li>Times are always {SITE.timeZoneLabel}.</li>
       </ul>
     ),
   },

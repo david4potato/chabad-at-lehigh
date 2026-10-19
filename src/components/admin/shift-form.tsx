@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState, useTransition } from "react";
+import { SITE } from "@/config/site";
 import { initialActionState, type ActionResult } from "@/lib/action-result";
 import { formatShortDate, toDateTimeLocalValue } from "@/lib/time";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
@@ -72,7 +73,7 @@ export function ShiftForm({
           </Select>
         </Field>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Starts" htmlFor="shift-starts" hint="Bethlehem, PA time" errors={e?.starts_at} required>
+          <Field label="Starts" htmlFor="shift-starts" hint={SITE.timeZoneLabel} errors={e?.starts_at} required>
             <Input id="shift-starts" name="starts_at" type="datetime-local" required defaultValue={toDateTimeLocalValue(shift?.starts_at)} />
           </Field>
           <Field label="Ends" htmlFor="shift-ends" hint="Optional" errors={e?.ends_at}>

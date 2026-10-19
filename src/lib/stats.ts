@@ -66,7 +66,7 @@ export function parseStaffStats(data: unknown): StaffStats {
 }
 
 /**
- * Start of the current semester in Bethlehem time, as a UTC ISO string:
+ * Start of the current semester in site time, as a UTC ISO string:
  * August 1 for August–December, January 1 for January–July.
  */
 export function semesterStart(now: Date = new Date()): string {
@@ -76,7 +76,7 @@ export function semesterStart(now: Date = new Date()): string {
   return siteLocalToUtcIso(local) ?? new Date(Date.UTC(year, month >= 8 ? 7 : 0, 1, 12)).toISOString();
 }
 
-/** "October 2026" for an instant, in Bethlehem time. */
+/** "October 2026" for an instant, in site time. */
 export function formatSince(iso: string): string {
   const [year, month] = siteDateKey(iso).split("-").map(Number);
   return formatMonthYear(year, month);

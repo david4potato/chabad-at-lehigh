@@ -1,15 +1,17 @@
 import { expect, test } from "@playwright/test";
+import { SITE } from "../src/config/site";
 import { db, signInAs } from "./helpers";
 
 const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-/** The next published Shabbat dinner with its calendar day in Bethlehem time. */
+/** The next published Shabbat dinner with its calendar day in site time. */
 async function nextShabbatDinner() {
   const rows = await db<{ slug: string; title: string; day: string }>(
-    `select slug, title, to_char(starts_at at time zone 'America/New_York', 'YYYY-MM-DD') as day
+    `select slug, title, to_char(starts_at at time zone $1, 'YYYY-MM-DD') as day
      from public.events
      where category = 'shabbat_dinner' and status = 'published' and starts_at > now()
      order by starts_at limit 1`,
+    [SITE.timeZone],
   );
   expect(rows.length).toBeGreaterThan(0);
   return rows[0];
@@ -63,7 +65,7 @@ test.describe("calendar views", () => {
     const body = await res.text();
     const lines = body.split("\r\n");
     expect(lines[0]).toBe("BEGIN:VCALENDAR");
-    expect(lines).toContain("X-WR-CALNAME:Chabad at Lehigh");
+    expect(lines).toContain(`X-WR-CALNAME:${SITE.name}`);
     expect(lines.filter((l) => l === "BEGIN:VEVENT").length).toBeGreaterThan(0);
 
     // Drafts, cancelled and members-only events never appear.

@@ -4,7 +4,7 @@ import { db, signInAs, uniqueEmail } from "./helpers";
 test.describe("admin panel", () => {
   test("admin sees the launch checklist, gives a role, updates settings and sees it in the audit log", async ({ page }) => {
     const future = uniqueEmail("future-organizer");
-    const parking = `Street parking on Wyandotte Street (${Date.now()})`;
+    const parking = `Street parking out front (${Date.now()})`;
     const [before] = await db<{ parking: string | null }>(
       `select value ->> 'parking' as parking from public.app_settings where key = 'organization'`,
     );

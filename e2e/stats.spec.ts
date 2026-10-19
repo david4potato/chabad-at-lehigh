@@ -1,4 +1,5 @@
 import { expect, test, type Locator } from "@playwright/test";
+import { SITE } from "../src/config/site";
 import { db, signInAs } from "./helpers";
 
 // "Your activity" on the profile and "This semester" on the dashboard.
@@ -13,7 +14,7 @@ function stat(region: Locator, label: string) {
 }
 
 const monthYear = (d: Date) =>
-  new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "long", year: "numeric" }).format(d);
+  new Intl.DateTimeFormat("en-US", { timeZone: SITE.timeZone, month: "long", year: "numeric" }).format(d);
 
 test.describe("stats", () => {
   test("a student's profile counts a past event they went to", async ({ page }) => {

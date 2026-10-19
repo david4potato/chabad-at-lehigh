@@ -1,8 +1,7 @@
 /**
- * Everything specific to this community lives in this file, plus Dashboard → Settings
- * (contact details, address, directions, parking, student email domains). Another
- * community forks the app, edits this file and its Settings, and has its own version.
- * See docs/REPLICATE.md.
+ * The names, campus and time zone the pages use. The rest of what's specific to this community
+ * is in Dashboard → Settings (organization name, contact details, address, directions, parking,
+ * student email domains) and a few files listed in docs/REPLICATE.md.
  */
 export const SITE = {
   name: "Chabad at Lehigh",
@@ -11,6 +10,8 @@ export const SITE = {
   slug: "chabad-at-lehigh",
   description:
     "Shabbat dinners, events and community for Lehigh students and friends. RSVP, see menus and allergens, and stay in the loop.",
+  /** Shorter description for the app installed on a phone (the manifest). */
+  shortDescription: "Shabbat dinners, events and community for Lehigh students and friends.",
   /** Home page line for visitors who aren't signed in. */
   tagline: "Shabbat dinners, learning and community for Lehigh students and friends. Everyone is welcome.",
   /** Footer line under the name. */
@@ -19,13 +20,25 @@ export const SITE = {
   independenceNote: "An independent organization, not run by Lehigh University.",
   /** Location name pre-filled on new events when an address is set in Settings. */
   houseName: "Chabad House",
-  /** Every date and time is shown and entered in this IANA time zone. */
+  /** Named in the admin launch checklist as someone to give admin access to. */
+  adminExample: "the Greenbergs",
+  /**
+   * Every date and time is shown and entered in this IANA time zone. Two SQL notification
+   * functions repeat it (see docs/REPLICATE.md).
+   */
   timeZone: "America/New_York",
+  /** How that time zone is named in form hints and Help. */
+  timeZoneLabel: "Bethlehem, PA time",
+  /** Shorter form for the attendee spreadsheet's column heading. */
+  timeZoneShortLabel: "Bethlehem time",
   campus: {
     name: "Lehigh",
     /** How the Student role is labelled to people. */
     studentLabel: "Lehigh student",
-    /** Used until an admin saves different domains in Settings. */
+    /**
+     * The first one is the example in sign-in hints and email placeholders. Who becomes a Student
+     * is decided by the domains in Dashboard → Settings, so keep them the same.
+     */
     studentEmailDomains: ["lehigh.edu"],
   },
 } as const;

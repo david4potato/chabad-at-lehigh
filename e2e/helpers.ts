@@ -39,6 +39,14 @@ export async function db<T = unknown>(sql: string, params: unknown[] = []): Prom
   }
 }
 
+/** A student email domain from the local database's Settings, so new accounts get the Student role. */
+export async function studentDomain(): Promise<string> {
+  const [row] = await db<{ domain: string }>(
+    `select value ->> 0 as domain from public.app_settings where key = 'student_email_domains'`,
+  );
+  return row.domain;
+}
+
 export async function grantRole(email: string, role: TestRole) {
   await db(
     `insert into public.user_roles (user_id, role)
@@ -80,7 +88,7 @@ export async function signIn(page: Page, email: string, opts: { next?: string; n
 
 /** Create (via sign-in) a user with an extra role and leave the page signed in. */
 export async function signInAs(page: Page, role: TestRole, opts: { next?: string } = {}) {
-  const domain = role === "student" ? "lehigh.edu" : "example.com";
+  const domain = role === "student" ? await studentDomain() : "example.com";
   const email = uniqueEmail(role.replace("_", ""), domain);
   await signIn(page, email, { name: `Test ${role}`, newAccount: true });
   if (role !== "student" && role !== "community_guest") await grantRole(email, role);

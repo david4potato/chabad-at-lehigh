@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 const INTRO = "Cooking, setting up and cleaning up together is a big part of Shabbat here.";
 
-/** Group shifts by their day in Bethlehem time, keeping the soonest-first order. */
+/** Group shifts by their day in site time, keeping the soonest-first order. */
 function groupByDay(shifts: ShiftView[]) {
   const groups = new Map<string, ShiftView[]>();
   for (const s of shifts) {
