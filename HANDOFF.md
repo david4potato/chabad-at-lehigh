@@ -28,17 +28,41 @@ paste it in. A Gmail app password belongs to one person's account, so move to a 
 first. The app doesn't use the database password; reset it in Supabase → **Project Settings → Database** if the
 person who saved it leaves.
 
-## 2. Passing it to new volunteers in the same community
+## 2. Account ownership and transfer
+
+Today one person owns the GitHub repository, the Vercel project and the Supabase project. When the community takes
+them over, or new volunteers do:
+
+1. **Choose the new owner.** An account or organization the community controls, so the site doesn't depend on one
+   person.
+2. **Supabase.** Move the project to the new owner's organization with the transfer option in its settings. The
+   database and sign-in move with it. Then check **Authentication → SMTP Settings**: the email sender's password
+   may belong to the old owner.
+3. **Vercel.** Move the project to an account the new owner controls (the free Hobby plan has no team members; a
+   paid Pro team does). Then check that **Settings → Environment Variables** still has the two Supabase values and
+   **Settings → Domains** still lists any custom address.
+4. **GitHub.** Transfer the repository in its settings, or add the new owner as an admin. After a transfer, check
+   that Vercel still deploys from it (Vercel → **Settings → Git**).
+5. **Domain.** If there's a custom address, move its registrar account too, or make sure the new team can reach
+   whoever manages its DNS.
+6. **Remove the old owner** from all three once everything works.
+
+Only an account's current owner can transfer it.
+
+**Public or private code.** On Vercel's free Hobby plan, a private repository deploys only changes made by the
+Vercel account owner; changes from anyone else are blocked. So either keep the repository public while others help
+(GitHub's free plan also protects `main` only for public repositories, see [CONTRIBUTING.md](CONTRIBUTING.md)),
+keep it private and have the owner make every merge into `main`, or move to Vercel Pro. People's data is never in
+the repository, only the code.
+
+## 3. Passing it to new volunteers in the same community
 
 1. **Admins.** A current admin adds the new people in **Dashboard → People & roles**, with the role each needs. It
    works before they've signed in. Keep at least two admins. The database won't remove the last one.
 2. **Step down.** Once the new admins have signed in, remove the roles of everyone who is leaving in **People &
    roles**. Start with Admin and Kitchen staff: they see names next to allergies.
-3. **Accounts.** Add the new people to the GitHub repository and the Supabase project, and move the Vercel project
-   to an account they control (or a paid Pro team). GitHub, Vercel and Supabase each have a transfer option in the
-   project's settings, and only an account's current owner can use it. Then remove the people who are leaving
-   from all three: anyone in the Supabase project can read every table, dietary details included. After moving
-   the GitHub repository, check that Vercel still deploys from it (Vercel → **Settings → Git**).
+3. **Accounts.** Add the new people to the accounts or move them, as in section 2. Then remove the people who are
+   leaving from all three: anyone in the Supabase project can read every table, dietary details included.
 4. **Code owner.** If `main` requires code owner review ("For the owner" in [CONTRIBUTING.md](CONTRIBUTING.md)),
    put the new owner's GitHub username in `.github/CODEOWNERS`.
 5. **Contacts.** Update the contact name, email and phone in **Dashboard → Settings**. The phone is shown as the
@@ -48,7 +72,7 @@ person who saved it leaves.
    are in [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md) and "Rules that never change" in
    [docs/REPLICATE.md](docs/REPLICATE.md#rules-that-never-change).
 
-## 3. Starting a copy for another community
+## 4. Starting a copy for another community
 
 Follow [docs/REPLICATE.md](docs/REPLICATE.md) from the top. It covers permission, the fork, every file and
 setting to change, and setup with your own accounts. Three things matter most:
@@ -62,7 +86,7 @@ setting to change, and setup with your own accounts. Three things matter most:
 One shared site for many communities isn't built yet. [docs/SCALING.md](docs/SCALING.md) explains when it would
 be worth building.
 
-## 4. Data
+## 5. Data
 
 - **Nothing personal carries over.** A new copy starts with no people, events, RSVPs, dietary details or history.
   Only **Dashboard → Settings** starts filled in, with the original community's details, until you replace them.
@@ -80,7 +104,7 @@ be worth building.
 - **People leaving.** Anyone can delete their dietary details (**Profile & settings → Dietary & allergies**) or
   their whole account (**Profile & settings**). The last admin has to make someone else admin first.
 
-## 5. Updating safely
+## 6. Updating safely
 
 - Changes go through a branch and a pull request, and CI checks every pull request
   ([CONTRIBUTING.md](CONTRIBUTING.md)). The owner protects `main` as "For the owner" there describes. A merge to
@@ -90,7 +114,7 @@ be worth building.
 - A copy pulls updates from this repository as "Getting updates later" in [docs/REPLICATE.md](docs/REPLICATE.md)
   describes.
 
-## 6. Check that it works
+## 7. Check that it works
 
 1. Go through "Part G — Check it works" in [SETUP.md](SETUP.md) on a phone and a computer.
 2. Every field in **Dashboard → Settings** is current, including the allergy contact phone.
