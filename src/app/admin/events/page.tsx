@@ -94,8 +94,8 @@ export default async function AdminEventsPage({ searchParams }: PageProps<"/admi
             <>
               <p>
                 {upcomingDrafts === 1
-                  ? "You have 1 draft. Publish it to list it here."
-                  : `You have ${upcomingDrafts} drafts. Publish them to list them here.`}
+                  ? "You have 1 upcoming draft. Publish it to list it here."
+                  : `You have ${upcomingDrafts} upcoming drafts. Publish them to list them here.`}
               </p>
               <Link href="/admin/events?tab=drafts" className="inline-flex min-h-11 items-center font-semibold text-brand-700 hover:underline">
                 Open drafts

@@ -110,6 +110,9 @@ const HIDDEN_FIELDS = new Set([
   "is_demo",
 ]);
 
+// Detail keys written by the audit functions in supabase/migrations, shown below in plain words.
+const KNOWN_DETAILS = new Set(["changed", "status", "role", "version", "urgent", "override", "guest_count", "attendees", "invited"]);
+
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** "not_going" -> "Not going" */
@@ -134,19 +137,17 @@ function notesFor(details: Details): string[] {
     if (fields.length) notes.push(`Changed: ${fields.join(", ")}`);
   }
   if (status) notes.push(`Status: ${humanize(status)}`);
+  const { version, urgent, override, guest_count: guests, attendees, invited } = details;
+  if (typeof version === "number") notes.push(`Version ${version}`);
+  if (urgent === true) notes.push("Marked urgent");
+  if (override === true) notes.push("Allowed over capacity");
+  if (typeof guests === "number") notes.push(plural(guests, "guest", "guests"));
+  if (typeof attendees === "number") notes.push(`${plural(attendees, "RSVP", "RSVPs")} at the time`);
+  if (typeof invited === "number") notes.push(`${plural(invited, "person", "people")} invited`);
+  // Anything newer than this page: show it plainly rather than hide it (ids are named in the subject).
   for (const [key, value] of Object.entries(details)) {
-    if (["changed", "status", "role", "event_id", "user_id"].includes(key)) continue;
-    if (key === "version" && typeof value === "number") notes.push(`Version ${value}`);
-    else if (key === "urgent") {
-      if (value === true) notes.push("Marked urgent");
-    } else if (key === "override") {
-      if (value === true) notes.push("Allowed over capacity");
-    } else if (key === "guest_count" && typeof value === "number") notes.push(plural(value, "guest", "guests"));
-    else if (key === "attendees" && typeof value === "number") notes.push(`${plural(value, "RSVP", "RSVPs")} at the time`);
-    else if (key === "invited" && typeof value === "number") notes.push(`${plural(value, "person", "people")} invited`);
-    else if (["string", "number", "boolean"].includes(typeof value) && !key.endsWith("_id")) {
-      notes.push(`${humanize(key)}: ${String(value)}`);
-    }
+    if (KNOWN_DETAILS.has(key) || key.endsWith("_id")) continue;
+    if (typeof value === "string" || typeof value === "number") notes.push(`${humanize(key)}: ${value}`);
   }
   return notes;
 }

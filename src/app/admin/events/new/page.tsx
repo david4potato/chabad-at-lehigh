@@ -21,6 +21,8 @@ export default async function NewEventPage() {
       .select("id, starts_at")
       .eq("category", "shabbat_dinner")
       .eq("status", "published")
+      // Never a demo dinner: its copy would be marked demo too and removed with the demo content.
+      .eq("is_demo", false)
       .lte("starts_at", new Date().toISOString())
       .order("starts_at", { ascending: false })
       .limit(1)
