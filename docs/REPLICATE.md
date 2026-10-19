@@ -67,6 +67,7 @@ details and the address are in **Dashboard → Settings**, and a few files still
 | `tagline` | Home page, for visitors who aren't signed in | A short welcome line |
 | `footerBlurb` | Footer, under the name | One line about your community |
 | `independenceNote` | Footer | Who you are independent of, such as the nearby university |
+| `listInSearchEngines` | Whether search engines may list the site | Keep `false` until your organizers approve the launch, then set `true` |
 | `houseName` | Place name on new events: pre-filled once Settings has an address, and the placeholder otherwise | What people call your usual place |
 | `adminExample` | Admin launch checklist: "Give admin access to at least one more trusted person (e.g. …)" | Who should be the second admin. Only admins see it. |
 | `timeZone` | Every date and time, shown and entered | Your IANA time zone, such as `America/Chicago` or `Europe/London`. If it isn't `America/New_York`, read [Time zone](#time-zone) below. |

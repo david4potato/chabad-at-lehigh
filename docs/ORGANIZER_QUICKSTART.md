@@ -59,7 +59,7 @@ information. Whenever ingredients or allergens change, post an **urgent** menu u
 
 ## Note to send a new admin (copy and fill in)
 
-> Hi! The new Chabad at Lehigh site is ready: [site address]
+> Hi [name], the new Chabad at Lehigh site is ready for you: [site address]
 >
 > 1. Tap **Sign in** and enter [your email]. You'll get an email with a link and a 6-digit code — tap the link or
 >    type the code. No password.

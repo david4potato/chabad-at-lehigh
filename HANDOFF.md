@@ -97,4 +97,5 @@ be worth building.
 3. `/privacy` and `/meal-safety` match how your community really handles information and food.
 4. Your organizers and whoever cooks go through [docs/ORGANIZER_REVIEW.md](docs/ORGANIZER_REVIEW.md) and sign
    it off.
-5. A new copy holds one trial meal before it announces the site.
+5. A new copy holds one trial meal before it announces the site. At launch, set `listInSearchEngines: true` in
+   `src/config/site.ts`, so search engines may list it.

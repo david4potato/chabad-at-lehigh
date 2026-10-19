@@ -20,6 +20,7 @@ export const metadata: Metadata = {
   },
   // No title or description here, so event pages keep their own; chats fall back to the og: tags.
   twitter: { card: "summary_large_image", images: [OG_IMAGE] },
+  robots: SITE.listInSearchEngines ? undefined : { index: false, follow: false },
 };
 
 export const viewport: Viewport = {

@@ -147,6 +147,9 @@ that would take down the current site and rabbi@ email. Use a subdomain instead,
 29. On a throwaway account: **Profile & settings → Delete account** works. Then have organizers sign off on
     [docs/ORGANIZER_REVIEW.md](docs/ORGANIZER_REVIEW.md).
 
+**At launch** (after the organizers sign off and hold a trial dinner): set `listInSearchEngines: true` in
+`src/config/site.ts` through a pull request. Until then, every page asks search engines not to list the site.
+
 ## Troubleshooting
 
 | Problem | Fix |
