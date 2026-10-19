@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SITE } from "@/config/site";
 import { requireRole } from "@/lib/auth";
 import { getOrgSettings } from "@/lib/settings";
 import { EventForm } from "@/components/admin/event-form";
@@ -29,7 +30,7 @@ export default async function NewEventPage() {
       <p className="mb-6 text-muted">Start as a draft, then publish when it&apos;s ready. Tip: duplicate last week&apos;s Shabbat dinner instead.</p>
       <EventForm
         action={createEvent}
-        defaults={{ location_name: addr ? "Chabad House" : "", location_address: addr }}
+        defaults={{ location_name: addr ? SITE.houseName : "", location_address: addr }}
       />
     </div>
   );

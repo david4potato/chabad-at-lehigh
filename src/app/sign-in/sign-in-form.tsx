@@ -3,6 +3,7 @@
 import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
 import { Mail } from "lucide-react";
+import { SITE } from "@/config/site";
 import { createClient } from "@/lib/supabase/client";
 import { NEXT_COOKIE } from "@/lib/safe-redirect";
 import { turnstileSiteKey } from "@/lib/env";
@@ -29,6 +30,7 @@ declare global {
 }
 
 const RESEND_SECONDS = 60;
+const STUDENT_DOMAIN = SITE.campus.studentEmailDomains[0];
 
 function authErrorMessage(
   err: { message?: string; status?: number; code?: string } | null,
@@ -164,7 +166,7 @@ export function SignInForm({ next }: { next: string }) {
 
       {step === "email" ? (
         <form onSubmit={sendCode} className="space-y-4" noValidate>
-          <Field label="Email address" htmlFor="email" hint="Lehigh students: use your @lehigh.edu address.">
+          <Field label="Email address" htmlFor="email" hint={`${SITE.campus.name} students: use your @${STUDENT_DOMAIN} address.`}>
             <Input
               id="email"
               name="email"
@@ -176,7 +178,7 @@ export function SignInForm({ next }: { next: string }) {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@lehigh.edu"
+              placeholder={`you@${STUDENT_DOMAIN}`}
               aria-describedby="email-hint"
             />
           </Field>

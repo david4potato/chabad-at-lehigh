@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SITE } from "@/config/site";
 import { getViewer } from "@/lib/auth";
 import { listOpenShifts, type ShiftView } from "@/lib/data/volunteer";
 import { formatLongDate, relativeDay, toDateTimeLocalValue } from "@/lib/time";
@@ -10,7 +11,7 @@ import { ShiftList } from "@/components/volunteer/shift-card";
 
 export const metadata: Metadata = {
   title: "Help out",
-  description: "Sign up to help cook, set up or clean up at Chabad at Lehigh.",
+  description: `Sign up to help cook, set up or clean up at ${SITE.name}.`,
 };
 
 const INTRO = "Cooking, setting up and cleaning up together is a big part of Shabbat here.";

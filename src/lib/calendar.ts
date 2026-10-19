@@ -2,6 +2,7 @@
 // Day keys ("2026-10-23") are calendar days in site time (America/New_York).
 // Grid arithmetic is done on plain calendar dates in UTC, so daylight saving
 // changes can never skip or repeat a day.
+import { SITE } from "@/config/site";
 import { icsEscape, icsFold, icsStamp } from "@/lib/ics";
 import { SITE_TIME_ZONE, siteDateKey, siteLocalToUtcIso } from "@/lib/time";
 
@@ -186,7 +187,7 @@ export function buildCalendarFeed(
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Chabad at Lehigh//Events//EN",
+    `PRODID:-//${SITE.name}//Events//EN`,
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     `X-WR-CALNAME:${icsEscape(options.name)}`,
@@ -203,7 +204,7 @@ export function buildCalendarFeed(
     const description = [event.summary, url].filter(Boolean).join("\n\n");
     lines.push(
       "BEGIN:VEVENT",
-      `UID:${event.id}@chabad-at-lehigh`,
+      `UID:${event.id}@${SITE.slug}`,
       `DTSTAMP:${stamp}`,
       `DTSTART:${icsStamp(start)}`,
       `DTEND:${icsStamp(end)}`,

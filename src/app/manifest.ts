@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
+import { SITE } from "@/config/site";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Chabad at Lehigh",
-    short_name: "Chabad Lehigh",
-    description: "Shabbat dinners, events and community for Lehigh students and friends.",
+    name: SITE.name,
+    short_name: SITE.shortName,
+    description: SITE.description,
     start_url: "/",
     display: "standalone",
     background_color: "#fffaf2",

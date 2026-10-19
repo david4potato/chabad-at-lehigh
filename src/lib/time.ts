@@ -1,6 +1,8 @@
+import { SITE } from "@/config/site";
+
 // All event times are shown in Bethlehem, PA time regardless of where the
 // server runs (Vercel servers use UTC).
-export const SITE_TIME_ZONE = "America/New_York";
+export const SITE_TIME_ZONE = SITE.timeZone;
 
 type DateInput = string | number | Date;
 const toDate = (d: DateInput) => (d instanceof Date ? d : new Date(d));

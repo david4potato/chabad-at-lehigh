@@ -3,6 +3,7 @@
 import { useActionState, useState, useTransition } from "react";
 import { X } from "lucide-react";
 import { grantRole, removePendingGrant, revokeRole } from "@/app/admin/people/actions";
+import { SITE } from "@/config/site";
 import { initialActionState, type ActionResult } from "@/lib/action-result";
 import { ROLES, ROLE_LABELS, type Role } from "@/lib/roles";
 import { Field, Input, Select } from "@/components/ui/field";
@@ -17,7 +18,7 @@ export function GrantRoleForm() {
     <Form action={action} state={state} resetOnSuccess className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-[1fr_200px]">
         <Field label="Email" htmlFor="grant-email" errors={e?.email} required>
-          <Input id="grant-email" name="email" type="email" required placeholder="name@lehigh.edu" />
+          <Input id="grant-email" name="email" type="email" required placeholder={`name@${SITE.campus.studentEmailDomains[0]}`} />
         </Field>
         <Field label="Role" htmlFor="grant-role" errors={e?.role}>
           <Select id="grant-role" name="role" defaultValue="organizer">

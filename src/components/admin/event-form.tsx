@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState, useState, useTransition } from "react";
 import { initialActionState, type ActionResult } from "@/lib/action-result";
 import type { EventResult } from "@/app/admin/events/actions";
+import { SITE } from "@/config/site";
 import { toDateTimeLocalValue } from "@/lib/time";
 import { cn } from "@/lib/cn";
 import { Checkbox, Field, Input, Select, Textarea } from "@/components/ui/field";
@@ -21,7 +22,7 @@ export const EVENT_FORM_ID = "event-form";
 
 const APPROVAL_OPTIONS = [
   { value: "auto", label: "Confirm everyone automatically", hint: "People are confirmed while space remains; then they join the waitlist." },
-  { value: "guests_need_approval", label: "Guests and community members need approval", hint: "Lehigh students are confirmed automatically. You approve plus-ones and community guests." },
+  { value: "guests_need_approval", label: "Guests and community members need approval", hint: `${SITE.campus.name} students are confirmed automatically. You approve plus-ones and community guests.` },
   { value: "all_need_approval", label: "Every RSVP needs approval", hint: "You confirm each person on the Attendees tab." },
 ];
 
@@ -122,7 +123,7 @@ export function EventForm({
             </Field>
           </div>
           <Field label="Place name" htmlFor="location_name" errors={e?.location_name}>
-            <Input id="location_name" name="location_name" maxLength={140} defaultValue={event?.location_name ?? defaults?.location_name ?? ""} placeholder="Chabad House" />
+            <Input id="location_name" name="location_name" maxLength={140} defaultValue={event?.location_name ?? defaults?.location_name ?? ""} placeholder={SITE.houseName} />
           </Field>
           <Field label="Street address" htmlFor="location_address" hint="Optional — adds a map link." errors={e?.location_address}>
             <Input id="location_address" name="location_address" maxLength={280} defaultValue={event?.location_address ?? defaults?.location_address ?? ""} />
