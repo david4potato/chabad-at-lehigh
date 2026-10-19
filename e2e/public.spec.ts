@@ -27,6 +27,24 @@ test.describe("public browsing (signed out)", () => {
     await expect(page.getByText(/allergen-free|guaranteed safe|is safe for/i)).toHaveCount(0);
   });
 
+  test("link previews have a title, description and a 1200×630 image", async ({ page, request }) => {
+    for (const path of ["/", `/events/${await firstShabbatSlug()}`]) {
+      await page.goto(path);
+      const meta = (selector: string) => page.locator(selector).first().getAttribute("content");
+      expect(await meta('meta[property="og:title"]')).toBeTruthy();
+      expect(await meta('meta[property="og:description"]')).toBeTruthy();
+      expect(await meta('meta[property="og:image:width"]')).toBe("1200");
+      expect(await meta('meta[property="og:image:height"]')).toBe("630");
+      expect(await meta('meta[property="og:image:alt"]')).toBeTruthy();
+      expect(await meta('meta[name="twitter:card"]')).toBe("summary_large_image");
+      const image = await meta('meta[property="og:image"]');
+      expect(image).toMatch(/^https?:\/\//); // absolute, through metadataBase
+      const res = await request.get(new URL(image!).pathname);
+      expect(res.status()).toBe(200);
+      expect(res.headers()["content-type"]).toContain("image/png");
+    }
+  });
+
   test("calendar file downloads for a published event", async ({ request }) => {
     const slug = await firstShabbatSlug();
     const res = await request.get(`/events/${slug}/calendar.ics`);

@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { SITE } from "@/config/site";
+import { OG_IMAGE, SITE } from "@/config/site";
 import { getSiteUrl } from "@/lib/env";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
@@ -10,7 +10,16 @@ export const metadata: Metadata = {
   title: { default: SITE.name, template: `%s · ${SITE.name}` },
   description: SITE.description,
   applicationName: SITE.name,
-  openGraph: { title: SITE.name, description: SITE.description, type: "website", siteName: SITE.name, locale: "en_US" },
+  openGraph: {
+    title: SITE.name,
+    description: SITE.description,
+    type: "website",
+    siteName: SITE.name,
+    locale: "en_US",
+    images: [OG_IMAGE],
+  },
+  // No title or description here, so event pages keep their own; chats fall back to the og: tags.
+  twitter: { card: "summary_large_image", images: [OG_IMAGE] },
 };
 
 export const viewport: Viewport = {
