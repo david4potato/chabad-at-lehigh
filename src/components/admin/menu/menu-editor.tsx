@@ -189,7 +189,7 @@ export function AddDishForm({ eventId, versionId, dishes }: { eventId: string; v
   if (dishes.length === 0) {
     return (
       <p className="text-sm text-muted">
-        Your dish library is empty.{" "}
+        No active or proposed dishes yet.{" "}
         <Link href={newDishHref} className="inline-flex min-h-11 items-center font-semibold text-brand-700 hover:underline">
           Create your first dish.
         </Link>
@@ -399,22 +399,31 @@ export function VotingOptions({
         <p className="text-sm text-muted">No options yet.</p>
       )}
       <FormMessage state={remove.result} />
-      <Form action={action} state={state} resetOnSuccess className="flex flex-col gap-2 sm:flex-row sm:items-end">
-        <input type="hidden" name="event_id" value={eventId} />
-        <Field label="Add an option" htmlFor="option-dish" className="flex-1">
-          <Select id="option-dish" name="dish_id" required defaultValue="">
-            <option value="" disabled>
-              Choose a dish…
-            </option>
-            {available.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.name}
+      {available.length === 0 ? (
+        <p className="text-sm text-muted">
+          No other dishes to add.{" "}
+          <Link href={`/admin/dishes/new?event=${eventId}`} className="inline-flex min-h-11 items-center font-semibold text-brand-700 hover:underline">
+            Create a dish.
+          </Link>
+        </p>
+      ) : (
+        <Form action={action} state={state} resetOnSuccess className="flex flex-col gap-2 sm:flex-row sm:items-end">
+          <input type="hidden" name="event_id" value={eventId} />
+          <Field label="Add an option" htmlFor="option-dish" className="flex-1">
+            <Select id="option-dish" name="dish_id" required defaultValue="">
+              <option value="" disabled>
+                Choose a dish…
               </option>
-            ))}
-          </Select>
-        </Field>
-        <SubmitButton variant="secondary">Add</SubmitButton>
-      </Form>
+              {available.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <SubmitButton variant="secondary">Add</SubmitButton>
+        </Form>
+      )}
       <FormMessage state={state} />
     </div>
   );

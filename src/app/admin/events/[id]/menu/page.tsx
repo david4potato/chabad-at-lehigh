@@ -245,6 +245,12 @@ function LiveMenu({ items, open }: { items: MenuItem[]; open: boolean }) {
                       {item.cross_contact_notes}
                     </p>
                   ) : null}
+                  {item.preparation_notes ? (
+                    <p className="text-xs text-ink">
+                      <span className="font-semibold">Preparation: </span>
+                      {item.preparation_notes}
+                    </p>
+                  ) : null}
                 </li>
               ))}
             </ul>
