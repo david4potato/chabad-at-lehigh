@@ -21,13 +21,15 @@ const dishSchema = z.object({
   kosher_type: z.union([z.literal(""), z.enum(["meat", "dairy", "pareve"])]).optional().transform((v) => v || null),
   diet_tags: z.array(z.enum(["vegetarian", "vegan"])),
   status: z.enum(["active", "proposed", "archived"]),
+  // The event menu a new dish was started from: only used to link back to it.
+  event: z.union([z.literal(""), id]).optional(),
 });
 
 export async function saveDish(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
   if (!(await viewerWithRole(MENU_STAFF))) return FORBIDDEN;
   const parsed = dishSchema.safeParse({ ...Object.fromEntries(formData), diet_tags: formData.getAll("diet_tags").map(String) });
   if (!parsed.success) return validationError(parsed.error);
-  const { id: dishId, ...values } = parsed.data;
+  const { id: dishId, event: eventId, ...values } = parsed.data;
   const supabase = await createClient();
   if (dishId) {
     const { error } = await supabase.from("dishes").update(values).eq("id", dishId);
@@ -38,7 +40,7 @@ export async function saveDish(_prev: ActionResult, formData: FormData): Promise
   const { data, error } = await supabase.from("dishes").insert(values).select("id").single();
   if (error) return { ok: false, error: error.code === "23505" ? "A dish with that name already exists." : dbErrorMessage(error) };
   revalidatePath("/admin/dishes", "layout");
-  redirect(`/admin/dishes/${data.id}?created=1`);
+  redirect(`/admin/dishes/${data.id}?created=1${eventId ? `&event=${eventId}` : ""}`);
 }
 
 export async function deleteDish(dishId: string): Promise<ActionResult> {

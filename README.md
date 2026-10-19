@@ -4,6 +4,7 @@ A warm, mobile-first hub for Chabad at Lehigh: Shabbat dinner RSVPs, events, men
 ingredients and allergens, private dietary preferences, and a simple organizer dashboard.
 
 - **Hosting:** Vercel · **Database, sign-in, storage:** Supabase · both free plans, one codebase.
+- **Going live:** [GO_LIVE.md](GO_LIVE.md) — the steps to launch, and an index of every key document.
 - **Set it up:** [SETUP.md](SETUP.md) — numbered beginner guide with an environment-variable checklist.
 - **Before real use:** organizers sign off on [docs/ORGANIZER_REVIEW.md](docs/ORGANIZER_REVIEW.md).
   Dish votes are never proof that food is safe for someone with an allergy.

@@ -23,6 +23,7 @@ export default async function EditShiftPage({ params, searchParams }: PageProps<
   const events = await listShiftEventOptions(shift.event_id);
   // An Open shift stays hidden from people while its event is a draft or cancelled.
   const hidden = hiddenByEventLabel(shift);
+  const started = hasStarted(shift.starts_at);
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -67,15 +68,16 @@ export default async function EditShiftPage({ params, searchParams }: PageProps<
           Signed up ({shift.signups.length} of {shift.slots})
         </CardTitle>
         <div className="mt-3">
-          {shift.signups.length === 0 ? (
-            <p className="text-sm text-muted">Nobody yet. Share the Help out page in your group chats.</p>
-          ) : (
-            <SignupList
-              shiftId={shift.id}
-              signups={shift.signups.map((s) => ({ ...s, when: formatDateTime(s.created_at) }))}
-              onRemove={removeSignup}
-            />
-          )}
+          {/* Always rendered, so "Removed" still shows after the last person is taken off. */}
+          <SignupList
+            shiftId={shift.id}
+            signups={shift.signups.map((s) => ({ ...s, when: formatDateTime(s.created_at) }))}
+            onRemove={removeSignup}
+            reopensSpot={shift.status === "open" && !started}
+            emptyText={
+              started || shift.status !== "open" ? "Nobody signed up." : "Nobody yet. Share the Help out page in your group chats."
+            }
+          />
         </div>
       </Card>
 
@@ -97,7 +99,7 @@ export default async function EditShiftPage({ params, searchParams }: PageProps<
           }}
           events={events}
           signupCount={shift.signups.length}
-          started={hasStarted(shift.starts_at)}
+          started={started}
           onDelete={deleteShift}
         />
       </section>
