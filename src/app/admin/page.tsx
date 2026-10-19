@@ -123,7 +123,7 @@ export default async function AdminHome({ searchParams }: PageProps<"/admin">) {
                     </p>
                     <p className="text-sm text-muted">
                       {formatShortDate(e.starts_at)} · {formatTime(e.starts_at)} · {c?.seatsTaken ?? 0}
-                      {e.capacity ? ` / ${e.capacity}` : ""} seats
+                      {e.capacity ? ` / ${e.capacity}` : ""} {(e.capacity ?? c?.seatsTaken ?? 0) === 1 ? "seat" : "seats"}
                       {c?.waitlist ? ` · ${c.waitlist} waitlist` : ""}
                       {c?.pending ? <span className="font-semibold text-brand-800"> · {c.pending} need approval</span> : null}
                     </p>

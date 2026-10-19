@@ -100,7 +100,7 @@ export default async function AdminEventsPage({ searchParams }: PageProps<"/admi
                           {" · "}
                           <span className="font-semibold text-ink">
                             {c.seatsTaken}
-                            {e.capacity ? ` / ${e.capacity}` : ""} seats
+                            {e.capacity ? ` / ${e.capacity}` : ""} {(e.capacity ?? c.seatsTaken) === 1 ? "seat" : "seats"}
                           </span>
                           {c.waitlist ? ` · ${c.waitlist} waitlist` : ""}
                           {c.pending ? <span className="font-semibold text-brand-800"> · {c.pending} need approval</span> : ""}
