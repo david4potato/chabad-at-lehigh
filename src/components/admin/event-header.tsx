@@ -15,7 +15,7 @@ export function AdminEventHeader({ event }: { event: AdminEvent }) {
         ← All events
       </Link>
       <div className="mt-2 flex flex-wrap items-center gap-2">
-        <h1 className="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">{event.title}</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight text-ink lg:text-[2.5rem] lg:leading-tight">{event.title}</h1>
         <Badge tone={STATUS_TONE[event.status]}>{STATUS_LABEL[event.status]}</Badge>
       </div>
       <p className="mt-1 text-muted">{formatEventWhen(event.starts_at, event.ends_at)}</p>

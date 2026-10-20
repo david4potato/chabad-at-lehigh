@@ -23,7 +23,7 @@ export default async function NewShiftPage({ searchParams }: PageProps<"/admin/v
       <Link href={backHref} className="inline-flex min-h-11 items-center text-sm font-semibold text-brand-700 hover:underline">
         {defaultEventId ? "← Back to the event" : "← All shifts"}
       </Link>
-      <h1 className="mb-1 mt-1 text-2xl font-extrabold tracking-tight sm:text-3xl">New volunteer shift</h1>
+      <h1 className="text-3xl mb-1 mt-1 font-extrabold tracking-tight lg:text-[2.5rem] lg:leading-tight">New volunteer shift</h1>
       <p className="mb-6 text-muted">Cooking, setting up, cleaning up: anything you&apos;d like a hand with.</p>
       <ShiftForm action={createShift} events={events} defaultEventId={defaultEventId} />
     </div>

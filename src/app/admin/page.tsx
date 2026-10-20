@@ -65,7 +65,7 @@ export default async function AdminHome({ searchParams }: PageProps<"/admin">) {
         <Alert tone="warning">That page needs a different role. Ask an admin (People &amp; roles) if you need access.</Alert>
       ) : null}
       <div>
-        <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">Hi, {viewer.displayName}</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight lg:text-[2.5rem] lg:leading-tight">Hi, {viewer.displayName}</h1>
         <p className="mt-1 text-muted">
           Here&apos;s what&apos;s coming up. New to the dashboard?{" "}
           <Link href="/admin/help" className="font-semibold text-brand-700 hover:underline">

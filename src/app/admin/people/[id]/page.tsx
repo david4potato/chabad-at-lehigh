@@ -65,7 +65,7 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
           <ArrowLeft className="size-4" aria-hidden="true" />
           Back to People &amp; roles
         </Link>
-        <h1 className="mt-1 text-2xl font-extrabold tracking-tight wrap-anywhere text-ink sm:text-3xl">{name}</h1>
+        <h1 className="text-3xl mt-1 font-extrabold tracking-tight wrap-anywhere text-ink lg:text-[2.5rem] lg:leading-tight">{name}</h1>
         {preferred && full && full !== preferred ? <p className="mt-1 text-muted">{full}</p> : null}
         <p className="mt-1">
           <a

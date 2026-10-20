@@ -40,7 +40,7 @@ export function DeleteNotificationButton({ id }: { id: string }) {
       type="button"
       disabled={pending}
       onClick={() => start(async () => void (await deleteNotification(id)))}
-      className="flex size-10 shrink-0 items-center justify-center rounded-full text-muted hover:bg-stone-100 hover:text-ink"
+      className="flex size-11 shrink-0 items-center justify-center rounded-full text-muted hover:bg-stone-100 hover:text-ink"
       aria-label="Delete notification"
     >
       <Trash2 className="size-4" aria-hidden="true" />

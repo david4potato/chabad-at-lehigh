@@ -50,7 +50,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
 
       <div>
         <p className="text-sm font-semibold text-gold-700">{SITE.name}</p>
-        <h1 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+        <h1 className="text-3xl font-extrabold tracking-tight text-ink lg:text-[2.5rem] lg:leading-tight">
           {viewer ? `${greeting}, ${viewer.displayName}!` : "Welcome home."}
         </h1>
         {!viewer ? (
@@ -150,10 +150,10 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
               Coming up
             </h2>
             <div className="flex gap-4">
-              <Link href="/events?view=month" className="text-sm font-semibold text-brand-700 hover:underline">
+              <Link href="/events?view=month" className="inline-flex min-h-11 items-center text-sm font-semibold text-brand-700 hover:underline">
                 Calendar
               </Link>
-              <Link href="/events" className="text-sm font-semibold text-brand-700 hover:underline">
+              <Link href="/events" className="inline-flex min-h-11 items-center text-sm font-semibold text-brand-700 hover:underline">
                 All events
               </Link>
             </div>
@@ -175,7 +175,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
               <h2 id="news-heading" className="text-lg font-bold text-ink">
                 Announcements
               </h2>
-              <Link href="/announcements" className="text-sm font-semibold text-brand-700 hover:underline">
+              <Link href="/announcements" className="inline-flex min-h-11 items-center text-sm font-semibold text-brand-700 hover:underline">
                 See all
               </Link>
             </div>

@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: PageProps<"/events/[slug]">):
 function SignInToView({ slug }: { slug: string }) {
   return (
     <div className="mx-auto max-w-md py-12 text-center">
-      <h1 className="text-3xl font-extrabold tracking-tight">Sign in to see this event</h1>
+      <h1 className="text-3xl font-extrabold tracking-tight lg:text-[2.5rem] lg:leading-tight">Sign in to see this event</h1>
       <p className="mt-2 text-muted">This event may be for signed-in members, or it may no longer be available.</p>
       <div className="mt-6 flex justify-center gap-2">
         <ButtonLink href={`/sign-in?next=${encodeURIComponent(`/events/${slug}`)}`}>Sign in</ButtonLink>
@@ -111,7 +111,7 @@ export default async function EventPage({ params, searchParams }: PageProps<"/ev
           <Badge tone="gold">{CATEGORY_LABELS[event.category]}</Badge>
           {event.visibility === "members" ? <Badge>Members only</Badge> : null}
         </div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">{event.title}</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight text-ink lg:text-[2.5rem] lg:leading-tight">{event.title}</h1>
         {event.summary ? <p className="max-w-2xl text-lg text-muted">{event.summary}</p> : null}
         <ul className="space-y-2 text-base text-ink">
           <li className="flex items-start gap-2">
@@ -160,7 +160,7 @@ export default async function EventPage({ params, searchParams }: PageProps<"/ev
         ) : null}
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_380px] lg:items-start">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start">
         <aside className="space-y-6 lg:sticky lg:top-24 lg:col-start-2 lg:row-start-1">
           <Card className="border-gold-200">
             <CardTitle>RSVP</CardTitle>
@@ -194,7 +194,7 @@ export default async function EventPage({ params, searchParams }: PageProps<"/ev
             <ContactCard contact={{ name: event.contact_name, email: event.contact_email, phone: event.contact_phone }} />
           </div>
           <p className="hidden text-center text-sm lg:block">
-            <Link href="/events" className="font-semibold text-brand-700 hover:underline">
+            <Link href="/events" className="inline-flex min-h-11 items-center font-semibold text-brand-700 hover:underline">
               ← All events
             </Link>
           </p>

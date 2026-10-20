@@ -51,7 +51,7 @@ export default async function DietaryReportPage({ params }: PageProps<"/admin/ev
       </div>
       {/* Weekly dinners share a title, so the printout carries the date and when it was printed. */}
       <div className="hidden print:block">
-        <h1 className="text-xl font-bold">Dietary report — {event.title}</h1>
+        <h1 className="text-3xl font-bold lg:text-[2.5rem] lg:leading-tight print:text-xl">Dietary report — {event.title}</h1>
         <p className="mt-1 text-sm">
           {formatEventWhen(event.starts_at, event.ends_at)} · Printed {formatDateTime(new Date())}. RSVPs can change, so reprint on the day.
         </p>

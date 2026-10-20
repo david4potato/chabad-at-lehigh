@@ -63,7 +63,7 @@ export function DietaryForm({ initial, welcome, next }: { initial: Initial; welc
               const entry = selected.get(a.code);
               return (
                 <li key={a.code} className={cn("p-3 sm:p-4", entry && "bg-amber-50/50")}>
-                  <label className="flex min-h-8 cursor-pointer items-center gap-3">
+                  <label className="flex min-h-11 cursor-pointer items-center gap-3">
                     <input
                       type="checkbox"
                       name="allergen"

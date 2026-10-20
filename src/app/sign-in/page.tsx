@@ -25,7 +25,7 @@ export default async function SignInPage({ searchParams }: PageProps<"/sign-in">
   return (
     <div className="mx-auto max-w-md py-4 sm:py-12">
       <div className="mb-6 text-center">
-        <h1 className="text-3xl font-extrabold tracking-tight">Welcome!</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight lg:text-[2.5rem] lg:leading-tight">Welcome!</h1>
         <p className="mt-2 text-muted">Sign in to RSVP, save your dietary needs and see your events.</p>
       </div>
       {error ? (

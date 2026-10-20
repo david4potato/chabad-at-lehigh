@@ -224,7 +224,7 @@ export async function EventMenuSection({ event, viewer }: { event: MenuEvent; vi
           </ul>
           {!viewer ? (
             <p className="mt-2 text-sm">
-              <Link href={signInHref(event.slug)} className="font-semibold text-brand-700 hover:underline">
+              <Link href={signInHref(event.slug)} className="inline-flex min-h-11 items-center font-semibold text-brand-700 hover:underline">
                 Sign in to vote
               </Link>
             </p>
@@ -239,7 +239,7 @@ export async function EventMenuSection({ event, viewer }: { event: MenuEvent; vi
           {viewer ? (
             <SuggestionForm eventId={event.id} />
           ) : (
-            <Link href={signInHref(event.slug)} className="text-sm font-semibold text-brand-700 hover:underline">
+            <Link href={signInHref(event.slug)} className="inline-flex min-h-11 items-center text-sm font-semibold text-brand-700 hover:underline">
               Sign in to suggest a dish
             </Link>
           )}

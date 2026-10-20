@@ -35,7 +35,7 @@ function useVote(initial: VoteState, run: () => Promise<{ ok: boolean; error?: s
 export function FavoriteButton({ dishId, dishName, initial }: { dishId: string; dishName: string; initial: VoteState }) {
   const { state, pending, error, toggle } = useVote(initial, () => toggleFavorite(dishId));
   return (
-    <span className="inline-flex flex-col items-end">
+    <span className="inline-flex shrink-0 flex-col items-end">
       <button
         type="button"
         onClick={toggle}
@@ -43,7 +43,7 @@ export function FavoriteButton({ dishId, dishName, initial }: { dishId: string; 
         aria-pressed={state.active}
         aria-label={`${state.active ? "Remove" : "Add"} ${dishName} ${state.active ? "from" : "to"} favorites (${state.count})`}
         className={cn(
-          "inline-flex h-10 min-w-11 items-center justify-center gap-2 rounded-full border px-3 text-sm font-semibold transition-colors",
+          "inline-flex h-11 min-w-11 items-center justify-center gap-2 whitespace-nowrap rounded-full border px-3 text-sm font-semibold transition-colors",
           state.active ? "border-red-200 bg-red-50 text-red-700" : "border-stone-200 bg-white text-muted hover:text-ink",
         )}
       >
@@ -69,7 +69,7 @@ export function OptionVoteButton({
 }) {
   const { state, pending, error, toggle } = useVote(initial, () => toggleOptionVote(eventId, dishId));
   return (
-    <span className="inline-flex flex-col items-end">
+    <span className="inline-flex shrink-0 flex-col items-end">
       <button
         type="button"
         onClick={toggle}
@@ -77,7 +77,7 @@ export function OptionVoteButton({
         aria-pressed={state.active}
         aria-label={`${state.active ? "Voted" : "Vote"} for ${dishName}, ${plural(state.count, "vote")}`}
         className={cn(
-          "inline-flex h-11 items-center gap-2 rounded-xl border px-4 text-sm font-semibold transition-colors",
+          "inline-flex h-11 items-center gap-2 whitespace-nowrap rounded-xl border px-4 text-sm font-semibold transition-colors",
           state.active ? "border-brand-700 bg-brand-700 text-white" : "border-stone-300 bg-white text-ink hover:bg-stone-50",
         )}
       >

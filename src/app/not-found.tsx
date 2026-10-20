@@ -10,7 +10,7 @@ export default async function NotFound() {
   return (
     <div className="mx-auto max-w-md py-12 text-center">
       <p className="text-sm font-semibold text-gold-700">Page not found</p>
-      <h1 className="mt-1 text-3xl font-extrabold tracking-tight">We couldn&apos;t find that page</h1>
+      <h1 className="text-3xl mt-1 font-extrabold tracking-tight lg:text-[2.5rem] lg:leading-tight">We couldn&apos;t find that page</h1>
       <p className="mt-2 text-muted">
         It may have moved, or the event may no longer be available.
         {viewer ? null : " Some events are only for signed-in members, so try signing in."}

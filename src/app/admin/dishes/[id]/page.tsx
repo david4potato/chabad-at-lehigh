@@ -47,7 +47,7 @@ export default async function DishPage({ params, searchParams }: PageProps<"/adm
             ← All dishes
           </Link>
         )}
-        <h1 className="mt-1 text-2xl font-extrabold tracking-tight sm:text-3xl">{dish.name}</h1>
+        <h1 className="text-3xl mt-1 font-extrabold tracking-tight lg:text-[2.5rem] lg:leading-tight">{dish.name}</h1>
       </div>
       {query.created ? <Alert tone="success">Dish created. Now add its ingredients below.</Alert> : null}
       <Alert tone="info">
