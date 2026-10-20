@@ -1,9 +1,13 @@
 name: CI
 
+# Docs-only changes skip CI to save minutes. If you later make these checks required in branch
+# protection, remove paths-ignore, or docs-only pull requests will wait on checks that never run.
 on:
   push:
     branches: [main]
+    paths-ignore: ["**/*.md", "docs/**", "LICENSE", ".github/CODEOWNERS"]
   pull_request:
+    paths-ignore: ["**/*.md", "docs/**", "LICENSE", ".github/CODEOWNERS"]
   workflow_dispatch:
 
 # Read-only token: CI only checks code, it never writes to the repo.
@@ -18,6 +22,7 @@ jobs:
   checks:
     name: Lint, typecheck, unit tests, build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     env:
       # Placeholder values so the production build can run without real secrets.
       NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
@@ -39,6 +44,7 @@ jobs:
   database-and-e2e:
     name: Database (RLS) tests + end-to-end tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     env:
       NEXT_TELEMETRY_DISABLED: 1
     steps:
@@ -67,4 +73,4 @@ jobs:
         with:
           name: playwright-report
           path: playwright-report
-          retention-days: 7
+          retention-days: 3
