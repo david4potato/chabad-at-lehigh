@@ -16,7 +16,8 @@ import { Alert } from "@/components/ui/alert";
 import { GettingStarted } from "@/components/admin/getting-started";
 import { StatsRow } from "@/components/admin/stats-row";
 
-export const metadata: Metadata = { title: "Overview" };
+// The dashboard layout's title template only applies to child pages, so this one spells it out.
+export const metadata: Metadata = { title: { absolute: "Overview · Dashboard" } };
 
 export default async function AdminHome({ searchParams }: PageProps<"/admin">) {
   const viewer = await requireRole(["organizer", "kitchen_staff", "admin"], "/admin");

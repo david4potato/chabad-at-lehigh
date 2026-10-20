@@ -2,8 +2,8 @@ import { cloneElement, isValidElement, type AriaAttributes, type ComponentProps,
 import { cn } from "@/lib/cn";
 
 const control =
-  "block w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-base text-ink " +
-  "placeholder:text-stone-400 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200 " +
+  "block w-full rounded-xl border border-stone-500 bg-white px-3 py-2 text-base text-ink " +
+  "placeholder:text-stone-500 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200 " +
   "disabled:bg-stone-100 aria-[invalid=true]:border-red-600";
 
 export function Label({ className, ...props }: ComponentProps<"label">) {

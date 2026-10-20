@@ -25,8 +25,10 @@ export function MarkAllReadButton() {
     <Button
       variant="secondary"
       size="sm"
-      disabled={pending}
-      onClick={() => start(async () => void (await markAllNotificationsRead()))}
+      aria-disabled={pending || undefined}
+      onClick={() => {
+        if (!pending) start(async () => void (await markAllNotificationsRead()));
+      }}
     >
       Mark all as read
     </Button>
@@ -38,8 +40,17 @@ export function DeleteNotificationButton({ id }: { id: string }) {
   return (
     <button
       type="button"
-      disabled={pending}
-      onClick={() => start(async () => void (await deleteNotification(id)))}
+      aria-disabled={pending || undefined}
+      onClick={(e) => {
+        if (pending) return;
+        // The row goes away, so focus moves to the next (or previous) row's delete button, or to the page.
+        const row = e.currentTarget.closest("li");
+        const next = (row?.nextElementSibling ?? row?.previousElementSibling)?.querySelector<HTMLElement>("button[aria-label='Delete notification']");
+        start(async () => {
+          await deleteNotification(id);
+          (next ?? document.getElementById("main"))?.focus();
+        });
+      }}
       className="flex size-11 shrink-0 items-center justify-center rounded-full text-muted hover:bg-stone-100 hover:text-ink"
       aria-label="Delete notification"
     >

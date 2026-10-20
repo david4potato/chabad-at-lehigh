@@ -127,8 +127,8 @@ export default async function EventPage({ params, searchParams }: PageProps<"/ev
             )}
           </li>
           {event.location_name || event.location_address ? (
-            <li className="flex items-center gap-2">
-              <MapPin className="size-4 shrink-0 text-muted" aria-hidden="true" />
+            <li className="flex items-start gap-2">
+              <MapPin className="mt-1 size-4 shrink-0 text-muted" aria-hidden="true" />
               <span>
                 {event.location_name}
                 {event.location_address ? (
@@ -136,7 +136,8 @@ export default async function EventPage({ params, searchParams }: PageProps<"/ev
                     {event.location_name ? " · " : null}
                     <a
                       href={mapsUrl(event.location_address)}
-                      className="inline-flex min-h-11 items-center font-medium text-brand-700 hover:underline"
+                      // Inline padding makes the tap area 44px tall without moving the line.
+                      className="py-3 font-medium text-brand-700 hover:underline"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -163,7 +164,7 @@ export default async function EventPage({ params, searchParams }: PageProps<"/ev
       </header>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start">
-        <aside className="space-y-6 lg:sticky lg:top-24 lg:col-start-2 lg:row-start-1">
+        <aside className="flex flex-col gap-6 lg:col-start-2 lg:row-start-1">
           <Card className="border-gold-200">
             <CardTitle>RSVP</CardTitle>
             <div className="mt-3">

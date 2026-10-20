@@ -27,8 +27,10 @@ export function AllergenBadges({ codes, kind = "contains", optionalOnly = [], la
       {lead ? <span className="mr-1 text-sm font-semibold text-ink">{lead}</span> : null}
       {sortAllergens(codes).map((code) => (
         <Badge key={code} tone={kind === "contains" ? "red" : "amber"}>
-          {allergenLabel(code)}
-          {optional.has(code) ? <span className="font-medium">(optional ingredient)</span> : null}
+          <span>
+            {allergenLabel(code)}
+            {optional.has(code) ? <span className="font-medium"> (optional ingredient)</span> : null}
+          </span>
         </Badge>
       ))}
     </div>

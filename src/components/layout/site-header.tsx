@@ -21,7 +21,7 @@ export async function SiteHeader() {
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6 md:px-8">
           <Logo />
           <nav aria-label="Main" className="hidden md:block">
-            <DesktopNavLinks items={navItems} />
+            <DesktopNavLinks items={navItems} hideHomeBelowLg={staff} />
           </nav>
           <div className="flex items-center gap-1">
             {viewer ? (

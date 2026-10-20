@@ -20,9 +20,14 @@ const WEEKDAYS = [
 const MAX_TITLES = 2; // titles shown per day on wider screens
 const MAX_DOTS = 3; // dots shown per day on phones
 
-/** "Friday, October 23, today. 2 events: Lunch & Learn; Shabbat Dinner (cancelled)" */
+/**
+ * "23 Lunch & Learn Shabbat Dinner. Friday, October 23, today. 2 events: Lunch & Learn; Shabbat Dinner (cancelled)".
+ * It starts with what's visible in the cell (the day, and on wider screens the titles), so voice control works.
+ */
 function dayLabel(key: DayKey, events: readonly CalendarEvent[], isToday: boolean, isSelected: boolean) {
-  let label = formatDayKey(key);
+  const more = events.length - MAX_TITLES;
+  const visible = [String(Number(key.slice(8))), ...events.slice(0, MAX_TITLES).map((e) => e.title), more > 0 ? `+${more} more` : ""];
+  let label = `${visible.filter(Boolean).join(" ")}. ${formatDayKey(key)}`;
   if (isToday) label += ", today";
   if (isSelected) label += ", selected";
   if (events.length > 0) {
@@ -142,11 +147,7 @@ function DayCell({
             key={e.id}
             className={cn(
               "size-1.5 rounded-full",
-              e.status === "cancelled"
-                ? "border border-stone-500"
-                : e.category === "shabbat_dinner"
-                  ? "bg-gold-500"
-                  : "bg-brand-700",
+              e.status === "cancelled" ? "border border-stone-500" : "bg-brand-700",
             )}
           />
         ))}

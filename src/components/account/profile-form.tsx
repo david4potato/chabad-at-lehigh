@@ -59,7 +59,7 @@ export function ProfileForm({ action, profile, submitLabel, next, compact = fals
             <label
               key={a.value}
               className={cn(
-                "flex min-h-12 cursor-pointer items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition-colors",
+                "flex min-h-12 cursor-pointer items-center gap-2 rounded-xl border px-2 text-sm font-semibold transition-colors sm:px-3",
                 affiliation === a.value ? "border-brand-700 bg-brand-50 text-brand-900" : "border-stone-300 bg-white text-ink hover:bg-stone-50",
               )}
             >
@@ -69,7 +69,7 @@ export function ProfileForm({ action, profile, submitLabel, next, compact = fals
                 value={a.value}
                 checked={affiliation === a.value}
                 onChange={() => setAffiliation(a.value)}
-                className="size-4 text-base accent-brand-700"
+                className="size-4 shrink-0 text-base accent-brand-700"
               />
               {a.label}
             </label>

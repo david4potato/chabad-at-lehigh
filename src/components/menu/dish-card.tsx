@@ -1,4 +1,4 @@
-import { AlertTriangle, ChevronDown } from "lucide-react";
+import { AlertTriangle, ChevronDown, OctagonAlert } from "lucide-react";
 import { allergenLabel, type AllergenMatch } from "@/lib/allergens";
 import { optionalOnlyAllergens, type MenuItem } from "@/lib/menu";
 import { Badge } from "@/components/ui/badge";
@@ -44,12 +44,20 @@ export function DishCard({ item, matches, favorite }: Props) {
               : "mt-3 flex gap-2 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950"
           }
         >
-          <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+          {severe ? (
+            <OctagonAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+          ) : (
+            <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+          )}
           <div>
-            <p className="font-semibold">Your allergies:</p>
+            {/* Severity is said in words, not only by the red box. */}
+            <p className="font-semibold">{severe ? "Severe allergy match:" : "Your allergies:"}</p>
             <ul className="mt-1 list-disc pl-4">
               {matches.map((m) => (
-                <li key={`${m.code}-${m.kind}-${m.relatedTo ?? ""}`}>{describeMatch(m, dish.allergens)}</li>
+                <li key={`${m.code}-${m.kind}-${m.relatedTo ?? ""}`}>
+                  {describeMatch(m, dish.allergens)}
+                  {m.severity === "severe" ? " (you marked this severe)" : null}
+                </li>
               ))}
             </ul>
           </div>

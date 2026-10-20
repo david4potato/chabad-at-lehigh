@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { Check, Clock, Hourglass, Minus, Plus, UserCheck, X } from "lucide-react";
 import { setRsvp } from "@/app/events/actions";
@@ -66,6 +66,12 @@ const STATUS_HINT: Record<keyof typeof STATUS_VIEW, string> = {
   declined: "Please contact the organizer if you have questions.",
 };
 
+const FOCUS_TARGETS = {
+  summary: "[data-rsvp-summary]",
+  form: "button[name='response']",
+  change: "[data-change-rsvp]",
+} as const;
+
 function ResponseButton({ value, children, active }: { value: "going" | "not_going"; children: string; active: boolean }) {
   const { pending, data } = useFormStatus();
   const thisPending = pending && data?.get("response") === value;
@@ -74,7 +80,10 @@ function ResponseButton({ value, children, active }: { value: "going" | "not_goi
       type="submit"
       name="response"
       value={value}
-      disabled={pending}
+      aria-disabled={pending || undefined}
+      onClick={(e) => {
+        if (pending) e.preventDefault();
+      }}
       aria-pressed={active}
       className={cn(
         buttonClasses(value === "going" ? "primary" : "secondary", "lg"),
@@ -103,10 +112,22 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
   const [guests, setGuests] = useState(savedGuests);
   // An error stays under the form until the person moves on (Change RSVP or Keep my current RSVP).
   const [showMessage, setShowMessage] = useState(true);
+  // The form and the status box swap places, so focus moves to whichever one appears next.
+  const panelRef = useRef<HTMLDivElement>(null);
+  const focusNext = useRef<keyof typeof FOCUS_TARGETS | null>(null);
+  useEffect(() => {
+    const target = focusNext.current;
+    const el = target ? panelRef.current?.querySelector<HTMLElement>(FOCUS_TARGETS[target]) : null;
+    if (el) {
+      focusNext.current = null;
+      el.focus();
+    }
+  }, [editing, rsvp]);
   const [state, formAction] = useActionState(async (prev: typeof initialActionState, formData: FormData) => {
     const result = await setRsvp(prev, formData);
     setShowMessage(true);
     if (result.ok) {
+      focusNext.current = "summary";
       setEditing(false);
       // "Not going" clears guests in the database, so a later "Going" starts from 0 too.
       if (formData.get("response") === "not_going") setGuests(0);
@@ -198,7 +219,7 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
   const canChange = rsvp?.status !== "declined";
 
   return (
-    <div className="space-y-3">
+    <div ref={panelRef} className="space-y-3">
       {rsvp && !editing ? (
         <>
           <StatusSummary rsvp={rsvp} />
@@ -206,7 +227,9 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
             <Button
               variant="secondary"
               className="w-full"
+              data-change-rsvp
               onClick={() => {
+                focusNext.current = "form";
                 setEditing(true);
                 setShowMessage(false);
               }}
@@ -343,6 +366,7 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
             <button
               type="button"
               onClick={() => {
+                focusNext.current = "change";
                 setEditing(false);
                 setShowMessage(false);
                 setGuests(savedGuests);
@@ -355,7 +379,7 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
         </Form>
       )}
       {/* Success shows in the status box above (role="status"), so only errors appear here. */}
-      {showMessage && !state.ok ? <FormMessage state={state} /> : null}
+      <FormMessage state={showMessage && !state.ok ? state : null} />
     </div>
   );
 }
@@ -364,7 +388,7 @@ function StatusSummary({ rsvp }: { rsvp: MyRsvp }) {
   const view = STATUS_VIEW[rsvp.status];
   const guests = guestSummary(rsvp.guest_count, rsvp.guest_status);
   return (
-    <div className={cn("flex gap-3 rounded-2xl border p-4", view.box)} role="status">
+    <div className={cn("flex gap-3 rounded-2xl border p-4", view.box)} role="status" tabIndex={-1} data-rsvp-summary>
       <view.Icon className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
       <div className="min-w-0">
         <p className="font-bold">

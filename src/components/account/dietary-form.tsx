@@ -78,7 +78,7 @@ export function DietaryForm({ initial, welcome, next }: { initial: Initial; welc
                     <div className="mt-3 grid gap-3 pl-8 sm:grid-cols-[220px_1fr]">
                       <div className="space-y-1">
                         <label htmlFor={`severity_${a.code}`} className="text-sm font-semibold text-muted">
-                          How serious?
+                          How serious?<span className="sr-only"> ({a.label})</span>
                         </label>
                         <Select id={`severity_${a.code}`} name={`severity_${a.code}`} defaultValue={entry.severity}>
                           {Object.entries(SEVERITY_LABELS).map(([value, label]) => (
@@ -90,7 +90,7 @@ export function DietaryForm({ initial, welcome, next }: { initial: Initial; welc
                       </div>
                       <div className="space-y-1">
                         <label htmlFor={`notes_${a.code}`} className="text-sm font-semibold text-muted">
-                          Note (optional)
+                          Note (optional)<span className="sr-only"> for {a.label}</span>
                         </label>
                         <Input id={`notes_${a.code}`} name={`notes_${a.code}`} maxLength={300} defaultValue={entry.notes ?? ""} placeholder="e.g. even traces" />
                       </div>

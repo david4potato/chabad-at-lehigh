@@ -99,7 +99,7 @@ export function AttendeeList({
                   setResults({});
                 }}
                 className={cn(
-                  "inline-flex h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold",
+                  "focus-inset inline-flex h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold",
                   filter === f.key ? "border-brand-700 bg-brand-700 text-white" : "border-stone-300 bg-white text-ink",
                 )}
               >
