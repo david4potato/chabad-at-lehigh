@@ -16,6 +16,8 @@ function stateOf(a: { status: string; publish_at: string; expires_at: string | n
   return { label: "Live", tone: "green" as const };
 }
 
+const LIMIT = 100;
+
 type EventChoice = { id: string; title: string; starts_at: string; status: string };
 
 // Weekly dinners share a title, so each choice shows its date (and whether it's cancelled).
@@ -34,7 +36,7 @@ export default async function AdminAnnouncementsPage() {
       .from("announcements")
       .select("id, title, body, audience, status, is_pinned, is_urgent, publish_at, expires_at, event_id")
       .order("publish_at", { ascending: false })
-      .limit(100),
+      .limit(LIMIT),
     // Upcoming events soonest first, then recent past ones.
     supabase.from("events").select(eventColumns).neq("status", "draft").gte("starts_at", nowIso).order("starts_at").limit(40),
     supabase
@@ -90,6 +92,7 @@ export default async function AdminAnnouncementsPage() {
           );
         })}
         {(rows ?? []).length === 0 ? <p className="text-sm text-muted">No announcements yet.</p> : null}
+        {(rows ?? []).length === LIMIT ? <p className="text-sm text-muted">Showing the newest {LIMIT}.</p> : null}
       </section>
     </div>
   );
