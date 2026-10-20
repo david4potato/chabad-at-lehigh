@@ -1,6 +1,6 @@
 # Mobile and spacing standard (shared by every site)
 
-David, 20 October 2026: "eveyrthing needs to work on mobile and be spaced right too for all sites
+The project owner, 20 October 2026: "eveyrthing needs to work on mobile and be spaced right too for all sites
 you can be consitent everywher too".
 
 Every site follows these numbers, so all our sites feel alike on a phone and on a laptop. Each

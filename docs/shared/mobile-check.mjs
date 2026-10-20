@@ -140,7 +140,27 @@ try {
         }
         const problems = await page.evaluate(inspect, { minTap: MIN_TAP, minText: MIN_TEXT, minInputText: MIN_INPUT_TEXT });
         const slug = path.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") || "home";
-        await page.screenshot({ path: join(OUT_DIR, `${slug}-${width}.png`), fullPage: true });
+        const shot = join(OUT_DIR, `${slug}-${width}.png`);
+        // Lazy-loaded images (next/image and loading="lazy") stay blank below the first screen
+        // until scrolled into view, so scroll through the page and wait for them first.
+        await page.evaluate(async () => {
+          const end = Math.min(document.body.scrollHeight, 40_000);
+          for (let y = 0; y < end; y += 600) {
+            window.scrollTo(0, y);
+            await new Promise((r) => setTimeout(r, 50));
+          }
+          window.scrollTo(0, 0);
+        });
+        await page
+          .waitForFunction(() => [...document.images].every((img) => img.complete), null, { timeout: 10_000 })
+          .catch(() => {});
+        try {
+          await page.screenshot({ path: shot, fullPage: true, timeout: 60_000 });
+        } catch {
+          // Very long pages can time out as one full-page image; keep the first screen instead.
+          await page.screenshot({ path: shot, fullPage: false }).catch(() => {});
+          console.log(`  (${path} @${width}px is too long for one screenshot; saved the first screen only)`);
+        }
         if (problems.length === 0) {
           console.log(`✓ ${path} @${width}px`);
         } else {
@@ -149,6 +169,10 @@ try {
           if (problems.length > 15) console.log(`    - and ${problems.length - 15} more`);
           total += problems.length;
         }
+      } catch (err) {
+        // One page failing (timeout, crash) is reported and the run carries on.
+        console.log(`✗ ${path} @${width}px: could not check (${err?.message?.split("\n")[0] ?? err})`);
+        total++;
       } finally {
         await page.close();
       }
