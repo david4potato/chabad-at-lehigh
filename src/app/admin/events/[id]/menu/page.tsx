@@ -5,6 +5,7 @@ import { requireRole } from "@/lib/auth";
 import { canManageEvents } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 import { getAdminEvent } from "@/lib/data/admin";
+import { getEventCounts, type EventCounts } from "@/lib/data/events";
 import { groupByCourse, optionalOnlyAllergens, parseEventMenu, type MenuItem } from "@/lib/menu";
 import { formatDateTime, formatLongDate } from "@/lib/time";
 import { Card, CardTitle } from "@/components/ui/card";
@@ -43,7 +44,7 @@ export default async function MenuAdminPage({ params, searchParams }: PageProps<
   const event = await getAdminEvent(id);
   const supabase = await createClient();
 
-  const [{ data: versions }, { data: dishes }, menuRes, { data: options }, { data: votes }, { data: updates }] = await Promise.all([
+  const [{ data: versions }, { data: dishes }, menuRes, { data: options }, { data: votes }, { data: updates }, counts] = await Promise.all([
     supabase
       .from("menu_versions")
       .select("id, version, status, title, change_summary, published_at, prep_confirmed_at, created_at")
@@ -54,6 +55,7 @@ export default async function MenuAdminPage({ params, searchParams }: PageProps<
     supabase.from("event_menu_options").select("dish_id, dish:dishes(name)").eq("event_id", event.id),
     supabase.rpc("get_dish_vote_counts", { p_event_id: event.id }),
     supabase.from("menu_updates").select("id, message, is_urgent, created_at").eq("event_id", event.id).order("created_at", { ascending: false }).limit(10),
+    getEventCounts([event.id]),
   ]);
 
   const all = versions ?? [];
@@ -154,6 +156,7 @@ export default async function MenuAdminPage({ params, searchParams }: PageProps<
         </div>
 
         <div className="space-y-6">
+          {event.has_meal ? <FoodAndWater counts={counts.get(event.id)} /> : null}
           {/* Updates are about a live menu, so this waits until one is published. */}
           {published || updateList.length ? (
             <Card>
@@ -258,5 +261,31 @@ function LiveMenu({ items, open }: { items: MenuItem[]; open: boolean }) {
         ))}
       </div>
     </details>
+  );
+}
+
+/** How many to cook for, and a short kitchen checklist: water for everyone, nothing wasted. */
+function FoodAndWater({ counts }: { counts?: EventCounts }) {
+  const seats = counts?.seatsTaken ?? 0;
+  const maybe = (counts?.pending ?? 0) + (counts?.waitlist ?? 0);
+  return (
+    <Card>
+      <CardTitle>Food and water</CardTitle>
+      <p className="mt-1 text-sm text-ink">
+        <span className="font-semibold">Cook for about {plural(seats, "person", "people")}</span>
+        {counts?.guests ? ` (${counts.going} going and ${plural(counts.guests, "guest")})` : ""}.
+        {maybe ? ` ${maybe} more could still join (waitlist or waiting for approval).` : ""}
+      </p>
+      <p className="mt-1 text-xs text-muted">RSVPs change, so check the count again the day before.</p>
+      <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm text-ink">
+        <li>Water for everyone: pitchers or a refill station, and cups.</li>
+        <li>Cook for the count above, not much more.</li>
+        <li>
+          Leftovers: refrigerate within 2 hours in containers labeled with the dish, the date and what it contains. Offer them to take home, or keep
+          them for the next meal.
+        </li>
+      </ul>
+      <p className="mt-3 text-xs text-muted">A checklist for the kitchen. The directors decide what&apos;s served.</p>
+    </Card>
   );
 }
