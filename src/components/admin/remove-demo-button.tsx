@@ -31,7 +31,7 @@ export function RemoveDemoButton() {
       aria-labelledby={questionId}
       className="flex w-full flex-wrap items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-900"
     >
-      <span id={questionId} className="flex-1">
+      <span id={questionId} className="basis-full">
         Delete every [DEMO] event, menu, dish and announcement? Real content stays.
       </span>
       {/* On success the action redirects to /admin with a confirmation message. */}

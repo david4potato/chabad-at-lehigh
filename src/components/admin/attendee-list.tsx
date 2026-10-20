@@ -158,7 +158,7 @@ export function AttendeeList({
                       <Badge tone={STATUS_TONE[a.status]}>{RSVP_STATUS_LABEL[a.status]}</Badge>
                       <Badge>{MEMBER_LABEL[a.member]}</Badge>
                     </div>
-                    <p className="truncate text-sm text-muted">{a.email}</p>
+                    <p className="text-sm break-all text-muted">{a.email}</p>
                     {a.guest_count > 0 ? (
                       <p className="mt-1 text-sm text-ink">
                         +{a.guest_count} guest{a.guest_count === 1 ? "" : "s"}
@@ -197,7 +197,7 @@ export function AttendeeList({
                     {a.status === "waitlist" && !fits(needed) ? (
                       <Button
                         variant="secondary"
-                        className="h-auto min-h-11 whitespace-normal py-2 text-left"
+                        className="h-auto! min-h-11 whitespace-normal! py-2 text-left"
                         disabled={busy}
                         onClick={() => {
                           if (confirm(`Confirm ${a.name} even though the event is full?`)) run(a, () => decideRsvp(eventId, a.id, "approve", true));
@@ -215,7 +215,7 @@ export function AttendeeList({
                         ) : (
                           <Button
                             variant="secondary"
-                            className="h-auto min-h-11 whitespace-normal py-2 text-left"
+                            className="h-auto! min-h-11 whitespace-normal! py-2 text-left"
                             disabled={busy}
                             onClick={() => {
                               if (confirm(`Approve ${a.name}'s guests even though there aren't enough seats?`))

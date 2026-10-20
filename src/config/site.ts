@@ -27,7 +27,7 @@ export const SITE = {
   /** Location name pre-filled on new events when an address is set in Settings. */
   houseName: "Chabad House",
   /** Named in the admin launch checklist as someone to give admin access to. */
-  adminExample: "the Greenbergs",
+  adminExample: "the directors",
   /**
    * Every date and time is shown and entered in this IANA time zone. Two SQL notification
    * functions repeat it (see docs/REPLICATE.md).

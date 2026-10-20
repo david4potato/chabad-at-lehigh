@@ -16,7 +16,7 @@ signing or paying for anything, creating accounts, repositories or domains, and 
 - **When:** 19 October 2026
 - **What:** `listInSearchEngines: false` in [src/config/site.ts](../src/config/site.ts) asks search engines not to
   list any page.
-- **Why:** Chabad at Lehigh hasn't approved the app yet, and anyone with the address can open the site. Their name
+- **Why:** The directors haven't signed off yet, and anyone with the address can open the site. Their name
   shouldn't show up in search results before they say yes.
 - **To change:** set it to `true` at launch ([SETUP.md](../SETUP.md), "At launch"), only after the directors sign off.
 - **Status:** decided under David's 19 Oct delegation (he can change it).

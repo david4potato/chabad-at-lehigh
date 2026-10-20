@@ -110,8 +110,9 @@ export async function EventMenuSection({ event, viewer }: { event: MenuEvent; vi
       ) : null}
 
       {!version ? (
-        <EmptyState title="Menu coming soon">
-          Our team will post the dishes, ingredients and allergen details here before the event.
+        <EmptyState title="No menu posted yet">
+          When the kitchen posts it, the dishes, ingredients and allergens show here. Food allergy? Contact the organizer
+          before the event.
         </EmptyState>
       ) : (
         <>

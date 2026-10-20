@@ -6,7 +6,7 @@ import { OG_IMAGE, SITE } from "@/config/site";
 import { getViewer } from "@/lib/auth";
 import { isStaff } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
-import { formatEventWhen, formatLongDate, formatTimeRange, spansDays } from "@/lib/time";
+import { formatEventWhen, formatLongDate, formatShortDateMaybeYear, formatTimeRange, isPast, spansDays } from "@/lib/time";
 import { getEventBySlug, getEventsMeta, getMyMealPreference } from "@/lib/data/events";
 import { listOpenShifts } from "@/lib/data/volunteer";
 import { Card, CardTitle } from "@/components/ui/card";
@@ -35,7 +35,8 @@ export async function generateMetadata({ params }: PageProps<"/events/[slug]">):
   const description = [when, event.summary].filter(Boolean).join(". ");
   const url = `/events/${event.slug}`;
   return {
-    title,
+    // The date keeps weekly events apart in tabs and history.
+    title: `${title} · ${formatShortDateMaybeYear(event.starts_at)}`,
     description,
     alternates: { canonical: url },
     // A page-level openGraph replaces the layout's whole object, so siteName, type and the image are repeated.
@@ -147,7 +148,8 @@ export default async function EventPage({ params, searchParams }: PageProps<"/ev
             </li>
           ) : null}
         </ul>
-        {event.status === "published" ? (
+        {/* Calendar and invites only help before the event ends. */}
+        {event.status === "published" && !isPast(event.starts_at, event.ends_at) ? (
           <div className="flex flex-wrap gap-x-6">
             <a
               href={`/events/${event.slug}/calendar.ics`}

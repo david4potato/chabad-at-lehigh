@@ -40,6 +40,14 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  /* Fields focused by form validation or anchor links stay clear of the sticky header, tab bar and save bar. */
+  scroll-padding-top: 5rem;
+  scroll-padding-bottom: calc(10rem + env(safe-area-inset-bottom));
+}
+@media (min-width: 768px) {
+  html {
+    scroll-padding-bottom: 6rem;
+  }
 }
 
 body {

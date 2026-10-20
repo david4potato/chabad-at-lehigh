@@ -10,9 +10,8 @@ export const metadata: Metadata = {
   title: { default: SITE.name, template: `%s · ${SITE.name}` },
   description: SITE.description,
   applicationName: SITE.name,
+  // No og:title or og:description here: link previews then use each page's own title and description.
   openGraph: {
-    title: SITE.name,
-    description: SITE.description,
     type: "website",
     siteName: SITE.name,
     locale: "en_US",

@@ -209,7 +209,7 @@ export function EventForm({
 
         <div className="sticky bottom-[calc(5rem+env(safe-area-inset-bottom))] z-10 flex flex-wrap items-center gap-3 rounded-2xl border border-stone-200 bg-white/95 p-3 shadow-lg backdrop-blur md:bottom-4">
           <SubmitButton size="lg">{event ? "Save event" : "Create event"}</SubmitButton>
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0 flex-[1_1_14rem]">
             {next ? (
               <Alert tone="success">
                 {state.ok ? state.message : null}{" "}
@@ -237,7 +237,7 @@ export function EventForm({
                 Deleting removes the event, its RSVPs and menus permanently. If people already RSVP&apos;d, it&apos;s usually
                 better to set the status to <strong>Cancelled</strong> so they see what happened.
               </p>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button variant="danger" disabled={busy} onClick={() => startBusy(async () => setExtraState(await onDelete(event.id)))}>
                   Yes, delete permanently
                 </Button>

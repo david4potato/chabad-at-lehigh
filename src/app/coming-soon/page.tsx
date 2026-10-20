@@ -14,7 +14,7 @@ const PLANS: { Icon: typeof Mail; title: string; text: string; badge?: string }[
   {
     Icon: ChefHat,
     title: "Customized meals & chef integrations",
-    text: "Ways to request meals or work with a chef. We're still talking this through with our organizers.",
+    text: "Ways to request meals or work with a chef. Just an idea for now.",
     badge: "Idea",
   },
 ];
