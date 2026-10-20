@@ -72,6 +72,7 @@ long it takes and what must come first. [SETUP.md](SETUP.md) has the full refere
    - The directors confirm in writing (an email reply is enough) and list any changes they want.
    - Keep it private.
 10. **Launch** (10 min). After step 9.
+    - Check the Supabase project is on the Pro plan, so it has daily backups and never pauses.
     - Tell a Claude session "signed off". It turns on search listing (`listInSearchEngines` in
       `src/config/site.ts`) through a pull request.
     - The directors announce the site in their own channels.
@@ -123,6 +124,7 @@ they say yes: the address carries their name, so register it in an account they 
 | Email trouble | Supabase **SMTP Settings** → turn custom SMTP off. Emails then reach only your Supabase team. |
 | Search listing too early | Revert that pull request |
 | A domain | Remove it in Vercel **Domains**, delete its DNS record, and put back `NEXT_PUBLIC_SITE_URL` and the Site URL. A purchase can't be refunded, but auto-renew can be turned off. |
+| Data deleted or damaged by mistake | Supabase → **Database → Backups** → pick a day → **Restore** (Pro plan only; daily copies kept 7 days). Everything since that day is lost. |
 | The schema load failed on the new project (before any real data) | Delete the project (**Project Settings → General**) and create it again |
 
 ## Not live until the directors sign off

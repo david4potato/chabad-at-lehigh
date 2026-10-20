@@ -113,9 +113,11 @@ be worth building.
 - **Exports.** Each event's **Attendees & check-in** tab has **Download spreadsheet (CSV)**. It has no dietary
   data. Dietary details stay inside the app and its audited report. Never export them from the Supabase
   dashboard.
-- **Backups.** Supabase Pro keeps daily backups (see the cost table in [SETUP.md](SETUP.md)). Move to Pro once
-  people rely on the site, as [docs/SCALING.md](docs/SCALING.md) says. Don't keep copies of people's data outside
-  the app.
+- **Backups.** Supabase Pro keeps daily backups for 7 days (see the cost table in [SETUP.md](SETUP.md)). The Free
+  plan has none, so move to Pro before students rely on the site, as [docs/SCALING.md](docs/SCALING.md) says. Don't
+  keep copies of people's data outside the app.
+- **Restore.** Supabase → the project → **Database → Backups** → pick a day → **Restore**. The whole database goes
+  back to that day, so anything since then is lost; tell the organizers first.
 - **People leaving.** Anyone can delete their dietary details (**Profile & settings → Dietary & allergies**) or
   their whole account (**Profile & settings**). The last admin has to make someone else admin first.
 
