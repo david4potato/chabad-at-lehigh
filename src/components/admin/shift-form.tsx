@@ -105,6 +105,23 @@ export function ShiftForm({
         <Field label="Details" htmlFor="shift-description" hint="Optional. Where to meet, what to bring, who to ask for." errors={e?.description}>
           <Textarea id="shift-description" name="description" rows={3} maxLength={2000} defaultValue={shift?.description ?? ""} />
         </Field>
+        {shift ? null : (
+          <Field
+            label="Repeat"
+            htmlFor="shift-repeat"
+            hint="Adds the same shift each week at this time, like a weekly cooking crew. For a shift on an event, repeat the event instead."
+            errors={e?.repeat_weeks}
+          >
+            <Select id="shift-repeat" name="repeat_weeks" defaultValue="0">
+              <option value="0">Just once</option>
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((n) => (
+                <option key={n} value={n}>
+                  Every week, {n} more {n === 1 ? "week" : "weeks"}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        )}
         <div className="flex flex-wrap items-center gap-3">
           <SubmitButton>{shift ? "Save shift" : "Create shift"}</SubmitButton>
         </div>

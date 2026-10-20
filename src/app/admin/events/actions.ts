@@ -6,7 +6,9 @@ import { z } from "zod";
 import { viewerWithRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { dbErrorMessage, validationError, type ActionResult } from "@/lib/action-result";
-import { siteLocalToUtcIso, toDateTimeLocalValue } from "@/lib/time";
+import { formatShortDateMaybeYear, siteLocalToUtcIso, toDateTimeLocalValue } from "@/lib/time";
+import { repeatStarts } from "@/lib/recurrence";
+import type { Database } from "@/lib/database.types";
 
 const ORGANIZERS = ["organizer", "admin"] as const;
 const FORBIDDEN: ActionResult = { ok: false, error: "You don't have permission to do that." };
@@ -181,32 +183,18 @@ export async function updateEvent(_prev: EventResult, formData: FormData): Promi
   return { ok: true, message: "Event saved." };
 }
 
-/**
- * Copy an event to the same time next week as a draft (great for weekly Shabbat dinners), with its
- * menu as a draft and its volunteer shifts. An older event is copied to the first such week from now.
- */
-export async function duplicateEvent(id: string): Promise<ActionResult> {
-  if (!(await viewerWithRole(ORGANIZERS))) return FORBIDDEN;
-  if (!z.guid().safeParse(id).success) return { ok: false, error: "We couldn't find that event." };
-  const supabase = await createClient();
-  const { data: e, error } = await supabase.from("events").select("*").eq("id", id).single();
-  if (error || !e) return { ok: false, error: dbErrorMessage(error) };
+type EventRow = Database["public"]["Tables"]["events"]["Row"];
+type Supabase = Awaited<ReturnType<typeof createClient>>;
 
-  const week = 7 * 24 * 60 * 60 * 1000;
-  const weeks = Math.max(1, Math.floor((Date.now() - new Date(e.starts_at).getTime()) / week) + 1);
-  const startsAt = new Date(new Date(e.starts_at).getTime() + weeks * week).toISOString();
-  // Keep wall-clock time steady across daylight-saving changes.
-  const local = toDateTimeLocalValue(e.starts_at).slice(11);
-  const fixedStart = siteLocalToUtcIso(`${toDateTimeLocalValue(startsAt).slice(0, 10)}T${local}`) ?? startsAt;
-  const delta = new Date(fixedStart).getTime() - new Date(e.starts_at).getTime();
+/**
+ * Copies an event to a new start time with the same details, its menu as a draft (so staff still
+ * confirm preparation) and its volunteer shifts. Everything else moves by the same amount.
+ */
+async function copyEvent(supabase: Supabase, e: EventRow, startsAt: string, slug: string, status: "draft" | "published") {
+  const delta = new Date(startsAt).getTime() - new Date(e.starts_at).getTime();
   const move = (iso: string | null) => (iso ? new Date(new Date(iso).getTime() + delta).toISOString() : null);
 
-  const baseTitle = e.title.replace(/^\[DEMO\]\s*/, "");
-  let slug = slugify(baseTitle, fixedStart);
-  const { data: clash } = await supabase.from("events").select("id").eq("slug", slug).maybeSingle();
-  if (clash) slug = `${slug}-${Math.random().toString(36).slice(2, 6)}`;
-
-  const { data: copy, error: insertError } = await supabase
+  const { data: copy, error } = await supabase
     .from("events")
     .insert({
       slug,
@@ -214,9 +202,9 @@ export async function duplicateEvent(id: string): Promise<ActionResult> {
       summary: e.summary,
       description: e.description,
       category: e.category,
-      status: "draft",
+      status,
       visibility: e.visibility,
-      starts_at: fixedStart,
+      starts_at: startsAt,
       ends_at: move(e.ends_at),
       location_name: e.location_name,
       location_address: e.location_address,
@@ -234,16 +222,16 @@ export async function duplicateEvent(id: string): Promise<ActionResult> {
     })
     .select("id")
     .single();
-  if (insertError) return { ok: false, error: dbErrorMessage(insertError) };
+  if (error) return { ok: false as const, error: dbErrorMessage(error) };
 
-  // The menu (as a draft, so staff still confirm preparation) and the volunteer shifts come along.
-  // Either can fail without undoing the copy: the event is what matters, and both can be added by hand.
+  // The menu and the shifts can fail without undoing the copy: the event is what matters, and
+  // both can be added by hand.
   const { data: shifts } = await supabase
     .from("volunteer_shifts")
     .select("title, description, slots, starts_at, ends_at, status, is_demo")
-    .eq("event_id", id);
+    .eq("event_id", e.id);
   await Promise.all([
-    e.has_meal ? supabase.rpc("copy_menu_to_event", { p_source_event: id, p_target_event: copy.id }) : null,
+    e.has_meal ? supabase.rpc("copy_menu_to_event", { p_source_event: e.id, p_target_event: copy.id }) : null,
     shifts?.length
       ? supabase.from("volunteer_shifts").insert(
           shifts.map((s) => ({
@@ -254,15 +242,89 @@ export async function duplicateEvent(id: string): Promise<ActionResult> {
             starts_at: move(s.starts_at)!,
             ends_at: move(s.ends_at),
             // New sign-ups start fresh; a shift kept as a draft stays a draft.
-            status: s.status === "draft" ? "draft" : "open",
+            status: s.status === "draft" ? ("draft" as const) : ("open" as const),
             is_demo: s.is_demo,
           })),
         )
       : null,
   ]);
+  return { ok: true as const, id: copy.id };
+}
 
+/**
+ * Copy an event to the same time next week as a draft (great for weekly Shabbat dinners), with its
+ * menu as a draft and its volunteer shifts. An older event is copied to the first such week from now.
+ */
+export async function duplicateEvent(id: string): Promise<ActionResult> {
+  if (!(await viewerWithRole(ORGANIZERS))) return FORBIDDEN;
+  if (!z.guid().safeParse(id).success) return { ok: false, error: "We couldn't find that event." };
+  const supabase = await createClient();
+  const { data: e, error } = await supabase.from("events").select("*").eq("id", id).single();
+  if (error || !e) return { ok: false, error: dbErrorMessage(error) };
+
+  const [startsAt] = repeatStarts(e.starts_at, 1, 1);
+  let slug = slugify(e.title.replace(/^\[DEMO\]\s*/, ""), startsAt);
+  const { data: clash } = await supabase.from("events").select("id").eq("slug", slug).maybeSingle();
+  if (clash) slug = `${slug}-${Math.random().toString(36).slice(2, 6)}`;
+
+  const copy = await copyEvent(supabase, e, startsAt, slug, "draft");
+  if (!copy.ok) return copy;
   revalidateEvents();
   redirect(`/admin/events/${copy.id}?duplicated=1`);
+}
+
+const repeatSchema = z.object({
+  event_id: z.guid(),
+  every: z.coerce.number().int().min(1).max(4),
+  count: z.coerce
+    .number({ message: "Please enter a number." })
+    .int("Whole numbers only.")
+    .min(1, "At least 1.")
+    .max(26, "Up to 26 at a time."),
+  status: z.enum(["draft", "published"]),
+});
+
+/**
+ * Repeat an event every 1-4 weeks: each date becomes its own event, copied like "Duplicate for next
+ * week". A date that already has this event (same title, same day) is skipped, so nothing doubles up.
+ */
+export async function repeatEvent(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
+  if (!(await viewerWithRole(ORGANIZERS))) return FORBIDDEN;
+  const parsed = repeatSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return validationError(parsed.error);
+  const { event_id, every, count, status } = parsed.data;
+  const supabase = await createClient();
+  const { data: e, error } = await supabase.from("events").select("*").eq("id", event_id).single();
+  if (error || !e) return { ok: false, error: "We couldn't find that event." };
+  if (e.status === "cancelled") return { ok: false, error: "This event is cancelled. Repeat one that's going ahead." };
+
+  const starts = repeatStarts(e.starts_at, every, count);
+  const baseTitle = e.title.replace(/^\[DEMO\]\s*/, "");
+  const slugs = starts.map((s) => slugify(baseTitle, s));
+  const { data: existing } = await supabase.from("events").select("slug").in("slug", slugs);
+  const taken = new Set((existing ?? []).map((r) => r.slug));
+  const todo = starts.map((s, i) => ({ start: s, slug: slugs[i] })).filter((o) => !taken.has(o.slug));
+
+  const results = await Promise.all(todo.map((o) => copyEvent(supabase, e, o.start, o.slug, status)));
+  const added = todo.filter((_, i) => results[i].ok).map((o) => o.start);
+  const failed = results.find((r) => !r.ok);
+  revalidateEvents();
+  if (added.length === 0) {
+    if (failed && !failed.ok) return { ok: false, error: failed.error };
+    return { ok: false, error: "Every one of those dates already has this event, so nothing was added." };
+  }
+
+  const n = added.length;
+  const range = n === 1 ? formatShortDateMaybeYear(added[0]) : `${formatShortDateMaybeYear(added[0])} to ${formatShortDateMaybeYear(added[n - 1])}`;
+  const parts = [
+    `Added ${n} ${n === 1 ? "event" : "events"}: ${range}.`,
+    status === "draft" ? "They're drafts: publish each one from Events → Drafts when it's ready." : "They're published.",
+  ];
+  if (e.has_meal) parts.push("Each menu is a draft until the kitchen publishes it.");
+  const skipped = starts.length - todo.length;
+  if (skipped) parts.push(`Skipped ${skipped} ${skipped === 1 ? "date that already has" : "dates that already have"} this event.`);
+  if (failed && !failed.ok) parts.push(`${todo.length - n} couldn't be added: ${failed.error}`);
+  return { ok: true, message: parts.join(" ") };
 }
 
 export async function deleteEvent(id: string): Promise<ActionResult> {
