@@ -156,7 +156,7 @@ export default async function MenuAdminPage({ params, searchParams }: PageProps<
         </div>
 
         <div className="space-y-6">
-          {event.has_meal ? <FoodAndWater counts={counts.get(event.id)} /> : null}
+          {event.has_meal && event.status !== "cancelled" ? <FoodAndWater counts={counts.get(event.id)} rsvpOpen={event.rsvp_enabled} /> : null}
           {/* Updates are about a live menu, so this waits until one is published. */}
           {published || updateList.length ? (
             <Card>
@@ -265,27 +265,34 @@ function LiveMenu({ items, open }: { items: MenuItem[]; open: boolean }) {
 }
 
 /** How many to cook for, and a short kitchen checklist: water for everyone, nothing wasted. */
-function FoodAndWater({ counts }: { counts?: EventCounts }) {
-  const seats = counts?.seatsTaken ?? 0;
+function FoodAndWater({ counts, rsvpOpen }: { counts?: EventCounts; rsvpOpen: boolean }) {
+  // Pending and waitlist count RSVPs, not people: each can bring guests.
   const maybe = (counts?.pending ?? 0) + (counts?.waitlist ?? 0);
   return (
     <Card>
       <CardTitle>Food and water</CardTitle>
-      <p className="mt-1 text-sm text-ink">
-        <span className="font-semibold">Cook for about {plural(seats, "person", "people")}</span>
-        {counts?.guests ? ` (${counts.going} going and ${plural(counts.guests, "guest")})` : ""}.
-        {maybe ? ` ${maybe} more could still join (waitlist or waiting for approval).` : ""}
-      </p>
-      <p className="mt-1 text-xs text-muted">RSVPs change, so check the count again the day before.</p>
+      {!rsvpOpen ? (
+        <p className="mt-1 text-sm text-ink">RSVPs are off for this event, so there&apos;s no count. Ask the organizer how many to expect.</p>
+      ) : !counts ? (
+        <p className="mt-1 text-sm text-ink">We couldn&apos;t load the RSVP count. Check the Attendees tab.</p>
+      ) : (
+        <>
+          <p className="mt-1 text-sm text-ink">
+            <span className="font-semibold">Cook for about {plural(counts.seatsTaken, "person", "people")}</span>
+            {counts.guests ? ` (${counts.going} going and ${plural(counts.guests, "guest")})` : ""}.
+            {maybe ? ` ${plural(maybe, "RSVP is", "RSVPs are")} on the waitlist or waiting for approval, and may bring guests.` : ""}
+          </p>
+          <p className="mt-1 text-xs text-muted">RSVPs change, so check the count again the day before.</p>
+        </>
+      )}
       <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm text-ink">
         <li>Water for everyone: pitchers or a refill station, and cups.</li>
-        <li>Cook for the count above, not much more.</li>
+        {rsvpOpen ? <li>Cook for the count above, not much more.</li> : null}
         <li>
-          Leftovers: refrigerate within 2 hours in containers labeled with the dish, the date and what it contains. Offer them to take home, or keep
-          them for the next meal.
+          Leftovers: refrigerate within 2 hours in containers labeled with the dish, the date and what it contains. Offer them to take home, or use
+          them within 3 days. Serving them at another meal? Add the dish to that meal&apos;s menu so its allergens show.
         </li>
       </ul>
-      <p className="mt-3 text-xs text-muted">A checklist for the kitchen. The directors decide what&apos;s served.</p>
     </Card>
   );
 }

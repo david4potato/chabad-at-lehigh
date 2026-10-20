@@ -79,7 +79,8 @@ const SECTIONS: Section[] = [
         <li>
           Something that happens every week or every few weeks (dinners, a cooking group, a class)? Open the event and use{" "}
           <strong>Repeat this event on more dates</strong>. Choose how often and how many dates, as drafts or published. Each date becomes its own
-          event with the menu (as a draft) and the volunteer shifts. Dates that already have the event are skipped.
+          event with the volunteer shifts and the menu, if it has one (as a draft). Dates that already have an event with the same name are
+          skipped. [DEMO] samples can&apos;t be copied.
         </li>
         <li>Times are always {SITE.timeZoneLabel}.</li>
       </ul>
@@ -155,7 +156,8 @@ const SECTIONS: Section[] = [
         </li>
         <li>
           <strong>Food and water</strong> on the Menu tab shows how many to cook for, from the RSVPs, and a short checklist: water for everyone,
-          and leftovers refrigerated in labeled containers to take home or keep for the next meal, so nothing goes to waste.
+          and leftovers refrigerated in labeled containers, taken home or used within 3 days (on another meal&apos;s menu, so their allergens show),
+          so nothing goes to waste.
         </li>
       </ol>
     ),

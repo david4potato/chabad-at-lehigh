@@ -23,7 +23,7 @@ export function RepeatEventForm({ eventId }: { eventId: string }) {
       <Form action={action} className="space-y-4 pb-4 pt-1">
         <input type="hidden" name="event_id" value={eventId} />
         <p className="text-sm text-muted">
-          Each date becomes its own event with these details, the menu (as a draft) and the volunteer shifts. Dates that already have this event are skipped.
+          Each date becomes its own event with these details, the volunteer shifts and the menu if it has one (as a draft). Dates that already have an event with this name are skipped.
         </p>
         <div className="grid gap-4 sm:grid-cols-3">
           <Field label="Repeat" htmlFor="repeat-every" errors={e?.every}>
