@@ -74,7 +74,7 @@ long it takes and what must come first. [SETUP.md](SETUP.md) has the full refere
 10. **Launch** (10 min). After step 9.
     - Check the Supabase project is on the Pro plan, so it has daily backups and never pauses.
     - Tell a Claude session "signed off". It turns on search listing (`listInSearchEngines` in
-      `src/config/site.ts`) through a pull request.
+      `src/config/site.ts`) through a pull request, which also removes the "Not launched yet" note in the footer.
     - The directors announce the site in their own channels.
 11. **Ownership** (later, not needed for launch). Follow [HANDOFF.md](HANDOFF.md), "Account ownership and transfer".
     - Today GitHub, Vercel, Supabase and the email sender all sit in your accounts.

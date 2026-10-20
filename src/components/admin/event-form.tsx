@@ -122,7 +122,7 @@ export function EventForm({
               <Input id="ends_at" name="ends_at" type="datetime-local" defaultValue={toDateTimeLocalValue(event?.ends_at)} />
             </Field>
           </div>
-          <Field label="Place name" htmlFor="location_name" errors={e?.location_name}>
+          <Field label="Place name" htmlFor="location_name" hint="Away from the house? Say in the description where to find water and restrooms." errors={e?.location_name}>
             <Input id="location_name" name="location_name" maxLength={140} defaultValue={event?.location_name ?? defaults?.location_name ?? ""} placeholder={SITE.houseName} />
           </Field>
           <Field label="Street address" htmlFor="location_address" hint="Optional — adds a map link." errors={e?.location_address}>

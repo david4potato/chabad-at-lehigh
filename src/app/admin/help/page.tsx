@@ -158,7 +158,7 @@ const SECTIONS: Section[] = [
         <li>
           <strong>Food and water</strong> on the Menu tab shows how many to cook for, from the RSVPs, and a short checklist: water for everyone,
           and leftovers refrigerated in labeled containers, taken home or used within 3 days (on another meal&apos;s menu, so their allergens show),
-          so nothing goes to waste, then recycling and composting after the meal.
+          so nothing goes to waste, then reusing, recycling and composting after the meal.
         </li>
       </ol>
     ),

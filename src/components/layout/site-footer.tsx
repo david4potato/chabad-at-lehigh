@@ -46,6 +46,8 @@ export async function SiteFooter() {
       </div>
       <div className="border-t border-stone-100">
         <p className="mx-auto max-w-6xl px-4 py-4 text-xs text-muted sm:px-6">
+          {/* Search listing turns on at launch, so this note goes away with it. */}
+          {SITE.listInSearchEngines ? null : <span className="block pb-1">Still being set up. Not launched yet.</span>}
           © {new Date().getFullYear()} {org.name || SITE.name}. {SITE.independenceNote} Menus and allergen details are
           provided by our organizers — please contact them directly about serious allergies.
         </p>
