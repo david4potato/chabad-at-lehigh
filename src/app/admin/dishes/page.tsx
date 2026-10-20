@@ -16,6 +16,7 @@ import { AllergenBadges } from "@/components/menu/allergen-badges";
 export const metadata: Metadata = { title: "Dishes" };
 
 const STATUSES = ["active", "proposed", "archived"] as const;
+const LIMIT = 200;
 
 export default async function DishesPage({ searchParams }: PageProps<"/admin/dishes">) {
   await requireRole(["organizer", "kitchen_staff", "admin"], "/admin/dishes");
@@ -24,18 +25,19 @@ export default async function DishesPage({ searchParams }: PageProps<"/admin/dis
   const status = STATUSES.find((s) => s === params.status) ?? "active";
   const supabase = await createClient();
 
-  let query = supabase.from("dishes").select("id, name, category, kosher_type, status, ingredients:dish_ingredients(count)").eq("status", status).order("name").limit(200);
+  // Allergens come with each dish, so only the dishes on this page are read. (Reading the
+  // whole dish_allergens view hit the API's 1,000-row cap with a few hundred dishes.)
+  let query = supabase
+    .from("dishes")
+    .select("id, name, category, kosher_type, status, allergens:dish_allergens(allergen_code), ingredients:dish_ingredients(count)")
+    .eq("status", status)
+    .order("name")
+    .limit(LIMIT);
   if (q) query = query.ilike("name", `%${q.replace(/[%_]/g, "")}%`);
-  const [{ data: dishes }, { data: allergenRows }, { data: votes }] = await Promise.all([
-    query,
-    supabase.from("dish_allergens").select("dish_id, allergen_code"),
-    supabase.rpc("get_dish_vote_counts", {}),
-  ]);
-  const allergens = new Map<string, string[]>();
-  for (const r of allergenRows ?? []) {
-    if (!r.dish_id || !r.allergen_code) continue;
-    allergens.set(r.dish_id, [...(allergens.get(r.dish_id) ?? []), r.allergen_code]);
-  }
+  const [{ data: dishes }, { data: votes }] = await Promise.all([query, supabase.rpc("get_dish_vote_counts", {})]);
+  const allergens = new Map(
+    (dishes ?? []).map((d) => [d.id, d.allergens.flatMap((a) => (a.allergen_code ? [a.allergen_code] : []))]),
+  );
   const favorites = new Map((votes ?? []).map((v) => [v.dish_id, v.votes]));
 
   return (
@@ -104,6 +106,9 @@ export default async function DishesPage({ searchParams }: PageProps<"/admin/dis
           ))}
         </ul>
       )}
+      {(dishes ?? []).length === LIMIT ? (
+        <p className="mt-4 text-sm text-muted">Showing the first {LIMIT}, A to Z. Search to find others.</p>
+      ) : null}
     </div>
   );
 }

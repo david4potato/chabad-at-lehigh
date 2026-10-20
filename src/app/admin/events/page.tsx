@@ -23,6 +23,7 @@ const TABS = [
   { key: "past", label: "Past" },
 ] as const;
 const STATUS_TONE = { draft: "neutral", published: "green", cancelled: "red" } as const;
+const LIMIT = 100;
 
 export default async function AdminEventsPage({ searchParams }: PageProps<"/admin/events">) {
   const viewer = await requireRole(["organizer", "kitchen_staff", "admin"], "/admin/events");
@@ -35,7 +36,7 @@ export default async function AdminEventsPage({ searchParams }: PageProps<"/admi
   let query = supabase
     .from("events")
     .select("id, slug, title, status, category, starts_at, ends_at, capacity, has_meal")
-    .limit(100);
+    .limit(LIMIT);
   // Same split as the public site: an event is over when it ends (or 3 hours after it starts).
   if (tab === "drafts") query = query.eq("status", "draft").order("starts_at");
   else if (tab === "past") query = query.neq("status", "draft").or(pastFilter()).order("starts_at", { ascending: false });
@@ -155,6 +156,11 @@ export default async function AdminEventsPage({ searchParams }: PageProps<"/admi
           })}
         </ul>
       )}
+      {events.length === LIMIT ? (
+        <p className="mt-4 text-sm text-muted">
+          {tab === "past" ? `Showing the ${LIMIT} most recent.` : `Showing the first ${LIMIT}, soonest first.`}
+        </p>
+      ) : null}
     </div>
   );
 }
