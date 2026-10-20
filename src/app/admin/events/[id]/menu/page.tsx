@@ -292,6 +292,7 @@ function FoodAndWater({ counts, rsvpOpen }: { counts?: EventCounts; rsvpOpen: bo
           Leftovers: refrigerate within 2 hours in containers labeled with the dish, the date and what it contains. Offer them to take home, or use
           them within 3 days. Serving them at another meal? Add the dish to that meal&apos;s menu so its allergens show.
         </li>
+        <li>After the meal: recycle cans, bottles and cardboard, and compost food scraps where you can.</li>
       </ul>
     </Card>
   );
