@@ -153,6 +153,10 @@ const SECTIONS: Section[] = [
         <li>
           Never describe food as &ldquo;safe&rdquo;, &ldquo;allergen-free&rdquo; or guaranteed. Votes and suggestions are only ideas — you choose the menu.
         </li>
+        <li>
+          <strong>Food and water</strong> on the Menu tab shows how many to cook for, from the RSVPs, and a short checklist: water for everyone,
+          and leftovers refrigerated in labeled containers to take home or keep for the next meal, so nothing goes to waste.
+        </li>
       </ol>
     ),
   },

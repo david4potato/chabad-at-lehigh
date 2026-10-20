@@ -45,6 +45,8 @@ test.describe("organizer dashboard", () => {
     await db(`insert into rsvps (event_id, user_id, status) select $1, id, 'going' from profiles where email = $2`, [event.id, studentEmail]);
 
     await signInAs(page, "kitchen_staff", { next: `/admin/events/${event.id}/menu` });
+    // One student is going, so the kitchen cooks for one.
+    await expect(page.getByText("Cook for about 1 person")).toBeVisible();
     await page.getByRole("button", { name: /start the menu/i }).click();
     await expect(page.getByRole("heading", { name: /draft — version 1/i })).toBeVisible();
     await page.getByLabel("Add a dish").selectOption({ label: "Hummus with tahini" });
