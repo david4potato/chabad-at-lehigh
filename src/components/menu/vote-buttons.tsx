@@ -43,14 +43,14 @@ export function FavoriteButton({ dishId, dishName, initial }: { dishId: string; 
         aria-pressed={state.active}
         aria-label={`${state.active ? "Remove" : "Add"} ${dishName} ${state.active ? "from" : "to"} favorites (${state.count})`}
         className={cn(
-          "inline-flex h-10 min-w-11 items-center justify-center gap-1.5 rounded-full border px-3 text-sm font-semibold transition-colors",
+          "inline-flex h-10 min-w-11 items-center justify-center gap-2 rounded-full border px-3 text-sm font-semibold transition-colors",
           state.active ? "border-red-200 bg-red-50 text-red-700" : "border-stone-200 bg-white text-muted hover:text-ink",
         )}
       >
         <Heart className={cn("size-4", state.active && "fill-current")} aria-hidden="true" />
         <span aria-hidden="true">{state.count}</span>
       </button>
-      {error ? <span role="alert" className="mt-1 text-xs text-red-700">{error}</span> : null}
+      {error ? <span role="alert" className="mt-1 text-sm text-red-700">{error}</span> : null}
     </span>
   );
 }
@@ -83,11 +83,11 @@ export function OptionVoteButton({
       >
         {state.active ? <Check className="size-4" aria-hidden="true" /> : null}
         {state.active ? "Voted" : "Vote"}
-        <span className={cn("rounded-full px-2 text-xs", state.active ? "bg-white/20" : "bg-stone-100")} aria-hidden="true">
+        <span className={cn("rounded-full px-2 text-sm", state.active ? "bg-white/20" : "bg-stone-100")} aria-hidden="true">
           {state.count}
         </span>
       </button>
-      {error ? <span role="alert" className="mt-1 text-xs text-red-700">{error}</span> : null}
+      {error ? <span role="alert" className="mt-1 text-sm text-red-700">{error}</span> : null}
     </span>
   );
 }

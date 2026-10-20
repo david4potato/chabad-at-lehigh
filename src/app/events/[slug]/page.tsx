@@ -113,7 +113,7 @@ export default async function EventPage({ params, searchParams }: PageProps<"/ev
         </div>
         <h1 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">{event.title}</h1>
         {event.summary ? <p className="max-w-2xl text-lg text-muted">{event.summary}</p> : null}
-        <ul className="space-y-1.5 text-base text-ink">
+        <ul className="space-y-2 text-base text-ink">
           <li className="flex items-start gap-2">
             <Clock className="mt-1 size-4 shrink-0 text-muted" aria-hidden="true" />
             {spansDays(event.starts_at, event.ends_at) ? (
@@ -126,8 +126,8 @@ export default async function EventPage({ params, searchParams }: PageProps<"/ev
             )}
           </li>
           {event.location_name || event.location_address ? (
-            <li className="flex items-start gap-2">
-              <MapPin className="mt-1 size-4 shrink-0 text-muted" aria-hidden="true" />
+            <li className="flex items-center gap-2">
+              <MapPin className="size-4 shrink-0 text-muted" aria-hidden="true" />
               <span>
                 {event.location_name}
                 {event.location_address ? (
@@ -135,7 +135,7 @@ export default async function EventPage({ params, searchParams }: PageProps<"/ev
                     {event.location_name ? " · " : null}
                     <a
                       href={mapsUrl(event.location_address)}
-                      className="font-medium text-brand-700 hover:underline"
+                      className="inline-flex min-h-11 items-center font-medium text-brand-700 hover:underline"
                       target="_blank"
                       rel="noopener noreferrer"
                     >

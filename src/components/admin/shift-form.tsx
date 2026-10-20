@@ -55,8 +55,8 @@ export function ShiftForm({
   const e = state.ok ? undefined : state.fieldErrors;
 
   return (
-    <div className="space-y-5">
-      <Form action={formAction} className="space-y-4 rounded-[var(--radius-card)] border border-stone-200 bg-white p-5 shadow-sm sm:p-6">
+    <div className="space-y-4">
+      <Form action={formAction} className="space-y-4 rounded-[var(--radius-card)] border border-stone-200 bg-white p-4 shadow-sm md:p-6">
         {shift ? <input type="hidden" name="id" value={shift.id} /> : null}
         <Field label="What's the job?" htmlFor="shift-title" hint="For example: Help cook Shabbat dinner" errors={e?.title} required>
           <Input id="shift-title" name="title" required minLength={3} maxLength={140} defaultValue={shift?.title ?? ""} />
@@ -129,7 +129,7 @@ export function ShiftForm({
       </Form>
 
       {shift && onDelete ? (
-        <div className="space-y-3 rounded-[var(--radius-card)] border border-stone-200 bg-white p-5">
+        <div className="space-y-3 rounded-[var(--radius-card)] border border-stone-200 bg-white p-4 md:p-6">
           <h2 className="text-lg font-bold text-ink">Delete this shift</h2>
           {!confirmDelete ? (
             <Button variant="ghost" className="text-red-700 hover:bg-red-50" onClick={() => setConfirmDelete(true)}>

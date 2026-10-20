@@ -99,10 +99,10 @@ export async function EventMenuSection({ event, viewer }: { event: MenuEvent; vi
 
       {urgent.length > 0 ? (
         <Alert tone="warning" title="Urgent menu update">
-          <ul className="space-y-1.5">
+          <ul className="space-y-2">
             {urgent.map((u) => (
               <li key={u.id}>
-                {u.message} <span className="whitespace-nowrap text-xs opacity-80">({formatDateTime(u.created_at)})</span>
+                {u.message} <span className="whitespace-nowrap text-sm opacity-80">({formatDateTime(u.created_at)})</span>
               </li>
             ))}
           </ul>
@@ -141,10 +141,10 @@ export async function EventMenuSection({ event, viewer }: { event: MenuEvent; vi
                   Menu changes ({otherUpdates.length})
                   <ChevronDown className="size-4 transition-transform group-open:rotate-180" aria-hidden="true" />
                 </summary>
-                <ul className="space-y-1.5 text-muted">
+                <ul className="space-y-2 text-muted">
                   {otherUpdates.map((u) => (
                     <li key={u.id}>
-                      {u.message} <span className="text-xs">({formatDateTime(u.created_at)})</span>
+                      {u.message} <span className="text-sm">({formatDateTime(u.created_at)})</span>
                     </li>
                   ))}
                 </ul>
@@ -160,7 +160,7 @@ export async function EventMenuSection({ event, viewer }: { event: MenuEvent; vi
             hasSevere={hasSevere}
           />
 
-          <div className="space-y-5">
+          <div className="space-y-4">
             {groupByCourse(items).map((group) => (
               <div key={group.course}>
                 <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted">{group.label}</h3>
@@ -203,9 +203,9 @@ export async function EventMenuSection({ event, viewer }: { event: MenuEvent; vi
                   <div className="min-w-0">
                     <p className="font-semibold text-ink">{o.dish!.name}</p>
                     {o.dish!.description ? <p className="text-sm text-muted">{o.dish!.description}</p> : null}
-                    {o.note ? <p className="text-xs text-muted">{o.note}</p> : null}
+                    {o.note ? <p className="text-sm text-muted">{o.note}</p> : null}
                     {snapshot && snapshot.allergens.length > 0 ? (
-                      <AllergenBadges codes={snapshot.allergens} className="mt-1.5" />
+                      <AllergenBadges codes={snapshot.allergens} className="mt-2" />
                     ) : null}
                   </div>
                   {viewer ? (
@@ -229,7 +229,7 @@ export async function EventMenuSection({ event, viewer }: { event: MenuEvent; vi
               </Link>
             </p>
           ) : null}
-          <p className="mt-2 text-xs text-muted">Allergens are confirmed only once a menu is published.</p>
+          <p className="mt-2 text-sm text-muted">Allergens are confirmed only once a menu is published.</p>
         </Card>
       ) : null}
 
@@ -298,7 +298,7 @@ function PersonalNotice({
     );
   }
   return (
-    <p className="flex items-start gap-2 rounded-xl bg-white px-3 py-2.5 text-sm text-muted ring-1 ring-stone-200">
+    <p className="flex items-start gap-2 rounded-xl bg-white px-3 py-3 text-sm text-muted ring-1 ring-stone-200">
       <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
       <span>
         Nothing listed matches your saved allergies. This is not a guarantee — contact the organizer about serious

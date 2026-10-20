@@ -24,9 +24,9 @@ export function DishCard({ item, matches, favorite }: Props) {
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h4 className="text-base font-bold text-ink">{dish.name}</h4>
-          {dish.description ? <p className="mt-0.5 text-sm text-muted">{dish.description}</p> : null}
+          {dish.description ? <p className="mt-1 text-sm text-muted">{dish.description}</p> : null}
           {tags.length > 0 ? (
-            <div className="mt-2 flex flex-wrap gap-1.5">
+            <div className="mt-2 flex flex-wrap gap-2">
               {tags.map((t) => (
                 <Badge key={t}>{t}</Badge>
               ))}
@@ -47,7 +47,7 @@ export function DishCard({ item, matches, favorite }: Props) {
           <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
           <div>
             <p className="font-semibold">Your allergies:</p>
-            <ul className="mt-0.5 list-disc pl-4">
+            <ul className="mt-1 list-disc pl-4">
               {matches.map((m) => (
                 <li key={`${m.code}-${m.kind}-${m.relatedTo ?? ""}`}>{describeMatch(m, dish.allergens)}</li>
               ))}
@@ -64,7 +64,7 @@ export function DishCard({ item, matches, favorite }: Props) {
             Ingredients not listed yet — if you have an allergy, ask the organizer before eating this.
           </p>
         ) : (
-          <p className="text-xs text-muted">No allergens listed in the ingredients.</p>
+          <p className="text-sm text-muted">No allergens listed in the ingredients.</p>
         )}
         {item.cross_contact_allergens.length > 0 ? (
           <AllergenBadges codes={item.cross_contact_allergens} kind="may_contain" />
@@ -84,25 +84,25 @@ export function DishCard({ item, matches, favorite }: Props) {
       </div>
 
       {dish.ingredients.length > 0 ? (
-        <details className="group mt-3 rounded-xl bg-stone-50 px-3 py-0.5 text-sm">
+        <details className="group mt-3 rounded-xl bg-stone-50 px-3 py-1 text-sm">
           <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1 font-semibold text-brand-700 [&::-webkit-details-marker]:hidden">
             Ingredients ({dish.ingredients.length})
             <ChevronDown className="size-4 transition-transform group-open:rotate-180" aria-hidden="true" />
           </summary>
-          <ul className="space-y-1.5 pb-2.5">
+          <ul className="space-y-2 pb-3">
             {dish.ingredients.map((ing) => (
               <li key={ing.name} className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                 <span className="font-medium text-ink">
                   {ing.name}
                   {ing.quantity_note ? <span className="font-normal text-muted"> ({ing.quantity_note})</span> : null}
                 </span>
-                {ing.optional ? <span className="text-xs font-semibold text-muted">optional</span> : null}
+                {ing.optional ? <span className="text-sm font-semibold text-muted">optional</span> : null}
                 {ing.allergens.length > 0 ? (
-                  <span className="text-xs font-semibold text-red-800">
+                  <span className="text-sm font-semibold text-red-800">
                     {sortAllergens(ing.allergens).map(allergenLabel).join(", ")}
                   </span>
                 ) : null}
-                {ing.notes ? <span className="w-full text-xs text-muted">{ing.notes}</span> : null}
+                {ing.notes ? <span className="w-full text-sm text-muted">{ing.notes}</span> : null}
               </li>
             ))}
           </ul>

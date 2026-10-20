@@ -21,7 +21,7 @@ export function ActivityCard({ stats }: { stats: MyStats }) {
           <dl className="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
             {tiles.map((t) => (
               <div key={t.label} className="flex flex-col-reverse justify-end rounded-xl bg-cream px-2 py-3 text-center sm:px-3">
-                <dt className="text-xs font-medium text-muted sm:text-sm">{t.label}</dt>
+                <dt className="text-sm font-medium text-muted sm:text-sm">{t.label}</dt>
                 <dd className="text-2xl font-extrabold text-ink">{t.value}</dd>
               </div>
             ))}

@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "Meals & allergies" };
 
 export default function MealSafetyPage() {
   return (
-    <div className="mx-auto max-w-3xl space-y-5">
+    <div className="mx-auto max-w-3xl space-y-4">
       <PageHeader title="Meals & allergies" description="How to read our menus, and what to do if you have a food allergy." />
 
       <Card>
@@ -36,7 +36,7 @@ export default function MealSafetyPage() {
 
       <Card>
         <h2 className="text-lg font-bold text-ink">How menus are published</h2>
-        <ul className="mt-2 list-disc space-y-1.5 pl-5 text-base leading-relaxed text-ink">
+        <ul className="mt-2 list-disc space-y-2 pl-6 text-base leading-relaxed text-ink">
           <li>
             Once a menu is posted, every dish lists its ingredients and allergens, and you can see it without RSVPing.
             Menus are often posted after RSVPs open, so check back before the event.

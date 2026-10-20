@@ -30,9 +30,9 @@ export function ShiftCard({ shift, signedIn, nextPath, showDate = false, showEve
   const left = Math.max(0, shift.slots - shift.taken);
 
   return (
-    <li className="rounded-[var(--radius-card)] border border-stone-200 bg-white p-4 shadow-sm sm:p-5">
+    <li className="rounded-[var(--radius-card)] border border-stone-200 bg-white p-4 shadow-sm md:p-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0 space-y-1.5">
+        <div className="min-w-0 space-y-2">
           <h3 id={titleId} className="text-base font-bold text-ink">
             {shift.title}
           </h3>

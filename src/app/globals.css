@@ -47,6 +47,13 @@ body {
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  /* Long words and URLs wrap instead of widening the page. */
+  overflow-wrap: anywhere;
+}
+
+/* Tables scroll inside their own box, so their words stay whole. */
+table {
+  overflow-wrap: normal;
 }
 
 /* Clear, consistent keyboard focus everywhere. */

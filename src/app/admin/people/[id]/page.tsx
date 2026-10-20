@@ -60,7 +60,7 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
       <div>
         <Link
           href="/admin/people"
-          className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-brand-700 hover:underline"
+          className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-brand-700 hover:underline"
         >
           <ArrowLeft className="size-4" aria-hidden="true" />
           Back to People &amp; roles
@@ -81,7 +81,7 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
       <Card role="region" aria-labelledby="person-roles">
         <CardTitle id="person-roles">Roles</CardTitle>
         {roles.length > 0 ? (
-          <div className="mt-3 flex flex-wrap gap-1.5">
+          <div className="mt-3 flex flex-wrap gap-2">
             {roles.map((r) => (
               <RoleChip key={r} userId={person.id} name={name} role={r} label={ROLE_LABELS[r]} />
             ))}

@@ -50,10 +50,10 @@ export default async function NotificationsPage() {
                 <div className="flex flex-wrap items-center gap-2">
                   {n.is_urgent ? <Badge tone="amber">Urgent</Badge> : null}
                   {!n.read_at ? <Badge tone="brand">New</Badge> : null}
-                  <span className="text-xs text-muted">{formatDateTime(n.created_at)}</span>
+                  <span className="text-sm text-muted">{formatDateTime(n.created_at)}</span>
                 </div>
                 <p className="mt-1 font-semibold text-ink">{n.title}</p>
-                {n.body ? <p className="mt-0.5 text-sm text-muted">{n.body}</p> : null}
+                {n.body ? <p className="mt-1 text-sm text-muted">{n.body}</p> : null}
                 {n.link ? (
                   <Link href={safeNextPath(n.link)} className="mt-1 inline-flex min-h-11 items-center text-sm font-semibold text-brand-700 hover:underline">
                     View details →

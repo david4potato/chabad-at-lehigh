@@ -99,12 +99,12 @@ export function AttendeeList({
                   setResults({});
                 }}
                 className={cn(
-                  "inline-flex h-11 items-center gap-1.5 rounded-full border px-4 text-sm font-semibold",
+                  "inline-flex h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold",
                   filter === f.key ? "border-brand-700 bg-brand-700 text-white" : "border-stone-300 bg-white text-ink",
                 )}
               >
                 {f.label}
-                <span className={cn("rounded-full px-1.5 text-xs", filter === f.key ? "bg-white/20" : "bg-stone-100")}>{n}</span>
+                <span className={cn("rounded-full px-2 text-sm", filter === f.key ? "bg-white/20" : "bg-stone-100")}>{n}</span>
               </button>
             );
           })}
@@ -112,14 +112,14 @@ export function AttendeeList({
       </div>
 
       <div className="relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted" aria-hidden="true" />
+        <Search className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 text-muted" aria-hidden="true" />
         <Input
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search by name or email"
           aria-label="Search attendees"
-          className="pl-9"
+          className="pl-8"
         />
       </div>
 
@@ -169,7 +169,7 @@ export function AttendeeList({
                       </p>
                     ) : null}
                     {a.note ? <p className="mt-1 text-sm text-ink">&ldquo;{a.note}&rdquo;</p> : null}
-                    <p className="mt-1 text-xs text-muted">RSVP&apos;d {formatDateTime(a.created_at)}</p>
+                    <p className="mt-1 text-sm text-muted">RSVP&apos;d {formatDateTime(a.created_at)}</p>
                   </div>
 
                   <div className="flex flex-wrap gap-2 md:justify-end">

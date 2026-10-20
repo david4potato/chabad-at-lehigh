@@ -54,7 +54,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
           {viewer ? `${greeting}, ${viewer.displayName}!` : "Welcome home."}
         </h1>
         {!viewer ? (
-          <p className="mt-1.5 max-w-xl text-base text-muted">{SITE.tagline}</p>
+          <p className="mt-2 max-w-xl text-base text-muted">{SITE.tagline}</p>
         ) : null}
       </div>
 
@@ -80,7 +80,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
       <section aria-labelledby="shabbat-heading">
         {shabbat ? (
           <div className="overflow-hidden rounded-[var(--radius-card)] border border-gold-200 bg-white shadow-sm">
-            <div className="bg-gradient-to-br from-gold-100 via-gold-50 to-white px-5 py-5 sm:px-7 sm:py-6">
+            <div className="bg-gradient-to-br from-gold-100 via-gold-50 to-white p-4 md:p-6">
               <p className="flex items-center gap-2 text-sm font-bold text-gold-800">
                 <Flame className="size-4" aria-hidden="true" />
                 {relativeDay(shabbat.starts_at) ?? "Shabbat dinner"}
@@ -108,7 +108,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
                 ) : null}
               </ul>
             </div>
-            <div className="grid gap-5 px-5 py-5 sm:px-7 md:grid-cols-[1fr_auto] md:items-end">
+            <div className="grid gap-4 p-4 md:gap-6 md:p-6 md:grid-cols-[1fr_auto] md:items-end">
               <div className="max-w-md">
                 <RsvpPanel
                   event={shabbat}

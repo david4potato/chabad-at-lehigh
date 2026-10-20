@@ -182,7 +182,7 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
     return (
       <div className="space-y-3">
         {infoLine}
-        <div className="grid grid-cols-2 gap-2.5">
+        <div className="grid grid-cols-2 gap-3">
           <Link href={returnTo("going")} className={cn(buttonClasses("primary", "lg"), "w-full")}>
             <UserCheck className="size-5" aria-hidden="true" /> Going
           </Link>
@@ -243,13 +243,13 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
                     {guests > 0 ? <span className="font-normal text-muted"> · {plural(guests, "guest")}</span> : null}
                   </span>
                 </summary>
-                <div className="mt-1 space-y-3 rounded-2xl border border-stone-200 bg-stone-50/60 p-3.5">
+                <div className="mt-1 space-y-3 rounded-2xl border border-stone-200 bg-stone-50/60 p-4">
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <p className="text-sm font-semibold text-ink" id={`guests-label-${event.id}`}>
                         How many guests?
                       </p>
-                      <p className="text-xs text-muted">Up to {plural(event.max_guests_per_rsvp, "guest")}</p>
+                      <p className="text-sm text-muted">Up to {plural(event.max_guests_per_rsvp, "guest")}</p>
                     </div>
                     <div className="flex items-center gap-2" role="group" aria-labelledby={`guests-label-${event.id}`}>
                       <button
@@ -286,7 +286,7 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
                   ) : null}
                   {guests > 0 && guestNote && !guestsConfirmed ? <p className="text-sm text-muted">{guestNote}</p> : null}
                   {guests > 0 ? (
-                    <div className="space-y-1.5">
+                    <div className="space-y-2">
                       <Label htmlFor={`guest-names-${event.id}`}>Guest names (optional)</Label>
                       <Input
                         id={`guest-names-${event.id}`}
@@ -305,7 +305,7 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
               <summary className="flex min-h-11 cursor-pointer list-none items-center font-semibold text-brand-700 hover:underline">
                 Add a note for the organizer (optional)
               </summary>
-              <div className="mt-1 space-y-1.5">
+              <div className="mt-1 space-y-2">
                 <Label htmlFor={`note-${event.id}`} className="sr-only">
                   Note for the organizer
                 </Label>
@@ -317,7 +317,7 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
                   defaultValue={rsvp?.note ?? ""}
                   placeholder="Arriving late, first time coming…"
                 />
-                <p className="text-xs text-muted">For allergies, use your dietary profile instead — it&apos;s private.</p>
+                <p className="text-sm text-muted">For allergies, use your dietary profile instead — it&apos;s private.</p>
               </div>
             </details>
           </div>
@@ -331,7 +331,7 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
           ) : null}
           {note ? <p className="text-sm text-muted">{note}</p> : null}
 
-          <div className="grid grid-cols-2 gap-2.5">
+          <div className="grid grid-cols-2 gap-3">
             <ResponseButton value="going" active={rsvp?.status === "going"}>
               Going
             </ResponseButton>

@@ -20,7 +20,7 @@ export function AdminEventHeader({ event }: { event: AdminEvent }) {
       </div>
       <p className="mt-1 text-muted">{formatEventWhen(event.starts_at, event.ends_at)}</p>
       {event.status !== "draft" ? (
-        <div className="flex flex-wrap items-center gap-x-5">
+        <div className="flex flex-wrap items-center gap-x-6">
           <Link href={`/events/${event.slug}`} className="inline-flex min-h-11 items-center text-sm font-semibold text-brand-700 hover:underline">
             View public page
           </Link>

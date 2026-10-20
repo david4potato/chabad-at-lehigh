@@ -16,9 +16,9 @@ export function DateBlock({ iso, className }: { iso: string; className?: string 
       )}
       aria-hidden="true"
     >
-      <span className="text-[11px] font-bold uppercase tracking-wide text-gold-800">{weekday}</span>
+      <span className="text-sm font-bold uppercase tracking-wide text-gold-800">{weekday}</span>
       <span className="text-2xl font-extrabold leading-none text-ink">{day}</span>
-      <span className="text-[11px] font-semibold text-muted">{month}</span>
+      <span className="text-sm font-semibold text-muted">{month}</span>
     </div>
   );
 }
@@ -47,8 +47,8 @@ export function EventCard({
     >
       <DateBlock iso={event.starts_at} />
       <div className="min-w-0 flex-1 space-y-1">
-        <div className="flex flex-wrap items-center gap-1.5">
-          <span className="text-xs font-semibold text-muted">{CATEGORY_LABELS[event.category]}</span>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm font-semibold text-muted">{CATEGORY_LABELS[event.category]}</span>
           {event.status === "cancelled" ? <Badge tone="red">Cancelled</Badge> : null}
           {badge && event.status !== "cancelled" ? <Badge tone={badge.tone}>{badge.label}</Badge> : null}
         </div>
@@ -68,7 +68,7 @@ export function EventCard({
         {capacity ? (
           <p
             className={cn(
-              "text-xs font-semibold",
+              "text-sm font-semibold",
               capacity.tone === "amber" ? "text-amber-800" : capacity.tone === "gold" ? "text-gold-700" : "text-muted",
             )}
           >

@@ -242,7 +242,7 @@ export default async function AuditPage({ searchParams }: PageProps<"/admin/audi
   };
   const chip = (active: boolean) =>
     cn(
-      "inline-flex min-h-11 items-center rounded-full border px-4 text-xs font-semibold",
+      "inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-semibold",
       active ? "border-brand-700 bg-brand-700 text-white" : "border-stone-300 bg-white text-ink",
     );
 
@@ -284,12 +284,12 @@ export default async function AuditPage({ searchParams }: PageProps<"/admin/audi
                       ? "Pending role applied at first sign-in"
                       : (ACTION_LABELS[row.action] ?? humanize(row.action))}
                   </span>
-                  <span className="block text-xs text-muted">
+                  <span className="block text-sm text-muted">
                     {/* actor_ref is kept after the person deletes their account. */}
                     {row.actor?.full_name || row.actor?.email || (row.actor_ref ? "Deleted account" : "System")}
                   </span>
                 </span>
-                <span className="min-w-0 text-xs text-muted">
+                <span className="min-w-0 text-sm text-muted">
                   {subject ? <span className="block font-semibold wrap-anywhere text-ink">{subject}</span> : null}
                   {notes.length ? <span className="block wrap-anywhere">{notes.join(" · ")}</span> : null}
                 </span>

@@ -28,7 +28,7 @@ export default function ComingSoonPage() {
       />
       <ul className="grid gap-3 sm:grid-cols-2">
         {PLANS.map(({ Icon, title, text, badge }) => (
-          <li key={title} className="rounded-[var(--radius-card)] border border-stone-200 bg-white p-5 shadow-sm">
+          <li key={title} className="rounded-[var(--radius-card)] border border-stone-200 bg-white p-4 shadow-sm md:p-6">
             <div className="flex items-center justify-between gap-2">
               <Icon className="size-6 text-gold-700" aria-hidden="true" />
               <Badge>{badge ?? "Planned"}</Badge>

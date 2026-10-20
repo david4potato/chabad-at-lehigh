@@ -95,7 +95,7 @@ export default async function ProfilePage() {
             </>
           )}
         </p>
-        <div className="mt-5">
+        <div className="mt-6">
           <ProfileForm
             action={saveProfile}
             profile={profile ?? { full_name: null, preferred_name: null, affiliation: viewer.affiliation, class_year: null, phone: null }}

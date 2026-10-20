@@ -4,7 +4,7 @@ import { SITE } from "@/config/site";
 
 export function Logo() {
   return (
-    <Link href="/" className="flex items-center gap-2.5 rounded-xl py-1 pr-2" aria-label={`${SITE.name} home`}>
+    <Link href="/" className="flex items-center gap-2 rounded-xl py-1 pr-2" aria-label={`${SITE.name} home`}>
       <span className="flex size-9 items-center justify-center rounded-full bg-gold-100 text-gold-700 ring-1 ring-gold-200">
         <Flame className="size-5" aria-hidden="true" />
       </span>

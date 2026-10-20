@@ -61,9 +61,9 @@ export function SignupList({
             const nameId = `signup-${s.user_id}-name`;
             return (
               <li key={s.user_id} className="px-4 py-2">
-                <div className="flex flex-col gap-0.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                   <div className="flex min-w-0 gap-2 pt-1">
-                    <span className="w-5 shrink-0 text-sm text-muted" aria-hidden="true">
+                    <span className="w-6 shrink-0 text-sm text-muted" aria-hidden="true">
                       {i + 1}.
                     </span>
                     <div className="min-w-0">
@@ -77,8 +77,8 @@ export function SignupList({
                       ) : null}
                     </div>
                   </div>
-                  <div className="flex shrink-0 flex-wrap items-center gap-x-3 pl-7 sm:pl-0">
-                    <p className="text-xs text-muted">Signed up {s.when}</p>
+                  <div className="flex shrink-0 flex-wrap items-center gap-x-3 pl-8 sm:pl-0">
+                    <p className="text-sm text-muted">Signed up {s.when}</p>
                     {onRemove && confirmId !== s.user_id ? (
                       <Button
                         variant="ghost"

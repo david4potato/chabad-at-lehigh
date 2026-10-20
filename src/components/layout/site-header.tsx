@@ -18,7 +18,7 @@ export async function SiteHeader() {
   return (
     <>
       <header className="sticky top-0 z-40 border-b border-stone-200/80 bg-cream/90 backdrop-blur print:hidden">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6 md:px-8">
           <Logo />
           <nav aria-label="Main" className="hidden md:block">
             <DesktopNavLinks items={navItems} />
@@ -33,7 +33,7 @@ export async function SiteHeader() {
                 >
                   <Bell className="size-5" aria-hidden="true" />
                   {unread > 0 ? (
-                    <span className="absolute right-1 top-1 flex min-w-5 items-center justify-center rounded-full bg-red-600 px-1 text-[11px] font-bold leading-5 text-white">
+                    <span className="absolute right-1 top-1 flex min-w-5 items-center justify-center rounded-full bg-red-600 px-1 text-sm font-bold leading-5 text-white">
                       {unread > 9 ? "9+" : unread}
                     </span>
                   ) : null}

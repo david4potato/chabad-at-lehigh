@@ -2,7 +2,7 @@ import { cloneElement, isValidElement, type AriaAttributes, type ComponentProps,
 import { cn } from "@/lib/cn";
 
 const control =
-  "block w-full rounded-xl border border-stone-300 bg-white px-3.5 py-2.5 text-base text-ink " +
+  "block w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-base text-ink " +
   "placeholder:text-stone-400 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200 " +
   "disabled:bg-stone-100 aria-[invalid=true]:border-red-600";
 
@@ -25,7 +25,7 @@ export function Select({ className, ...props }: ComponentProps<"select">) {
 export function Checkbox({ className, label, hint, ...props }: ComponentProps<"input"> & { label: ReactNode; hint?: ReactNode }) {
   return (
     // min-h-11 keeps the whole row a 44px tap target; items-start keeps long labels aligned with the box.
-    <label className="flex min-h-11 cursor-pointer items-start gap-3 rounded-xl px-1 py-2.5">
+    <label className="flex min-h-11 cursor-pointer items-start gap-3 rounded-xl px-1 py-2">
       <input
         type="checkbox"
         className={cn("mt-0.5 size-5 shrink-0 rounded border-stone-400 accent-brand-700", className)}
@@ -33,7 +33,7 @@ export function Checkbox({ className, label, hint, ...props }: ComponentProps<"i
       />
       <span className="text-sm leading-snug">
         <span className="font-medium text-ink">{label}</span>
-        {hint ? <span className="mt-0.5 block text-muted">{hint}</span> : null}
+        {hint ? <span className="mt-1 block text-muted">{hint}</span> : null}
       </span>
     </label>
   );
@@ -88,7 +88,7 @@ export function Field({
       })
     : children;
   return (
-    <div className={cn("space-y-1.5", className)}>
+    <div className={cn("space-y-2", className)}>
       <Label htmlFor={htmlFor}>
         {label}
         {required ? (

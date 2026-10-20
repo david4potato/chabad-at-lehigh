@@ -28,7 +28,7 @@ const APPROVAL_OPTIONS = [
 
 function Section({ title, children, description }: { title: string; description?: string; children: React.ReactNode }) {
   return (
-    <fieldset className="space-y-4 rounded-[var(--radius-card)] border border-stone-200 bg-white p-5 shadow-sm sm:p-6">
+    <fieldset className="space-y-4 rounded-[var(--radius-card)] border border-stone-200 bg-white p-4 shadow-sm md:p-6">
       <legend className="sr-only">{title}</legend>
       <div>
         <h2 className="text-lg font-bold text-ink" aria-hidden="true">
@@ -64,8 +64,8 @@ export function EventForm({
   const next = state.ok ? state.data?.next : undefined;
 
   return (
-    <div className="space-y-5">
-      <Form id={EVENT_FORM_ID} action={formAction} className="space-y-5">
+    <div className="space-y-4">
+      <Form id={EVENT_FORM_ID} action={formAction} className="space-y-4">
         {event ? <input type="hidden" name="id" value={event.id} /> : null}
 
         <Section title="Basics">
@@ -160,7 +160,7 @@ export function EventForm({
                     value={o.value}
                     checked={approval === o.value}
                     onChange={() => setApproval(o.value as typeof approval)}
-                    className="mt-1 size-4 accent-brand-700"
+                    className="mt-1 size-4 text-base accent-brand-700"
                   />
                   <span>
                     <span className="block text-sm font-semibold text-ink">{o.label}</span>
@@ -225,7 +225,7 @@ export function EventForm({
       </Form>
 
       {event && canDelete && onDelete ? (
-        <div className="space-y-3 rounded-[var(--radius-card)] border border-stone-200 bg-white p-5">
+        <div className="space-y-3 rounded-[var(--radius-card)] border border-stone-200 bg-white p-4 md:p-6">
           <h2 className="text-lg font-bold text-ink">More actions</h2>
           {!confirmDelete ? (
             <Button variant="ghost" className="text-red-700 hover:bg-red-50" onClick={() => setConfirmDelete(true)}>

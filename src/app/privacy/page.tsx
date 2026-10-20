@@ -12,7 +12,7 @@ export default async function PrivacyPage() {
     {
       title: "What we collect",
       body: (
-        <ul className="list-disc space-y-1 pl-5">
+        <ul className="list-disc space-y-1 pl-6">
           <li>Your email address (to sign you in and send event updates).</li>
           <li>Your name, whether you&apos;re a student or community member, and optionally class year and phone.</li>
           <li>Your RSVPs, guests and notes to organizers.</li>
@@ -26,7 +26,7 @@ export default async function PrivacyPage() {
     {
       title: "Who can see what",
       body: (
-        <ul className="list-disc space-y-1 pl-5">
+        <ul className="list-disc space-y-1 pl-6">
           <li>Organizers see RSVPs, names and contact details to run events.</li>
           <li>Organizers see who signed up for a volunteer shift and can email them.</li>
           <li>
@@ -55,7 +55,7 @@ export default async function PrivacyPage() {
     {
       title: "Your choices",
       body: (
-        <ul className="list-disc space-y-1 pl-5">
+        <ul className="list-disc space-y-1 pl-6">
           <li>
             Edit or delete your dietary information any time on{" "}
             <Link href="/profile/dietary" className="font-semibold text-brand-700 hover:underline">

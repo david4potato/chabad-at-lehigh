@@ -116,14 +116,14 @@ export default async function MenuAdminPage({ params, searchParams }: PageProps<
                 <StartDraftButton eventId={event.id} hasPublished={Boolean(published)} />
               </div>
             ) : (
-              <div className="mt-5 space-y-6">
+              <div className="mt-6 space-y-6">
                 <DraftDetailsForm eventId={event.id} versionId={draft.id} title={draft.title} kitchenNotes={kitchenNotes} />
                 <div className="space-y-4">
                   <h3 className="text-base font-bold text-ink">Dishes</h3>
                   {draftItems.length === 0 ? <p className="text-sm text-muted">No dishes yet — add one below.</p> : null}
                   {groupByCourse(draftItems).map((g) => (
                     <div key={g.course}>
-                      <p className="mb-2 text-xs font-bold uppercase tracking-wide text-muted">{g.label}</p>
+                      <p className="mb-2 text-sm font-bold uppercase tracking-wide text-muted">{g.label}</p>
                       <ul className="space-y-2">
                         {g.items.map((item) => (
                           <MenuItemEditor key={item.id} eventId={event.id} item={item} />
@@ -166,12 +166,12 @@ export default async function MenuAdminPage({ params, searchParams }: PageProps<
                 <MenuUpdateForm eventId={event.id} versionId={published?.id ?? null} />
               </div>
               {updateList.length ? (
-                <ul className="mt-5 space-y-2 border-t border-stone-100 pt-4 text-sm">
+                <ul className="mt-6 space-y-2 border-t border-stone-100 pt-4 text-sm">
                   {updateList.map((u) => (
                     <li key={u.id}>
                       {u.is_urgent ? <Badge tone="amber" className="mr-1">Urgent</Badge> : null}
                       <span className="text-ink">{u.message}</span>
-                      <span className="block text-xs text-muted">{formatDateTime(u.created_at)}</span>
+                      <span className="block text-sm text-muted">{formatDateTime(u.created_at)}</span>
                     </li>
                   ))}
                 </ul>
@@ -229,27 +229,27 @@ function LiveMenu({ items, open }: { items: MenuItem[]; open: boolean }) {
       <div className="space-y-3 pb-3">
         {groupByCourse(items).map((g) => (
           <div key={g.course}>
-            <p className="mb-1 text-xs font-bold uppercase tracking-wide text-muted">{g.label}</p>
+            <p className="mb-1 text-sm font-bold uppercase tracking-wide text-muted">{g.label}</p>
             <ul className="divide-y divide-stone-100 rounded-xl border border-stone-200 bg-white">
               {g.items.map((item) => (
-                <li key={item.id} className="space-y-1.5 px-3 py-2.5">
+                <li key={item.id} className="space-y-2 px-3 py-3">
                   <p className="font-semibold text-ink">{item.dish.name}</p>
                   {item.dish.allergens.length ? (
                     <AllergenBadges codes={item.dish.allergens} optionalOnly={optionalOnlyAllergens(item.dish)} />
                   ) : item.dish.ingredients.length === 0 ? (
-                    <p className="text-xs font-medium text-amber-900">No ingredients listed.</p>
+                    <p className="text-sm font-medium text-amber-900">No ingredients listed.</p>
                   ) : (
-                    <p className="text-xs text-muted">No allergens listed in its ingredients.</p>
+                    <p className="text-sm text-muted">No allergens listed in its ingredients.</p>
                   )}
                   {item.cross_contact_allergens.length ? <AllergenBadges codes={item.cross_contact_allergens} kind="may_contain" /> : null}
                   {item.cross_contact_notes ? (
-                    <p className="text-xs text-ink">
+                    <p className="text-sm text-ink">
                       <span className="font-semibold">Cross-contact: </span>
                       {item.cross_contact_notes}
                     </p>
                   ) : null}
                   {item.preparation_notes ? (
-                    <p className="text-xs text-ink">
+                    <p className="text-sm text-ink">
                       <span className="font-semibold">Preparation: </span>
                       {item.preparation_notes}
                     </p>
@@ -282,10 +282,10 @@ function FoodAndWater({ counts, rsvpOpen }: { counts?: EventCounts; rsvpOpen: bo
             {counts.guests ? ` (${counts.going} going and ${plural(counts.guests, "guest")})` : ""}.
             {maybe ? ` ${plural(maybe, "RSVP is", "RSVPs are")} on the waitlist or waiting for approval, and may bring guests.` : ""}
           </p>
-          <p className="mt-1 text-xs text-muted">RSVPs change, so check the count again the day before.</p>
+          <p className="mt-1 text-sm text-muted">RSVPs change, so check the count again the day before.</p>
         </>
       )}
-      <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm text-ink">
+      <ul className="mt-3 list-disc space-y-2 pl-6 text-sm text-ink">
         <li>Water for everyone: pitchers or a refill station, and cups.</li>
         {rsvpOpen ? <li>Cook for the count above, not much more.</li> : null}
         <li>

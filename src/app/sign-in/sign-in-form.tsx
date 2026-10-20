@@ -153,7 +153,7 @@ export function SignInForm({ next }: { next: string }) {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {turnstileSiteKey ? (
         <Script
           src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"

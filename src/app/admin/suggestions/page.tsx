@@ -62,10 +62,10 @@ export default async function SuggestionsPage({ searchParams }: PageProps<"/admi
             <li key={s.id} className="rounded-[var(--radius-card)] border border-stone-200 bg-white p-4 shadow-sm">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge tone="gold">{KIND[s.kind] ?? s.kind}</Badge>
-                <span className="text-xs text-muted">{formatShortDate(s.created_at)}{s.event ? ` · ${s.event.title}` : ""}</span>
+                <span className="text-sm text-muted">{formatShortDate(s.created_at)}{s.event ? ` · ${s.event.title}` : ""}</span>
               </div>
-              <p className="mt-1.5 font-bold text-ink">{s.title}</p>
-              {s.details ? <p className="mt-0.5 text-sm text-muted">{s.details}</p> : null}
+              <p className="mt-2 font-bold text-ink">{s.title}</p>
+              {s.details ? <p className="mt-1 text-sm text-muted">{s.details}</p> : null}
               {s.kind === "dish" ? (
                 <Link href={`/admin/dishes/new?name=${encodeURIComponent(s.title)}`} className="mt-1 inline-flex min-h-11 items-center text-sm font-semibold text-brand-700 hover:underline">
                   Create a dish from this →

@@ -131,7 +131,7 @@ export function AddIngredientForm({ dishId, ingredients }: { dishId: string; ing
           </Field>
           <fieldset>
             <legend className="text-sm font-semibold text-ink">Allergens it contains</legend>
-            <p className="text-xs text-muted">Check the package label. Sesame seeds and sesame oil are separate.</p>
+            <p className="text-sm text-muted">Check the package label. Sesame seeds and sesame oil are separate.</p>
             <div className="mt-2 grid grid-cols-2 gap-x-4 sm:grid-cols-3">
               {ALLERGENS.map((a) => (
                 <Checkbox key={a.code} name="new_allergens" value={a.code} label={a.label} />
@@ -173,7 +173,7 @@ export function RemoveIngredientButton({ dishId, ingredientId, name }: { dishId:
       >
         <Trash2 className="size-4" aria-hidden="true" />
       </button>
-      {result && !result.ok ? <span role="alert" className="text-xs text-red-700">{result.error}</span> : null}
+      {result && !result.ok ? <span role="alert" className="text-sm text-red-700">{result.error}</span> : null}
     </span>
   );
 }

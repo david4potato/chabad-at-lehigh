@@ -14,7 +14,7 @@ export function isActivePath(pathname: string, href: string) {
 export function DesktopNavLinks({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
   return (
-    <ul className="flex items-center gap-1">
+    <ul className="flex items-center gap-2">
       {items.map((item) => {
         const active = isActivePath(pathname, item.href);
         return (
@@ -23,7 +23,7 @@ export function DesktopNavLinks({ items }: { items: NavItem[] }) {
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "rounded-lg px-3 py-2 text-[15px] font-semibold transition-colors",
+                "inline-flex min-h-11 items-center rounded-lg px-3 text-[15px] font-semibold transition-colors",
                 active ? "bg-brand-50 text-brand-800" : "text-muted hover:bg-stone-100 hover:text-ink",
               )}
             >

@@ -124,7 +124,7 @@ export default async function PeoplePage({ searchParams }: PageProps<"/admin/peo
                   {activityLine(activity.get(p.id)?.events ?? 0, activity.get(p.id)?.last_at ?? null)}
                 </p>
               )}
-              <div className="mt-2 flex flex-wrap gap-1.5">
+              <div className="mt-2 flex flex-wrap gap-2">
                 {(p.roles ?? []).map(({ role }) => (
                   <RoleChip
                     key={role}

@@ -114,7 +114,7 @@ export default async function AdminEventsPage({ searchParams }: PageProps<"/admi
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge tone={STATUS_TONE[e.status]}>{e.status[0].toUpperCase() + e.status.slice(1)}</Badge>
-                      <span className="text-xs font-semibold text-muted">{CATEGORY_LABELS[e.category]}</span>
+                      <span className="text-sm font-semibold text-muted">{CATEGORY_LABELS[e.category]}</span>
                     </div>
                     <p className="mt-1 font-bold text-ink">{e.title}</p>
                     <p className="text-sm text-muted">

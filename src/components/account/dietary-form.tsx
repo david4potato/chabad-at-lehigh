@@ -77,7 +77,7 @@ export function DietaryForm({ initial, welcome, next }: { initial: Initial; welc
                   {entry ? (
                     <div className="mt-3 grid gap-3 pl-8 sm:grid-cols-[220px_1fr]">
                       <div className="space-y-1">
-                        <label htmlFor={`severity_${a.code}`} className="text-xs font-semibold text-muted">
+                        <label htmlFor={`severity_${a.code}`} className="text-sm font-semibold text-muted">
                           How serious?
                         </label>
                         <Select id={`severity_${a.code}`} name={`severity_${a.code}`} defaultValue={entry.severity}>
@@ -89,7 +89,7 @@ export function DietaryForm({ initial, welcome, next }: { initial: Initial; welc
                         </Select>
                       </div>
                       <div className="space-y-1">
-                        <label htmlFor={`notes_${a.code}`} className="text-xs font-semibold text-muted">
+                        <label htmlFor={`notes_${a.code}`} className="text-sm font-semibold text-muted">
                           Note (optional)
                         </label>
                         <Input id={`notes_${a.code}`} name={`notes_${a.code}`} maxLength={300} defaultValue={entry.notes ?? ""} placeholder="e.g. even traces" />
@@ -111,7 +111,7 @@ export function DietaryForm({ initial, welcome, next }: { initial: Initial; welc
           </div>
         </fieldset>
 
-        <div className="space-y-5">
+        <div className="space-y-4">
           <Field label="Other restrictions" htmlFor="other_restrictions" hint="Anything not listed above.">
             <Textarea id="other_restrictions" name="other_restrictions" maxLength={1000} defaultValue={initial.other_restrictions ?? ""} aria-describedby="other_restrictions-hint" />
           </Field>

@@ -38,7 +38,7 @@ export function EventShiftsAdmin({ eventId, shifts }: { eventId: string; shifts:
       )}
       <Link
         href={`/admin/volunteers/new?event=${eventId}`}
-        className="mt-1 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-brand-700 hover:underline"
+        className="mt-1 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-brand-700 hover:underline"
       >
         <Plus className="size-4" aria-hidden="true" /> Add a volunteer shift
       </Link>
