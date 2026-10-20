@@ -15,6 +15,9 @@ long it takes and what must come first. [SETUP.md](SETUP.md) has the full refere
 ## David's steps
 
 1. **Load the database** (5 min). Comes first.
+   - **Plan and region:** Supabase → the project → **Project Settings → General** shows the region (East US is
+     expected; it can't be changed later). The organization's **Billing** page shows the plan. Free is fine until
+     launch; step 10 moves it to Pro for backups.
    - Supabase → the project → **Table Editor**. If `events`, `rsvps` and `dishes` are listed, the database was
      loaded earlier: run `supabase/migrations/20261019000100_efficiency.sql` and then
      `supabase/migrations/20261020000100_contact_name.sql` once each in **SQL Editor → New query** (the indexes
@@ -81,6 +84,36 @@ long it takes and what must come first. [SETUP.md](SETUP.md) has the full refere
 11. **Ownership** (later, not needed for launch). Follow [HANDOFF.md](HANDOFF.md), "Account ownership and transfer".
     - Today GitHub, Vercel, Supabase and the email sender all sit in your accounts.
     - Move them to an owner Chabad controls in this order: Supabase, then GitHub, then Vercel, then the domain.
+
+## Accounts and data
+
+| Account | Holds | Set up in |
+| --- | --- | --- |
+| Supabase (project `chabad-at-lehigh`, in David's own account) | The database and sign-ins | Steps 1, 3, 10 |
+| Supabase plan | Free until launch. Pro (from $25 a month, see the cost table in [SETUP.md](SETUP.md)) for daily backups kept 7 days and no pausing | Step 10 |
+| Email sender (Gmail app password in Supabase SMTP) | Sends sign-in emails only | Step 4 |
+| Vercel (project `chabad-at-lehigh`) | The website; two public settings, no secrets | Step 2 |
+| GitHub (`david4potato/chabad-at-lehigh`, public) | The code. No data, keys or passwords | Already set up |
+| Domain (optional) | The web address | Only if the directors want one |
+
+What the app stores, and who can see it (the site's Privacy page says the same to students):
+
+| Data | Who can see it |
+| --- | --- |
+| Email, name, student or community member, optional class year and phone | The person, organizers and admins |
+| RSVPs, guests, notes to organizers, check-ins, volunteer sign-ups | The person, organizers and admins |
+| Dietary details: allergies, diet, kitchen notes, per-event meal notes | The person. Kitchen staff and admins see names only in the dietary report for events the person RSVP'd to, and every view is logged. Organizers see anonymous counts. Nobody else |
+| Dish votes and suggestions | Votes: only counts, without names. Suggestions: the person and menu staff |
+| Notifications | The person |
+| Roles, pending admin invites, the audit log | Admins |
+| Published events, menus, dishes, ingredients, announcements | Everyone. Drafts: staff only |
+| File storage: one `gallery` bucket, made by the setup SQL for a planned photo feature | Empty. Nothing in the app uploads to it yet; only organizers and admins could |
+
+- **Backups:** on Pro, Supabase keeps a daily copy for 7 days (**Database → Backups**). Free has none. Restore steps
+  are in "How to undo" below.
+- **Claude sessions:** Claude's Supabase connector is linked to a different Supabase account and can't see this
+  project. Nothing here needs it; it only means a Claude session can't check the hosted database for you. If you
+  want that, connect the connector to the account that holds the project.
 
 ## A web address of their own (optional)
 
