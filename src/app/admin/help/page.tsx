@@ -25,7 +25,7 @@ const SECTIONS: Section[] = [
     title: "Your weekly Shabbat dinner routine",
     who: "Organizers",
     body: (
-      <ol className="list-decimal space-y-2 pl-5">
+      <ol className="list-decimal space-y-2 pl-6">
         <li>
           <A href="/admin/events?tab=past">Events → Past</A> → tap <strong>Duplicate for next week</strong> on last week&apos;s dinner. You get a
           draft copy one week later. Used <strong>Repeat</strong>? Next week&apos;s dinner is already in{" "}
@@ -55,7 +55,7 @@ const SECTIONS: Section[] = [
     title: "Creating and changing events",
     who: "Organizers",
     body: (
-      <ul className="list-disc space-y-2 pl-5">
+      <ul className="list-disc space-y-2 pl-6">
         <li>
           <A href="/admin/events/new">New event</A> starts as a <strong>Draft</strong> (only staff can see it). Set <strong>Published</strong> when ready.
         </li>
@@ -92,7 +92,7 @@ const SECTIONS: Section[] = [
     title: "RSVPs, guests, waitlist and check-in",
     who: "Organizers",
     body: (
-      <ul className="list-disc space-y-2 pl-5">
+      <ul className="list-disc space-y-2 pl-6">
         <li>
           The three tiles at the top of <strong>Attendees &amp; check-in</strong> show seats taken, RSVPs that need approval, and how many people are
           checked in. The filters below count who&apos;s going and who&apos;s on the waitlist.
@@ -127,7 +127,7 @@ const SECTIONS: Section[] = [
     title: "Menus and allergens — the safe way to do it",
     who: "Kitchen staff & organizers",
     body: (
-      <ol className="list-decimal space-y-2 pl-5">
+      <ol className="list-decimal space-y-2 pl-6">
         <li>
           Add every ingredient in <A href="/admin/ingredients">Ingredients</A> and tick each allergen it contains — check the package label.{" "}
           <strong>Sesame seeds</strong> and <strong>sesame oil</strong> are separate; so are <strong>wheat</strong> and <strong>gluten</strong>.
@@ -158,7 +158,7 @@ const SECTIONS: Section[] = [
         <li>
           <strong>Food and water</strong> on the Menu tab shows how many to cook for, from the RSVPs, and a short checklist: water for everyone,
           and leftovers refrigerated in labeled containers, taken home or used within 3 days (on another meal&apos;s menu, so their allergens show),
-          so nothing goes to waste, then recycling and composting after the meal.
+          so nothing goes to waste, then reusing, recycling and composting after the meal.
         </li>
       </ol>
     ),
@@ -168,7 +168,7 @@ const SECTIONS: Section[] = [
     title: "Dietary information and privacy",
     who: "Kitchen staff & admins",
     body: (
-      <ul className="list-disc space-y-2 pl-5">
+      <ul className="list-disc space-y-2 pl-6">
         <li>The <strong>Dietary</strong> tab shows anonymous counts to organizers. Names next to allergies are visible only to kitchen staff and admins.</li>
         <li>Every time the named report is opened it&apos;s recorded in the audit log. Use it only for preparing food, and don&apos;t share it.</li>
         <li>People who chose not to share are listed as &ldquo;Not shared&rdquo; — ask them directly. Severe allergies and epinephrine are highlighted.</li>
@@ -181,7 +181,7 @@ const SECTIONS: Section[] = [
     title: "Menu voting and suggestions",
     who: "Kitchen staff & organizers",
     body: (
-      <ul className="list-disc space-y-2 pl-5">
+      <ul className="list-disc space-y-2 pl-6">
         <li>On an event&apos;s <strong>Menu</strong> tab → <strong>Menu voting</strong>, add dish options and press <strong>Open voting</strong> (organizers).</li>
         <li>Votes are advisory and never mean a dish suits an allergy. Close voting when you decide.</li>
         <li>
@@ -195,7 +195,7 @@ const SECTIONS: Section[] = [
     title: "Announcements, invitations and notifications",
     who: "Organizers",
     body: (
-      <ul className="list-disc space-y-2 pl-5">
+      <ul className="list-disc space-y-2 pl-6">
         <li>
           <A href="/admin/announcements">Announcements</A> show on the home page. Write a title and message and press{" "}
           <strong>Post announcement</strong>. Under <strong>More options</strong>: who sees it, <strong>Show from / Hide after</strong> to schedule it,{" "}
@@ -218,7 +218,7 @@ const SECTIONS: Section[] = [
     title: "Volunteer shifts",
     who: "Organizers",
     body: (
-      <ul className="list-disc space-y-2 pl-5">
+      <ul className="list-disc space-y-2 pl-6">
         <li>
           <A href="/admin/volunteers/new">Volunteers → New shift</A>: a title (&ldquo;Help cook Shabbat dinner&rdquo;), the time, how many spots, and
           optionally the event it&apos;s for. Or open an event and press <strong>Add a volunteer shift</strong>.
@@ -255,7 +255,7 @@ const SECTIONS: Section[] = [
     title: "This semester stats",
     who: "Organizers",
     body: (
-      <ul className="list-disc space-y-2 pl-5">
+      <ul className="list-disc space-y-2 pl-6">
         <li>
           The numbers on <A href="/admin">Overview</A> count published events since the semester started (August 1 or January 1) that have
           already ended. They show totals only, never names.
@@ -274,7 +274,7 @@ const SECTIONS: Section[] = [
     title: "People, roles, settings and the audit log",
     who: "Admins",
     body: (
-      <ul className="list-disc space-y-2 pl-5">
+      <ul className="list-disc space-y-2 pl-6">
         <li>
           <A href="/admin/people">People &amp; roles</A>: type someone&apos;s email and pick a role. It works even before they sign up. Keep{" "}
           <strong>Kitchen staff</strong> and <strong>Admin</strong> to a small, trusted group, and always have at least two admins.
@@ -292,7 +292,7 @@ const SECTIONS: Section[] = [
     title: "When someone needs help",
     who: "Everyone",
     body: (
-      <ul className="list-disc space-y-2 pl-5">
+      <ul className="list-disc space-y-2 pl-6">
         <li><strong>&ldquo;I didn&apos;t get the sign-in email.&rdquo;</strong> Check spam; wait a minute and press Resend; use the code instead of the link.</li>
         <li><strong>&ldquo;The link says it expired.&rdquo;</strong> Links work once. Use the code from the newest email, or request a new one.</li>
         <li><strong>&ldquo;I can&apos;t see the dashboard.&rdquo;</strong> An admin needs to give them a role, then they reload the page.</li>
@@ -330,11 +330,11 @@ export default async function HelpPage() {
       <div className="space-y-3">
         {sections.map((s, i) => (
           <details key={s.id} id={s.id} open={i === 0} className="scroll-mt-24 rounded-[var(--radius-card)] border border-stone-200 bg-white shadow-sm">
-            <summary className="flex cursor-pointer list-none flex-wrap items-center gap-2 p-4 sm:p-5">
+            <summary className="flex cursor-pointer list-none flex-wrap items-center gap-2 p-4 md:p-6">
               <span className="text-base font-bold text-ink">{s.title}</span>
               <Badge tone="brand" className="ml-auto">{s.who}</Badge>
             </summary>
-            <div className="border-t border-stone-100 p-4 text-base leading-relaxed text-ink sm:p-5">{s.body}</div>
+            <div className="border-t border-stone-100 p-4 text-base leading-relaxed text-ink md:p-6">{s.body}</div>
           </details>
         ))}
       </div>

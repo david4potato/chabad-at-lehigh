@@ -81,7 +81,7 @@ export default async function AdminAnnouncementsPage() {
                 {a.is_urgent ? <Badge tone="amber">Important</Badge> : null}
                 <span className="font-semibold wrap-anywhere text-ink">{a.title}</span>
                 <span className="ml-auto flex items-center gap-3">
-                  <span className="text-xs text-muted">{formatDateTime(a.publish_at)}</span>
+                  <span className="text-sm text-muted">{formatDateTime(a.publish_at)}</span>
                   <span className="text-sm font-semibold text-brand-700">Edit</span>
                 </span>
               </summary>

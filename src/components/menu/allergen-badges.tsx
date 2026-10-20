@@ -23,12 +23,14 @@ export function AllergenBadges({ codes, kind = "contains", optionalOnly = [], la
   const lead = label === undefined ? (kind === "contains" ? "Contains:" : "May contain (cross-contact):") : label;
   const optional = new Set(optionalOnly);
   return (
-    <div className={cn("flex flex-wrap items-center gap-1.5", className)}>
-      {lead ? <span className="mr-0.5 text-xs font-semibold text-ink">{lead}</span> : null}
+    <div className={cn("flex flex-wrap items-center gap-2", className)}>
+      {lead ? <span className="mr-1 text-sm font-semibold text-ink">{lead}</span> : null}
       {sortAllergens(codes).map((code) => (
         <Badge key={code} tone={kind === "contains" ? "red" : "amber"}>
-          {allergenLabel(code)}
-          {optional.has(code) ? <span className="font-medium">(optional ingredient)</span> : null}
+          <span>
+            {allergenLabel(code)}
+            {optional.has(code) ? <span className="font-medium"> (optional ingredient)</span> : null}
+          </span>
         </Badge>
       ))}
     </div>

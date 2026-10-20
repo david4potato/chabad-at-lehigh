@@ -4,7 +4,7 @@
 -- Paste this whole file into Supabase → SQL Editor → New query → Run,
 -- ONCE, on a NEW project. It creates all tables, security rules and functions.
 -- Do not edit by hand; edit supabase/migrations/* and regenerate.
--- Files included: 20261017000100_core.sql, 20261017000200_events_rsvps.sql, 20261017000300_meals.sql, 20261017000400_community.sql, 20261017000500_app_helpers.sql, 20261017000600_housekeeping.sql, 20261017000700_account_deletion.sql, 20261017000800_invites.sql, 20261017000900_volunteering_and_stats.sql, 20261018000100_parking_default.sql, 20261019000100_efficiency.sql
+-- Files included: 20261017000100_core.sql, 20261017000200_events_rsvps.sql, 20261017000300_meals.sql, 20261017000400_community.sql, 20261017000500_app_helpers.sql, 20261017000600_housekeeping.sql, 20261017000700_account_deletion.sql, 20261017000800_invites.sql, 20261017000900_volunteering_and_stats.sql, 20261018000100_parking_default.sql, 20261019000100_efficiency.sql, 20261020000100_contact_name.sql
 -- =============================================================================
 
 -- >>>>>>>>>>>>>>>>>>>> 20261017000100_core.sql <<<<<<<<<<<<<<<<<<<<
@@ -182,12 +182,12 @@ create trigger app_settings_set_updated_at
 insert into public.app_settings (key, value) values
   ('student_email_domains', '["lehigh.edu"]'),
   -- Contact details from public sources (Lehigh chaplaincy page, Lubavitch.com,
-  -- The Brown and White), October 2026. The phone is left blank because no
-  -- public source confirmed one; it is shown as the allergy contact, so admins
-  -- add it in Dashboard → Settings after confirming with the Greenbergs.
+  -- The Brown and White), October 2026. The contact name and phone are left
+  -- blank: the phone is shown as the allergy contact, and admins add both in
+  -- Dashboard → Settings once the directors confirm them.
   ('organization', jsonb_build_object(
     'name', 'Chabad at Lehigh',
-    'contact_name', 'Rabbi Zalman & Dit Greenberg',
+    'contact_name', '',
     'contact_email', 'rabbi@chabadlehigh.org',
     'contact_phone', '',
     'address', E'Joachim Schaufeld Center for Jewish Life\n306 Wyandotte Street\nBethlehem, PA 18015',
@@ -3488,3 +3488,18 @@ as $$
       ))
     ));
 $$;
+
+
+-- >>>>>>>>>>>>>>>>>>>> 20261020000100_contact_name.sql <<<<<<<<<<<<<<<<<<<<
+
+-- =============================================================================
+-- The organization's contact name is no longer pre-filled. Admins add it in
+-- Dashboard → Settings once the directors confirm it; until then pages say
+-- "Contact the organizer". This clears the value the first migration used to
+-- pre-fill (matched by its md5), and only if nobody has changed it since.
+-- =============================================================================
+
+update public.app_settings
+set value = jsonb_set(value, '{contact_name}', '""')
+where key = 'organization'
+  and md5(value ->> 'contact_name') = '6024c4cdb8bea65822c1ddf814d08627';

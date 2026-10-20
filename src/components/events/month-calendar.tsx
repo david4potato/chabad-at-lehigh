@@ -20,9 +20,14 @@ const WEEKDAYS = [
 const MAX_TITLES = 2; // titles shown per day on wider screens
 const MAX_DOTS = 3; // dots shown per day on phones
 
-/** "Friday, October 23, today. 2 events: Lunch & Learn; Shabbat Dinner (cancelled)" */
+/**
+ * "23 Lunch & Learn Shabbat Dinner. Friday, October 23, today. 2 events: Lunch & Learn; Shabbat Dinner (cancelled)".
+ * It starts with what's visible in the cell (the day, and on wider screens the titles), so voice control works.
+ */
 function dayLabel(key: DayKey, events: readonly CalendarEvent[], isToday: boolean, isSelected: boolean) {
-  let label = formatDayKey(key);
+  const more = events.length - MAX_TITLES;
+  const visible = [String(Number(key.slice(8))), ...events.slice(0, MAX_TITLES).map((e) => e.title), more > 0 ? `+${more} more` : ""];
+  let label = `${visible.filter(Boolean).join(" ")}. ${formatDayKey(key)}`;
   if (isToday) label += ", today";
   if (isSelected) label += ", selected";
   if (events.length > 0) {
@@ -53,12 +58,12 @@ export function MonthCalendar({
   labelledBy: string;
 }) {
   return (
-    <div className="rounded-[var(--radius-card)] border border-stone-200 bg-white p-0.5 shadow-sm sm:p-2">
+    <div className="rounded-[var(--radius-card)] border border-stone-200 bg-white p-1 shadow-sm sm:p-2">
       <table aria-labelledby={labelledBy} className="w-full table-fixed border-separate border-spacing-px sm:border-spacing-1">
         <thead>
           <tr>
             {WEEKDAYS.map(([short, long]) => (
-              <th key={short} scope="col" className="py-1.5 text-center text-[11px] font-bold uppercase tracking-wide text-muted">
+              <th key={short} scope="col" className="py-2 text-center text-sm font-bold uppercase tracking-wide text-muted">
                 <span aria-hidden="true">{short}</span>
                 <span className="sr-only">{long}</span>
               </th>
@@ -136,28 +141,24 @@ function DayCell({
     >
       {number}
       {/* Phones: one dot per event (hollow when cancelled). */}
-      <span className="mt-auto mb-1.5 flex items-center justify-center gap-0.5 md:hidden" aria-hidden="true">
+      <span className="mt-auto mb-2 flex items-center justify-center gap-1 md:hidden" aria-hidden="true">
         {events.slice(0, MAX_DOTS).map((e) => (
           <span
             key={e.id}
             className={cn(
               "size-1.5 rounded-full",
-              e.status === "cancelled"
-                ? "border border-stone-500"
-                : e.category === "shabbat_dinner"
-                  ? "bg-gold-500"
-                  : "bg-brand-700",
+              e.status === "cancelled" ? "border border-stone-500" : "bg-brand-700",
             )}
           />
         ))}
       </span>
       {/* Wider screens: up to two titles, then "+N more". */}
-      <span className="mt-0.5 hidden min-w-0 space-y-0.5 md:block" aria-hidden="true">
+      <span className="mt-1 hidden min-w-0 space-y-1 md:block" aria-hidden="true">
         {events.slice(0, MAX_TITLES).map((e) => (
           <span
             key={e.id}
             className={cn(
-              "block truncate rounded px-1 text-[11px] leading-5 font-semibold",
+              "block truncate rounded px-1 text-sm leading-5 font-semibold",
               e.status === "cancelled"
                 ? "bg-stone-100 text-muted line-through"
                 : e.category === "shabbat_dinner"
@@ -169,7 +170,7 @@ function DayCell({
           </span>
         ))}
         {events.length > MAX_TITLES ? (
-          <span className="block px-1 text-[11px] leading-4 font-semibold text-muted">+{events.length - MAX_TITLES} more</span>
+          <span className="block px-1 text-sm leading-4 font-semibold text-muted">+{events.length - MAX_TITLES} more</span>
         ) : null}
       </span>
     </Link>

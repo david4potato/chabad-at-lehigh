@@ -171,12 +171,12 @@ create trigger app_settings_set_updated_at
 insert into public.app_settings (key, value) values
   ('student_email_domains', '["lehigh.edu"]'),
   -- Contact details from public sources (Lehigh chaplaincy page, Lubavitch.com,
-  -- The Brown and White), October 2026. The phone is left blank because no
-  -- public source confirmed one; it is shown as the allergy contact, so admins
-  -- add it in Dashboard → Settings after confirming with the Greenbergs.
+  -- The Brown and White), October 2026. The contact name and phone are left
+  -- blank: the phone is shown as the allergy contact, and admins add both in
+  -- Dashboard → Settings once the directors confirm them.
   ('organization', jsonb_build_object(
     'name', 'Chabad at Lehigh',
-    'contact_name', 'Rabbi Zalman & Dit Greenberg',
+    'contact_name', '',
     'contact_email', 'rabbi@chabadlehigh.org',
     'contact_phone', '',
     'address', E'Joachim Schaufeld Center for Jewish Life\n306 Wyandotte Street\nBethlehem, PA 18015',

@@ -59,6 +59,8 @@ export function SignInForm({ next }: { next: string }) {
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // A bad address shows under the email field, linked to it for screen readers.
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [cooldown, setCooldown] = useState(0);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const captchaRef = useRef<HTMLDivElement>(null);
@@ -92,13 +94,14 @@ export function SignInForm({ next }: { next: string }) {
   async function sendCode(e?: React.FormEvent) {
     e?.preventDefault();
     setError(null);
+    setEmailError(null);
     // Drop trailing punctuation picked up when copying an address.
     const address = email
       .trim()
       .toLowerCase()
       .replace(/[.,;]+$/, "");
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(address)) {
-      setError("Please enter a valid email address.");
+      setEmailError("Please enter a valid email address.");
       return;
     }
     if (turnstileSiteKey && !captchaToken) {
@@ -153,7 +156,7 @@ export function SignInForm({ next }: { next: string }) {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {turnstileSiteKey ? (
         <Script
           src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
@@ -166,7 +169,12 @@ export function SignInForm({ next }: { next: string }) {
 
       {step === "email" ? (
         <form onSubmit={sendCode} className="space-y-4" noValidate>
-          <Field label="Email address" htmlFor="email" hint={`${SITE.campus.name} students: use your @${STUDENT_DOMAIN} address.`}>
+          <Field
+            label="Email address"
+            htmlFor="email"
+            hint={`${SITE.campus.name} students: use your @${STUDENT_DOMAIN} address.`}
+            errors={emailError ? [emailError] : undefined}
+          >
             <Input
               id="email"
               name="email"
@@ -177,9 +185,11 @@ export function SignInForm({ next }: { next: string }) {
               spellCheck={false}
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setEmailError(null);
+              }}
               placeholder={`you@${STUDENT_DOMAIN}`}
-              aria-describedby="email-hint"
             />
           </Field>
           <Button type="submit" size="lg" className="w-full" disabled={busy}>

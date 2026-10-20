@@ -54,3 +54,6 @@ supabase/.branches
 
 # personal Claude Code settings
 .claude/settings.local.json
+
+# Screenshots from docs/shared/mobile-check.mjs
+/mobile-check/

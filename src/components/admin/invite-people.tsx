@@ -45,7 +45,7 @@ export function InvitePeople({ eventId, published }: { eventId: string; publishe
       {results.length ? (
         <ul className="divide-y divide-stone-100 rounded-xl border border-stone-200 text-sm">
           {results.map((r) => (
-            <li key={r.email} className="flex flex-col gap-0.5 px-3 py-2 sm:flex-row sm:justify-between">
+            <li key={r.email} className="flex flex-col gap-1 px-3 py-2 sm:flex-row sm:justify-between">
               <span className="break-all font-medium text-ink">{r.email}</span>
               <span className={r.result === "invited" ? "text-green-800" : "text-muted"}>{LABELS[r.result] ?? r.result}</span>
             </li>

@@ -36,12 +36,12 @@ export async function MealDisclaimer({ contact, headingLevel = 3, id = "meal-dis
     <aside
       id={id}
       aria-labelledby={`${id}-title`}
-      className={cn("scroll-mt-24 rounded-2xl border border-stone-200 bg-white p-4 text-sm sm:p-5", className)}
+      className={cn("scroll-mt-24 rounded-2xl border border-stone-200 bg-white p-4 text-sm md:p-6", className)}
     >
       <Heading id={`${id}-title`} className="text-base font-bold text-ink">
         About our food and allergies
       </Heading>
-      <ul className="mt-2 list-disc space-y-1 pl-5 leading-relaxed text-muted">
+      <ul className="mt-2 list-disc space-y-1 pl-6 leading-relaxed text-muted">
         <li>Menus can change; changes are posted here.</li>
         <li>Shared kitchen — cross-contact is possible.</li>
         <li>Ingredient lists, labels and votes are not a guarantee.</li>
@@ -53,7 +53,7 @@ export async function MealDisclaimer({ contact, headingLevel = 3, id = "meal-dis
       <div id={`${id}-contact`} className="mt-4 border-t border-stone-100 pt-3">
         <p className="font-semibold text-ink">{name ? `Contact ${name}` : "Contact the organizer"}</p>
         {email || phone ? (
-          <div className="mt-1 flex flex-col gap-x-5 sm:flex-row sm:flex-wrap">
+          <div className="mt-1 flex flex-col gap-x-6 sm:flex-row sm:flex-wrap">
             {email ? (
               <a
                 href={`mailto:${email}`}

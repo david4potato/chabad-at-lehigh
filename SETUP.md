@@ -6,7 +6,7 @@ If Claude is helping you, it does the database, admin and code steps; you do the
 
 1. **Supabase project (1 min).** <https://supabase.com/dashboard> → **New project** → name `chabad-at-lehigh`,
    **Generate a password** (save it), region **East US**, size: leave the default → **Create**.
-   Tell Claude "created", plus your email and Dit's. Claude loads the database, makes you both admins and sends you a
+   Tell Claude "created" and your email. Claude prepares the database file to paste, with you as admin, and a
    block to paste into Vercel. (Doing it yourself: steps 2, 5 and 12 below.)
 2. **GitHub repo (1 min).** <https://github.com/new> → `chabad-at-lehigh`, **Private**, no README → **Create**.
    Tell Claude, who pushes the code. (Yourself: step 14.)
@@ -19,8 +19,9 @@ If Claude is helping you, it does the database, admin and code steps; you do the
    - **Rate Limits:** email → `100` per hour.
    (Providers → Email → *Confirm email* is on by default — leave it on.)
 5. **Sign in (2 min)** on your site → **Dashboard** → the **Getting started** checklist: confirm the contact details,
-   **add the Greenbergs' phone** and check parking.
-6. **Send Dit her sign-in note** (in [docs/ORGANIZER_QUICKSTART.md](docs/ORGANIZER_QUICKSTART.md)).
+   **add the directors' names and phone** once they agree, and check parking.
+6. **When the directors agree,** add them as admins and send each one the sign-in note (in
+   [docs/ORGANIZER_QUICKSTART.md](docs/ORGANIZER_QUICKSTART.md)).
 
 Later, when you have time: Resend with your own domain (step 9), `app.chabadlehigh.org` (Part F), the bot check
 (step 21), and the organizer review + one trial dinner before announcing.
@@ -96,7 +97,7 @@ Supabase's built-in email only reaches your own team, so students need a real se
 
 12. SQL Editor → paste `supabase/scripts/bootstrap_admin.sql`, put **your** email in → **Run**. You become admin
     when you sign in.
-13. After the site is live (step 23): **Dashboard → People & roles** → add the Greenbergs (and one more trusted
+13. After the site is live (step 23): **Dashboard → People & roles** → add the directors (and one more trusted
     person) as **Admin**. It works before they've signed in. Keep at least two admins.
 
 ## Part D — GitHub
@@ -135,9 +136,9 @@ that would take down the current site and rabbi@ email. Use a subdomain instead,
 22. Open the site on a phone and a computer: home, Events, Find Us and footer links load.
 23. **Sign in** → email arrives with a button and a code → welcome form → optional allergy screen (**Skip for now**) → you see **Dashboard**, with a
     **Getting started** checklist. Do step 13 now.
-24. Follow the checklist: **Settings** — confirm the contact details with the Greenbergs (pre-filled from public
-    sources: Rabbi Zalman & Dit Greenberg, rabbi@chabadlehigh.org, 306 Wyandotte Street), **add their phone number**
-    (shown as the allergy contact) and check parking (pre-filled: about 15 spots). Then **Remove demo content** if you loaded it.
+24. Follow the checklist: **Settings** — confirm the contact details with the directors (pre-filled from public
+    sources: rabbi@chabadlehigh.org, 306 Wyandotte Street), **add their names and phone number**
+    (the phone is shown as the allergy contact) and check parking (pre-filled: about 15 spots). Then **Remove demo content** if you loaded it.
 25. Create and publish a test event; from a second account try **Going / Not going / Change RSVP**, the
     waitlist (small capacity) and **Invite friends**.
 26. Add a dish with ingredients → event **Menu** → tick the preparation confirmation → **Publish**. Signed out,

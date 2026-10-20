@@ -23,7 +23,7 @@ export function EventTabs({ eventId, active, roles }: { eventId: string; active:
                 href={t.href}
                 aria-current={t.key === active ? "page" : undefined}
                 className={cn(
-                  "-mb-px flex min-h-11 items-end border-b-2 px-2 pb-3 text-sm font-semibold whitespace-nowrap",
+                  "focus-inset -mb-px flex min-h-11 items-end border-b-2 px-2 pb-3 text-sm font-semibold whitespace-nowrap",
                   t.key === active ? "border-brand-700 text-brand-800" : "border-transparent text-muted hover:text-ink",
                 )}
               >

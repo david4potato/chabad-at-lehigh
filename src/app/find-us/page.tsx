@@ -15,7 +15,7 @@ export default async function FindUsPage() {
   const q = encodeURIComponent(query);
 
   return (
-    <div className="mx-auto max-w-3xl space-y-5">
+    <div className="mx-auto max-w-3xl space-y-4">
       <PageHeader title="Find Us" description="We'd love to see you. Here's how to get here." />
 
       {query ? (
@@ -29,7 +29,7 @@ export default async function FindUsPage() {
               {org.address ? <p className="mt-1 whitespace-pre-line text-base text-ink">{org.address}</p> : null}
             </div>
           </div>
-          <div className="mt-5 grid gap-2 sm:grid-cols-3">
+          <div className="mt-6 grid gap-2 sm:grid-cols-3">
             <a href={`https://www.google.com/maps/dir/?api=1&destination=${q}`} className={buttonClasses("primary", "md", "w-full")} target="_blank" rel="noopener noreferrer">
               <Navigation className="size-4" aria-hidden="true" /> Get directions
             </a>

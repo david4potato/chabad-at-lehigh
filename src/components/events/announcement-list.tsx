@@ -23,20 +23,20 @@ export function AnnouncementList({
         <li
           key={a.id}
           className={cn(
-            "rounded-[var(--radius-card)] border bg-white p-4 shadow-sm sm:p-5",
+            "rounded-[var(--radius-card)] border bg-white p-4 shadow-sm md:p-6",
             a.is_urgent ? "border-amber-300 bg-amber-50" : "border-stone-200",
           )}
         >
           <div className="flex flex-wrap items-center gap-2">
             {a.is_urgent ? <Badge tone="amber">Important</Badge> : null}
             {a.is_pinned ? (
-              <span className="inline-flex items-center gap-1 text-xs font-semibold text-gold-700">
+              <span className="inline-flex items-center gap-1 text-sm font-semibold text-gold-700">
                 <Pin className="size-3.5" aria-hidden="true" /> Pinned
               </span>
             ) : null}
-            <span className="text-xs text-muted">{formatShortDate(a.publish_at)}</span>
+            <span className="text-sm text-muted">{formatShortDate(a.publish_at)}</span>
           </div>
-          <Heading className="mt-1.5 flex items-start gap-2 text-base font-bold text-ink">
+          <Heading className="mt-2 flex items-start gap-2 text-base font-bold text-ink">
             {!compact ? <Megaphone className="mt-0.5 size-4 shrink-0 text-gold-700" aria-hidden="true" /> : null}
             {a.title}
           </Heading>

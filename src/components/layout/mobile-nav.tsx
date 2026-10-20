@@ -6,11 +6,14 @@ import { CalendarDays, Home, LayoutDashboard, Ticket, UserRound } from "lucide-r
 import { cn } from "@/lib/cn";
 import { isActivePath } from "./nav-links";
 
-/** Bottom tab bar on phones. Hidden on tablets/desktop (top nav is used there). */
+/**
+ * Bottom tab bar on phones. Hidden on tablets/desktop (top nav is used there).
+ * Four tabs at most, so 14px labels fit on a 320px phone; staff swap Home (the logo) for Dashboard.
+ */
 export function MobileNav({ signedIn, staff }: { signedIn: boolean; staff: boolean }) {
   const pathname = usePathname();
   const items = [
-    { href: "/", label: "Home", Icon: Home },
+    ...(staff ? [] : [{ href: "/", label: "Home", Icon: Home }]),
     { href: "/events", label: "Events", Icon: CalendarDays },
     { href: "/my-events", label: "My Events", Icon: Ticket },
     signedIn
@@ -34,7 +37,7 @@ export function MobileNav({ signedIn, staff }: { signedIn: boolean; staff: boole
                 href={href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-semibold",
+                  "flex h-16 flex-col items-center justify-center gap-1 text-sm font-semibold",
                   active ? "text-brand-700" : "text-muted",
                 )}
               >

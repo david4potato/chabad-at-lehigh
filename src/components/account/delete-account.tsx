@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { deleteAccount } from "@/app/profile/actions";
 import type { ActionResult } from "@/lib/action-result";
 import { Button } from "@/components/ui/button";
@@ -13,10 +13,20 @@ export function DeleteAccount() {
   const [typed, setTyped] = useState("");
   const [result, setResult] = useState<ActionResult | null>(null);
   const [pending, start] = useTransition();
+  const openerRef = useRef<HTMLButtonElement>(null);
+  const confirmRef = useRef<HTMLInputElement>(null);
+  const wasOpen = useRef(false);
+  // Opening moves focus into the confirm box; closing brings it back to the button.
+  useEffect(() => {
+    if (open) confirmRef.current?.focus();
+    else if (wasOpen.current) openerRef.current?.focus();
+    wasOpen.current = open;
+  }, [open]);
+  const ready = typed.trim().toUpperCase() === "DELETE";
 
   if (!open) {
     return (
-      <Button variant="ghost" className="text-red-700 hover:bg-red-50" onClick={() => setOpen(true)}>
+      <Button ref={openerRef} variant="ghost" className="text-red-700 hover:bg-red-50" onClick={() => setOpen(true)}>
         Delete my account
       </Button>
     );
@@ -28,13 +38,15 @@ export function DeleteAccount() {
         held a seat at an upcoming event, it goes to the next person on the waitlist. This can&apos;t be undone.
       </p>
       <Field label='Type "DELETE" to confirm' htmlFor="confirm-delete">
-        <Input id="confirm-delete" value={typed} onChange={(e) => setTyped(e.target.value)} autoComplete="off" />
+        <Input ref={confirmRef} id="confirm-delete" value={typed} onChange={(e) => setTyped(e.target.value)} autoComplete="off" />
       </Field>
       <div className="flex flex-wrap gap-2">
         <Button
           variant="danger"
-          disabled={pending || typed.trim().toUpperCase() !== "DELETE"}
-          onClick={() => start(async () => setResult(await deleteAccount()))}
+          aria-disabled={pending || !ready || undefined}
+          onClick={() => {
+            if (!pending && ready) start(async () => setResult(await deleteAccount()));
+          }}
         >
           {pending ? "Deleting…" : "Delete my account"}
         </Button>

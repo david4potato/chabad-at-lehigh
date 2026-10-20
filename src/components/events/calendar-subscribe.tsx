@@ -11,7 +11,7 @@ export function CalendarSubscribe() {
   return (
     <section
       aria-labelledby="subscribe-heading"
-      className="mt-10 flex flex-col gap-3 rounded-[var(--radius-card)] border border-stone-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between"
+      className="mt-12 flex flex-col gap-3 rounded-[var(--radius-card)] border border-stone-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between"
     >
       <div className="flex min-w-0 items-start gap-3">
         <CalendarPlus className="mt-0.5 size-5 shrink-0 text-brand-700" aria-hidden="true" />

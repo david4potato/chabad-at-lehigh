@@ -28,7 +28,7 @@ const APPROVAL_OPTIONS = [
 
 function Section({ title, children, description }: { title: string; description?: string; children: React.ReactNode }) {
   return (
-    <fieldset className="space-y-4 rounded-[var(--radius-card)] border border-stone-200 bg-white p-5 shadow-sm sm:p-6">
+    <fieldset className="space-y-4 rounded-[var(--radius-card)] border border-stone-200 bg-white p-4 shadow-sm md:p-6">
       <legend className="sr-only">{title}</legend>
       <div>
         <h2 className="text-lg font-bold text-ink" aria-hidden="true">
@@ -64,8 +64,8 @@ export function EventForm({
   const next = state.ok ? state.data?.next : undefined;
 
   return (
-    <div className="space-y-5">
-      <Form id={EVENT_FORM_ID} action={formAction} className="space-y-5">
+    <div className="space-y-4">
+      <Form id={EVENT_FORM_ID} action={formAction} className="space-y-4">
         {event ? <input type="hidden" name="id" value={event.id} /> : null}
 
         <Section title="Basics">
@@ -122,7 +122,7 @@ export function EventForm({
               <Input id="ends_at" name="ends_at" type="datetime-local" defaultValue={toDateTimeLocalValue(event?.ends_at)} />
             </Field>
           </div>
-          <Field label="Place name" htmlFor="location_name" errors={e?.location_name}>
+          <Field label="Place name" htmlFor="location_name" hint="Away from the house? Say in the description where to find water and restrooms." errors={e?.location_name}>
             <Input id="location_name" name="location_name" maxLength={140} defaultValue={event?.location_name ?? defaults?.location_name ?? ""} placeholder={SITE.houseName} />
           </Field>
           <Field label="Street address" htmlFor="location_address" hint="Optional — adds a map link." errors={e?.location_address}>
@@ -160,7 +160,7 @@ export function EventForm({
                     value={o.value}
                     checked={approval === o.value}
                     onChange={() => setApproval(o.value as typeof approval)}
-                    className="mt-1 size-4 accent-brand-700"
+                    className="mt-1 size-4 text-base accent-brand-700"
                   />
                   <span>
                     <span className="block text-sm font-semibold text-ink">{o.label}</span>
@@ -209,7 +209,7 @@ export function EventForm({
 
         <div className="sticky bottom-[calc(5rem+env(safe-area-inset-bottom))] z-10 flex flex-wrap items-center gap-3 rounded-2xl border border-stone-200 bg-white/95 p-3 shadow-lg backdrop-blur md:bottom-4">
           <SubmitButton size="lg">{event ? "Save event" : "Create event"}</SubmitButton>
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0 flex-[1_1_14rem]">
             {next ? (
               <Alert tone="success">
                 {state.ok ? state.message : null}{" "}
@@ -225,7 +225,7 @@ export function EventForm({
       </Form>
 
       {event && canDelete && onDelete ? (
-        <div className="space-y-3 rounded-[var(--radius-card)] border border-stone-200 bg-white p-5">
+        <div className="space-y-3 rounded-[var(--radius-card)] border border-stone-200 bg-white p-4 md:p-6">
           <h2 className="text-lg font-bold text-ink">More actions</h2>
           {!confirmDelete ? (
             <Button variant="ghost" className="text-red-700 hover:bg-red-50" onClick={() => setConfirmDelete(true)}>
@@ -237,7 +237,7 @@ export function EventForm({
                 Deleting removes the event, its RSVPs and menus permanently. If people already RSVP&apos;d, it&apos;s usually
                 better to set the status to <strong>Cancelled</strong> so they see what happened.
               </p>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button variant="danger" disabled={busy} onClick={() => startBusy(async () => setExtraState(await onDelete(event.id)))}>
                   Yes, delete permanently
                 </Button>

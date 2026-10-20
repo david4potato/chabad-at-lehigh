@@ -11,17 +11,9 @@ updates:
     groups:
       minor-and-patch:
         update-types: [minor, patch]
-      # Packages that must move together arrive in one pull request.
-      framework-majors:
-        patterns: [next, eslint-config-next, react, react-dom, "@types/react", "@types/react-dom"]
-        update-types: [major]
     ignore:
-      # These move with Next.js and its ESLint config, not on their own.
-      - dependency-name: "@types/node"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "typescript"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "eslint"
+      # Major versions (a new Next.js, React, ESLint...) are upgraded on purpose in their own pull request.
+      - dependency-name: "*"
         update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
@@ -32,3 +24,6 @@ updates:
       # One pull request for all action updates; separate ones conflict in ci.yml.
       actions:
         patterns: ["*"]
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]

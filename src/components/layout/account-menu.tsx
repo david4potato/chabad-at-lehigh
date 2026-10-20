@@ -41,7 +41,7 @@ export function AccountMenu({ displayName, email, staff }: Props) {
   }, [open]);
 
   const initial = displayName.trim().charAt(0).toUpperCase() || "?";
-  const item = "flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-ink hover:bg-stone-100";
+  const item = "flex min-h-11 items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-ink hover:bg-stone-100";
 
   return (
     <div
@@ -58,7 +58,7 @@ export function AccountMenu({ displayName, email, staff }: Props) {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
-        className="flex min-h-11 items-center gap-1.5 rounded-full p-1 pr-2 hover:bg-stone-100"
+        className="flex min-h-11 items-center gap-2 rounded-full p-1 pr-2 hover:bg-stone-100"
       >
         <span className="flex size-8 items-center justify-center rounded-full bg-brand-700 text-sm font-bold text-white">
           {initial}
@@ -75,7 +75,7 @@ export function AccountMenu({ displayName, email, staff }: Props) {
         >
           <div className="px-3 pb-2 pt-1">
             <p className="truncate text-sm font-semibold text-ink">{displayName}</p>
-            <p className="truncate text-xs text-muted">{email}</p>
+            <p className="truncate text-sm text-muted">{email}</p>
           </div>
           <div className="my-1 border-t border-stone-100" />
           <Link href="/profile" className={item}>

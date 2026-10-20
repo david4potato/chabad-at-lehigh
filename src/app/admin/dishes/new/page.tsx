@@ -26,7 +26,7 @@ export default async function NewDishPage({ searchParams }: PageProps<"/admin/di
           ← All dishes
         </Link>
       )}
-      <h1 className="mb-1 mt-1 text-2xl font-extrabold tracking-tight sm:text-3xl">New dish</h1>
+      <h1 className="text-3xl mb-1 mt-1 font-extrabold tracking-tight lg:text-[2.5rem] lg:leading-tight">New dish</h1>
       <p className="mb-6 text-muted">Create the dish, then add every ingredient — allergens come from the ingredients.</p>
       <Card>
         <DishForm defaultName={name} eventId={fromEvent?.id} />

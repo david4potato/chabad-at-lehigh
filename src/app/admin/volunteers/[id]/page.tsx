@@ -34,7 +34,7 @@ export default async function EditShiftPage({ params, searchParams }: PageProps<
           ← All shifts
         </Link>
         <div className="mt-1 flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">{shift.title}</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight text-ink lg:text-[2.5rem] lg:leading-tight">{shift.title}</h1>
           <Badge tone={STATUS_TONE[shift.status]}>{SHIFT_STATUS_LABEL[shift.status]}</Badge>
           {hidden ? <Badge>{hidden}</Badge> : null}
         </div>

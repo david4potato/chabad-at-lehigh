@@ -6,7 +6,7 @@ import { OG_IMAGE, SITE } from "@/config/site";
 import { getViewer } from "@/lib/auth";
 import { isStaff } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
-import { formatEventWhen, formatLongDate, formatTimeRange, spansDays } from "@/lib/time";
+import { formatEventWhen, formatLongDate, formatShortDateMaybeYear, formatTimeRange, isPast, spansDays } from "@/lib/time";
 import { getEventBySlug, getEventsMeta, getMyMealPreference } from "@/lib/data/events";
 import { listOpenShifts } from "@/lib/data/volunteer";
 import { Card, CardTitle } from "@/components/ui/card";
@@ -35,7 +35,8 @@ export async function generateMetadata({ params }: PageProps<"/events/[slug]">):
   const description = [when, event.summary].filter(Boolean).join(". ");
   const url = `/events/${event.slug}`;
   return {
-    title,
+    // The date keeps weekly events apart in tabs and history.
+    title: `${title} · ${formatShortDateMaybeYear(event.starts_at)}`,
     description,
     alternates: { canonical: url },
     // A page-level openGraph replaces the layout's whole object, so siteName, type and the image are repeated.
@@ -48,7 +49,7 @@ export async function generateMetadata({ params }: PageProps<"/events/[slug]">):
 function SignInToView({ slug }: { slug: string }) {
   return (
     <div className="mx-auto max-w-md py-12 text-center">
-      <h1 className="text-3xl font-extrabold tracking-tight">Sign in to see this event</h1>
+      <h1 className="text-3xl font-extrabold tracking-tight lg:text-[2.5rem] lg:leading-tight">Sign in to see this event</h1>
       <p className="mt-2 text-muted">This event may be for signed-in members, or it may no longer be available.</p>
       <div className="mt-6 flex justify-center gap-2">
         <ButtonLink href={`/sign-in?next=${encodeURIComponent(`/events/${slug}`)}`}>Sign in</ButtonLink>
@@ -111,9 +112,9 @@ export default async function EventPage({ params, searchParams }: PageProps<"/ev
           <Badge tone="gold">{CATEGORY_LABELS[event.category]}</Badge>
           {event.visibility === "members" ? <Badge>Members only</Badge> : null}
         </div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">{event.title}</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight text-ink lg:text-[2.5rem] lg:leading-tight">{event.title}</h1>
         {event.summary ? <p className="max-w-2xl text-lg text-muted">{event.summary}</p> : null}
-        <ul className="space-y-1.5 text-base text-ink">
+        <ul className="space-y-2 text-base text-ink">
           <li className="flex items-start gap-2">
             <Clock className="mt-1 size-4 shrink-0 text-muted" aria-hidden="true" />
             {spansDays(event.starts_at, event.ends_at) ? (
@@ -135,7 +136,8 @@ export default async function EventPage({ params, searchParams }: PageProps<"/ev
                     {event.location_name ? " · " : null}
                     <a
                       href={mapsUrl(event.location_address)}
-                      className="font-medium text-brand-700 hover:underline"
+                      // Inline padding makes the tap area 44px tall without moving the line.
+                      className="py-3 font-medium text-brand-700 hover:underline"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -147,7 +149,8 @@ export default async function EventPage({ params, searchParams }: PageProps<"/ev
             </li>
           ) : null}
         </ul>
-        {event.status === "published" ? (
+        {/* Calendar and invites only help before the event ends. */}
+        {event.status === "published" && !isPast(event.starts_at, event.ends_at) ? (
           <div className="flex flex-wrap gap-x-6">
             <a
               href={`/events/${event.slug}/calendar.ics`}
@@ -160,8 +163,8 @@ export default async function EventPage({ params, searchParams }: PageProps<"/ev
         ) : null}
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_380px] lg:items-start">
-        <aside className="space-y-6 lg:sticky lg:top-24 lg:col-start-2 lg:row-start-1">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start">
+        <aside className="flex flex-col gap-6 lg:col-start-2 lg:row-start-1">
           <Card className="border-gold-200">
             <CardTitle>RSVP</CardTitle>
             <div className="mt-3">
@@ -194,7 +197,7 @@ export default async function EventPage({ params, searchParams }: PageProps<"/ev
             <ContactCard contact={{ name: event.contact_name, email: event.contact_email, phone: event.contact_phone }} />
           </div>
           <p className="hidden text-center text-sm lg:block">
-            <Link href="/events" className="font-semibold text-brand-700 hover:underline">
+            <Link href="/events" className="inline-flex min-h-11 items-center font-semibold text-brand-700 hover:underline">
               ← All events
             </Link>
           </p>

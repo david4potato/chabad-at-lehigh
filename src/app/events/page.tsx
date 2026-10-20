@@ -113,7 +113,7 @@ function ViewSwitch({ month, category }: { month: boolean; category?: EventCateg
       prefetch={false}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "inline-flex h-11 items-center gap-1.5 rounded-lg px-4 text-sm font-semibold transition-colors",
+        "inline-flex h-11 items-center gap-2 rounded-lg px-4 text-sm font-semibold transition-colors",
         active ? "bg-brand-700 text-white" : "text-ink hover:bg-stone-100",
       )}
     >
@@ -122,7 +122,7 @@ function ViewSwitch({ month, category }: { month: boolean; category?: EventCateg
     </Link>
   );
   return (
-    <nav aria-label="Calendar view" className="inline-flex rounded-xl border border-stone-300 bg-white p-0.5">
+    <nav aria-label="Calendar view" className="inline-flex rounded-xl border border-stone-300 bg-white p-1">
       {item(!month, eventsHref({ category }), List, "List")}
       {item(month, eventsHref({ view: "month", category }), CalendarDays, "Month")}
     </nav>
@@ -175,7 +175,7 @@ async function ListView({ category, past }: { category?: EventCategory; past: bo
         </div>
       )}
 
-      <p className="mt-10 text-center text-sm">
+      <p className="mt-12 text-center text-sm">
         <Link
           href={eventsHref({ category, when: past ? undefined : "past" })}
           prefetch={false}
@@ -261,7 +261,7 @@ async function MonthView({
 
         <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 text-sm text-muted">
           {anyCancelled ? (
-            <p className="flex min-h-11 items-center gap-1.5 md:hidden">
+            <p className="flex min-h-11 items-center gap-2 md:hidden">
               <span className="inline-block size-1.5 rounded-full border border-stone-500" aria-hidden="true" />
               Hollow dot: cancelled
             </p>
@@ -305,7 +305,7 @@ async function MonthView({
               ))}
             </div>
           ) : (
-            <p className="rounded-[var(--radius-card)] border border-dashed border-stone-300 bg-white/60 px-4 py-5 text-sm text-muted">
+            <p className="rounded-[var(--radius-card)] border border-dashed border-stone-300 bg-white/60 px-4 py-6 text-sm text-muted">
               Nothing on this day.
               {following ? (
                 <>

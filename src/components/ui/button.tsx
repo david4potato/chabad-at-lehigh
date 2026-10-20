@@ -7,7 +7,7 @@ type Size = "sm" | "md" | "lg";
 
 const base =
   "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-colors " +
-  "disabled:cursor-not-allowed disabled:opacity-60 select-none whitespace-nowrap";
+  "disabled:cursor-not-allowed disabled:opacity-60 aria-disabled:cursor-not-allowed aria-disabled:opacity-60 select-none whitespace-nowrap";
 
 const variants: Record<Variant, string> = {
   primary: "bg-brand-700 text-white hover:bg-brand-800 active:bg-brand-900 shadow-sm",
@@ -18,7 +18,7 @@ const variants: Record<Variant, string> = {
 };
 
 const sizes: Record<Size, string> = {
-  sm: "h-9 px-3 text-sm",
+  sm: "h-11 px-3 text-sm",
   md: "h-11 px-4 text-base",
   lg: "h-13 px-6 text-lg",
 };

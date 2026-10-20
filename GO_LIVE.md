@@ -15,10 +15,14 @@ long it takes and what must come first. [SETUP.md](SETUP.md) has the full refere
 ## David's steps
 
 1. **Load the database** (5 min). Comes first.
+   - **Plan and region:** Supabase → the project → **Project Settings → General** shows the region (East US is
+     expected; it can't be changed later). The organization's **Billing** page shows the plan. Free is fine until
+     launch; step 10 moves it to Pro for backups.
    - Supabase → the project → **Table Editor**. If `events`, `rsvps` and `dishes` are listed, the database was
-     loaded earlier: run `supabase/migrations/20261019000100_efficiency.sql` once in **SQL Editor → New query** (it
-     adds the indexes measured in [docs/SCALING.md](docs/SCALING.md); running it again does no harm), then go to
-     step 2.
+     loaded earlier: run `supabase/migrations/20261019000100_efficiency.sql` and then
+     `supabase/migrations/20261020000100_contact_name.sql` once each in **SQL Editor → New query** (the indexes
+     measured in [docs/SCALING.md](docs/SCALING.md), and a blank contact name until the directors agree; running
+     them again does no harm), then go to step 2.
    - Otherwise: **SQL Editor → New query** → paste all of `supabase/setup/all_migrations.sql` → **Run**. Expect
      *Success*.
    - New query → paste `supabase/scripts/bootstrap_admin.sql` with your own sign-in email → **Run**.
@@ -52,8 +56,9 @@ long it takes and what must come first. [SETUP.md](SETUP.md) has the full refere
 5. **First sign-in** (10 min). After steps 1–4.
    - Open the site → **Sign in** → use the link or the 6-digit code → **Dashboard → Getting started**.
    - In **Settings**:
-     - confirm the contact details with the directors (they were pre-filled from public sources);
-     - add their phone number (shown as the allergy contact);
+     - check the email and address (pre-filled from public sources);
+     - leave the contact name and phone blank until the directors agree, then add them (the phone is shown as the
+       allergy contact). Until then pages say "Contact the organizer";
      - check parking.
    - **Remove demo content** if you loaded it.
 6. **Your own test run** (30 min). After step 5.
@@ -74,11 +79,41 @@ long it takes and what must come first. [SETUP.md](SETUP.md) has the full refere
 10. **Launch** (10 min). After step 9.
     - Check the Supabase project is on the Pro plan, so it has daily backups and never pauses.
     - Tell a Claude session "signed off". It turns on search listing (`listInSearchEngines` in
-      `src/config/site.ts`) through a pull request.
+      `src/config/site.ts`) through a pull request, which also removes the "Not launched yet" note in the footer.
     - The directors announce the site in their own channels.
 11. **Ownership** (later, not needed for launch). Follow [HANDOFF.md](HANDOFF.md), "Account ownership and transfer".
     - Today GitHub, Vercel, Supabase and the email sender all sit in your accounts.
     - Move them to an owner Chabad controls in this order: Supabase, then GitHub, then Vercel, then the domain.
+
+## Accounts and data
+
+| Account | Holds | Set up in |
+| --- | --- | --- |
+| Supabase (project `chabad-at-lehigh`, in David's own account) | The database and sign-ins | Steps 1, 3, 10 |
+| Supabase plan | Free until launch. Pro (from $25 a month, see the cost table in [SETUP.md](SETUP.md)) for daily backups kept 7 days and no pausing | Step 10 |
+| Email sender (Gmail app password in Supabase SMTP) | Sends sign-in emails only | Step 4 |
+| Vercel (project `chabad-at-lehigh`) | The website; two public settings, no secrets | Step 2 |
+| GitHub (`david4potato/chabad-at-lehigh`, public) | The code. No data, keys or passwords | Already set up |
+| Domain (optional) | The web address | Only if the directors want one |
+
+What the app stores, and who can see it (the site's Privacy page says the same to students):
+
+| Data | Who can see it |
+| --- | --- |
+| Email, name, student or community member, optional class year and phone | The person, organizers and admins |
+| RSVPs, guests, notes to organizers, check-ins, volunteer sign-ups | The person, organizers and admins |
+| Dietary details: allergies, diet, kitchen notes, per-event meal notes | The person. Kitchen staff and admins see names only in the dietary report for events the person RSVP'd to, and every view is logged. Organizers see anonymous counts. Nobody else |
+| Dish votes and suggestions | Votes: only counts, without names. Suggestions: the person and menu staff |
+| Notifications | The person |
+| Roles, pending admin invites, the audit log | Admins |
+| Published events, menus, dishes, ingredients, announcements | Everyone. Drafts: staff only |
+| File storage: one `gallery` bucket, made by the setup SQL for a planned photo feature | Empty. Nothing in the app uploads to it yet; only organizers and admins could |
+
+- **Backups:** on Pro, Supabase keeps a daily copy for 7 days (**Database → Backups**). Free has none. Restore steps
+  are in "How to undo" below.
+- **Claude sessions:** Claude's Supabase connector is linked to a different Supabase account and can't see this
+  project. Nothing here needs it; it only means a Claude session can't check the hosted database for you. If you
+  want that, connect the connector to the account that holds the project.
 
 ## A web address of their own (optional)
 
@@ -150,6 +185,7 @@ they say yes: the address carries their name, so register it in an account they 
 | [docs/REPLICATE.md](docs/REPLICATE.md) | Running a copy for another community |
 | [docs/SCALING.md](docs/SCALING.md) | What grows, what it costs, and what to change when |
 | [docs/one-pager/one-pager.pdf](docs/one-pager/one-pager.pdf) | One-page overview to show the directors |
+| [docs/shared/MOBILE_AND_SPACING.md](docs/shared/MOBILE_AND_SPACING.md) | The mobile and spacing standard every site follows, and its check (`node docs/shared/mobile-check.mjs <url> <paths>`) |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How helpers work on the code |
 | [README.md](README.md) | Features and how the code is laid out |
 

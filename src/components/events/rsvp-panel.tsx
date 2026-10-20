@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { Check, Clock, Hourglass, Minus, Plus, UserCheck, X } from "lucide-react";
 import { setRsvp } from "@/app/events/actions";
@@ -66,6 +66,12 @@ const STATUS_HINT: Record<keyof typeof STATUS_VIEW, string> = {
   declined: "Please contact the organizer if you have questions.",
 };
 
+const FOCUS_TARGETS = {
+  summary: "[data-rsvp-summary]",
+  form: "button[name='response']",
+  change: "[data-change-rsvp]",
+} as const;
+
 function ResponseButton({ value, children, active }: { value: "going" | "not_going"; children: string; active: boolean }) {
   const { pending, data } = useFormStatus();
   const thisPending = pending && data?.get("response") === value;
@@ -74,7 +80,10 @@ function ResponseButton({ value, children, active }: { value: "going" | "not_goi
       type="submit"
       name="response"
       value={value}
-      disabled={pending}
+      aria-disabled={pending || undefined}
+      onClick={(e) => {
+        if (pending) e.preventDefault();
+      }}
       aria-pressed={active}
       className={cn(
         buttonClasses(value === "going" ? "primary" : "secondary", "lg"),
@@ -103,10 +112,22 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
   const [guests, setGuests] = useState(savedGuests);
   // An error stays under the form until the person moves on (Change RSVP or Keep my current RSVP).
   const [showMessage, setShowMessage] = useState(true);
+  // The form and the status box swap places, so focus moves to whichever one appears next.
+  const panelRef = useRef<HTMLDivElement>(null);
+  const focusNext = useRef<keyof typeof FOCUS_TARGETS | null>(null);
+  useEffect(() => {
+    const target = focusNext.current;
+    const el = target ? panelRef.current?.querySelector<HTMLElement>(FOCUS_TARGETS[target]) : null;
+    if (el) {
+      focusNext.current = null;
+      el.focus();
+    }
+  }, [editing, rsvp]);
   const [state, formAction] = useActionState(async (prev: typeof initialActionState, formData: FormData) => {
     const result = await setRsvp(prev, formData);
     setShowMessage(true);
     if (result.ok) {
+      focusNext.current = "summary";
       setEditing(false);
       // "Not going" clears guests in the database, so a later "Going" starts from 0 too.
       if (formData.get("response") === "not_going") setGuests(0);
@@ -182,7 +203,7 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
     return (
       <div className="space-y-3">
         {infoLine}
-        <div className="grid grid-cols-2 gap-2.5">
+        <div className="grid grid-cols-2 gap-3">
           <Link href={returnTo("going")} className={cn(buttonClasses("primary", "lg"), "w-full")}>
             <UserCheck className="size-5" aria-hidden="true" /> Going
           </Link>
@@ -198,7 +219,7 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
   const canChange = rsvp?.status !== "declined";
 
   return (
-    <div className="space-y-3">
+    <div ref={panelRef} className="space-y-3">
       {rsvp && !editing ? (
         <>
           <StatusSummary rsvp={rsvp} />
@@ -206,7 +227,9 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
             <Button
               variant="secondary"
               className="w-full"
+              data-change-rsvp
               onClick={() => {
+                focusNext.current = "form";
                 setEditing(true);
                 setShowMessage(false);
               }}
@@ -243,13 +266,13 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
                     {guests > 0 ? <span className="font-normal text-muted"> · {plural(guests, "guest")}</span> : null}
                   </span>
                 </summary>
-                <div className="mt-1 space-y-3 rounded-2xl border border-stone-200 bg-stone-50/60 p-3.5">
+                <div className="mt-1 space-y-3 rounded-2xl border border-stone-200 bg-stone-50/60 p-4">
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <p className="text-sm font-semibold text-ink" id={`guests-label-${event.id}`}>
                         How many guests?
                       </p>
-                      <p className="text-xs text-muted">Up to {plural(event.max_guests_per_rsvp, "guest")}</p>
+                      <p className="text-sm text-muted">Up to {plural(event.max_guests_per_rsvp, "guest")}</p>
                     </div>
                     <div className="flex items-center gap-2" role="group" aria-labelledby={`guests-label-${event.id}`}>
                       <button
@@ -286,7 +309,7 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
                   ) : null}
                   {guests > 0 && guestNote && !guestsConfirmed ? <p className="text-sm text-muted">{guestNote}</p> : null}
                   {guests > 0 ? (
-                    <div className="space-y-1.5">
+                    <div className="space-y-2">
                       <Label htmlFor={`guest-names-${event.id}`}>Guest names (optional)</Label>
                       <Input
                         id={`guest-names-${event.id}`}
@@ -305,7 +328,7 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
               <summary className="flex min-h-11 cursor-pointer list-none items-center font-semibold text-brand-700 hover:underline">
                 Add a note for the organizer (optional)
               </summary>
-              <div className="mt-1 space-y-1.5">
+              <div className="mt-1 space-y-2">
                 <Label htmlFor={`note-${event.id}`} className="sr-only">
                   Note for the organizer
                 </Label>
@@ -317,7 +340,7 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
                   defaultValue={rsvp?.note ?? ""}
                   placeholder="Arriving late, first time coming…"
                 />
-                <p className="text-xs text-muted">For allergies, use your dietary profile instead — it&apos;s private.</p>
+                <p className="text-sm text-muted">For allergies, use your dietary profile instead — it&apos;s private.</p>
               </div>
             </details>
           </div>
@@ -331,7 +354,7 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
           ) : null}
           {note ? <p className="text-sm text-muted">{note}</p> : null}
 
-          <div className="grid grid-cols-2 gap-2.5">
+          <div className="grid grid-cols-2 gap-3">
             <ResponseButton value="going" active={rsvp?.status === "going"}>
               Going
             </ResponseButton>
@@ -343,6 +366,7 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
             <button
               type="button"
               onClick={() => {
+                focusNext.current = "change";
                 setEditing(false);
                 setShowMessage(false);
                 setGuests(savedGuests);
@@ -355,7 +379,7 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
         </Form>
       )}
       {/* Success shows in the status box above (role="status"), so only errors appear here. */}
-      {showMessage && !state.ok ? <FormMessage state={state} /> : null}
+      <FormMessage state={showMessage && !state.ok ? state : null} />
     </div>
   );
 }
@@ -364,7 +388,7 @@ function StatusSummary({ rsvp }: { rsvp: MyRsvp }) {
   const view = STATUS_VIEW[rsvp.status];
   const guests = guestSummary(rsvp.guest_count, rsvp.guest_status);
   return (
-    <div className={cn("flex gap-3 rounded-2xl border p-4", view.box)} role="status">
+    <div className={cn("flex gap-3 rounded-2xl border p-4", view.box)} role="status" tabIndex={-1} data-rsvp-summary>
       <view.Icon className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
       <div className="min-w-0">
         <p className="font-bold">

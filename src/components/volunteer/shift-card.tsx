@@ -30,9 +30,9 @@ export function ShiftCard({ shift, signedIn, nextPath, showDate = false, showEve
   const left = Math.max(0, shift.slots - shift.taken);
 
   return (
-    <li className="rounded-[var(--radius-card)] border border-stone-200 bg-white p-4 shadow-sm sm:p-5">
+    <li className="rounded-[var(--radius-card)] border border-stone-200 bg-white p-4 shadow-sm md:p-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0 space-y-1.5">
+        <div className="min-w-0 space-y-2">
           <h3 id={titleId} className="text-base font-bold text-ink">
             {shift.title}
           </h3>
@@ -41,11 +41,11 @@ export function ShiftCard({ shift, signedIn, nextPath, showDate = false, showEve
             <span>{showDate ? formatEventWhen(shift.starts_at, shift.ends_at) : formatTimeRange(shift.starts_at, shift.ends_at)}</span>
           </p>
           {showEvent && shift.event ? (
-            <p className="flex items-start gap-2 text-sm text-ink">
-              <CalendarDays className="mt-0.5 size-4 shrink-0 text-muted" aria-hidden="true" />
+            <p className="flex items-center gap-2 text-sm text-ink">
+              <CalendarDays className="size-4 shrink-0 text-muted" aria-hidden="true" />
               <span>
                 For{" "}
-                <Link href={`/events/${shift.event.slug}`} className="font-semibold text-brand-700 hover:underline">
+                <Link href={`/events/${shift.event.slug}`} className="inline-flex min-h-11 items-center font-semibold text-brand-700 hover:underline">
                   {shift.event.title}
                 </Link>
               </span>

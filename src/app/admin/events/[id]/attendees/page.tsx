@@ -32,9 +32,9 @@ export default async function AttendeesPage({ params }: PageProps<"/admin/events
       <EventTabs eventId={event.id} active="attendees" roles={viewer.roles} />
       <dl className="mb-6 grid grid-cols-3 gap-2 sm:gap-3">
         {tiles.map((t) => (
-          <div key={t.label} className={`rounded-2xl border bg-white p-3 shadow-sm sm:p-3.5 ${t.highlight ? "border-brand-300 bg-brand-50" : "border-stone-200"}`}>
-            <dt className="text-xs font-semibold text-muted">{t.label}</dt>
-            <dd className="mt-0.5 text-xl font-extrabold text-ink sm:text-2xl">{t.value}</dd>
+          <div key={t.label} className={`rounded-2xl border bg-white p-3 shadow-sm sm:p-4 ${t.highlight ? "border-brand-300 bg-brand-50" : "border-stone-200"}`}>
+            <dt className="text-sm font-semibold text-muted">{t.label}</dt>
+            <dd className="mt-1 text-xl font-extrabold text-ink sm:text-2xl">{t.value}</dd>
           </div>
         ))}
       </dl>

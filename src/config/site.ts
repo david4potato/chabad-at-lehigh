@@ -20,13 +20,14 @@ export const SITE = {
   independenceNote: "An independent organization, not run by Lehigh University.",
   /**
    * Whether search engines may list the site. Keep it off until the organizers approve the launch, so the
-   * community's name doesn't show up in search results before then.
+   * community's name doesn't show up in search results before then. While it's off, the footer says the site
+   * isn't launched yet.
    */
   listInSearchEngines: false,
   /** Location name pre-filled on new events when an address is set in Settings. */
   houseName: "Chabad House",
   /** Named in the admin launch checklist as someone to give admin access to. */
-  adminExample: "the Greenbergs",
+  adminExample: "the directors",
   /**
    * Every date and time is shown and entered in this IANA time zone. Two SQL notification
    * functions repeat it (see docs/REPLICATE.md).

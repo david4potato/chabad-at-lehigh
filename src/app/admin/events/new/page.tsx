@@ -43,7 +43,7 @@ export default async function NewEventPage() {
       <Link href="/admin/events" className="inline-flex min-h-11 items-center text-sm font-semibold text-brand-700 hover:underline">
         ← All events
       </Link>
-      <h1 className="mb-1 mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">New event</h1>
+      <h1 className="text-3xl mb-1 mt-2 font-extrabold tracking-tight lg:text-[2.5rem] lg:leading-tight">New event</h1>
       <p className="text-muted">Start as a draft, then publish when it&apos;s ready.</p>
       {lastDinner ? (
         <p className="mb-6 text-muted">

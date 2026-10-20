@@ -41,7 +41,7 @@ export function ProfileForm({ action, profile, submitLabel, next, compact = fals
   const errors = state.ok ? undefined : state.fieldErrors;
 
   return (
-    <Form action={formAction} className="space-y-5">
+    <Form action={formAction} className="space-y-4">
       {next ? <input type="hidden" name="next" value={next} /> : null}
       <Field label="Full name" htmlFor="full_name" errors={errors?.full_name} required>
         <Input id="full_name" name="full_name" autoComplete="name" required minLength={2} maxLength={120} defaultValue={profile.full_name ?? ""} />
@@ -59,7 +59,7 @@ export function ProfileForm({ action, profile, submitLabel, next, compact = fals
             <label
               key={a.value}
               className={cn(
-                "flex min-h-12 cursor-pointer items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition-colors",
+                "flex min-h-12 cursor-pointer items-center gap-2 rounded-xl border px-2 text-sm font-semibold transition-colors sm:px-3",
                 affiliation === a.value ? "border-brand-700 bg-brand-50 text-brand-900" : "border-stone-300 bg-white text-ink hover:bg-stone-50",
               )}
             >
@@ -69,7 +69,7 @@ export function ProfileForm({ action, profile, submitLabel, next, compact = fals
                 value={a.value}
                 checked={affiliation === a.value}
                 onChange={() => setAffiliation(a.value)}
-                className="size-4 accent-brand-700"
+                className="size-4 shrink-0 text-base accent-brand-700"
               />
               {a.label}
             </label>
@@ -79,7 +79,7 @@ export function ProfileForm({ action, profile, submitLabel, next, compact = fals
       </fieldset>
 
       {!compact ? (
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
           {affiliation === "student" || affiliation === "alumni" ? (
             <Field label="Class year" htmlFor="class_year" hint="Optional" errors={errors?.class_year}>
               <Input id="class_year" name="class_year" inputMode="numeric" pattern="[0-9]{4}" maxLength={4} defaultValue={profile.class_year ?? ""} placeholder="2028" />

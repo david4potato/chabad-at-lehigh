@@ -14,7 +14,7 @@ export function SettingsForm({ org, domains }: { org: OrgSettings; domains: stri
   const [state, action] = useActionState(saveSettings, initialActionState);
   const e = state.ok ? undefined : state.fieldErrors;
   return (
-    <Form action={action} className="space-y-5">
+    <Form action={action} className="space-y-4">
       <Card className="space-y-4">
         <CardTitle>Organization & contact</CardTitle>
         <p className="text-sm text-muted">Shown in the footer, on Find Us, and next to every menu for allergy questions.</p>

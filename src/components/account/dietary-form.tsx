@@ -63,7 +63,7 @@ export function DietaryForm({ initial, welcome, next }: { initial: Initial; welc
               const entry = selected.get(a.code);
               return (
                 <li key={a.code} className={cn("p-3 sm:p-4", entry && "bg-amber-50/50")}>
-                  <label className="flex min-h-8 cursor-pointer items-center gap-3">
+                  <label className="flex min-h-11 cursor-pointer items-center gap-3">
                     <input
                       type="checkbox"
                       name="allergen"
@@ -77,8 +77,8 @@ export function DietaryForm({ initial, welcome, next }: { initial: Initial; welc
                   {entry ? (
                     <div className="mt-3 grid gap-3 pl-8 sm:grid-cols-[220px_1fr]">
                       <div className="space-y-1">
-                        <label htmlFor={`severity_${a.code}`} className="text-xs font-semibold text-muted">
-                          How serious?
+                        <label htmlFor={`severity_${a.code}`} className="text-sm font-semibold text-muted">
+                          How serious?<span className="sr-only"> ({a.label})</span>
                         </label>
                         <Select id={`severity_${a.code}`} name={`severity_${a.code}`} defaultValue={entry.severity}>
                           {Object.entries(SEVERITY_LABELS).map(([value, label]) => (
@@ -89,8 +89,8 @@ export function DietaryForm({ initial, welcome, next }: { initial: Initial; welc
                         </Select>
                       </div>
                       <div className="space-y-1">
-                        <label htmlFor={`notes_${a.code}`} className="text-xs font-semibold text-muted">
-                          Note (optional)
+                        <label htmlFor={`notes_${a.code}`} className="text-sm font-semibold text-muted">
+                          Note (optional)<span className="sr-only"> for {a.label}</span>
                         </label>
                         <Input id={`notes_${a.code}`} name={`notes_${a.code}`} maxLength={300} defaultValue={entry.notes ?? ""} placeholder="e.g. even traces" />
                       </div>
@@ -111,7 +111,7 @@ export function DietaryForm({ initial, welcome, next }: { initial: Initial; welc
           </div>
         </fieldset>
 
-        <div className="space-y-5">
+        <div className="space-y-4">
           <Field label="Other restrictions" htmlFor="other_restrictions" hint="Anything not listed above.">
             <Textarea id="other_restrictions" name="other_restrictions" maxLength={1000} defaultValue={initial.other_restrictions ?? ""} aria-describedby="other_restrictions-hint" />
           </Field>

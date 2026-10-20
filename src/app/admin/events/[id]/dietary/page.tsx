@@ -51,7 +51,7 @@ export default async function DietaryReportPage({ params }: PageProps<"/admin/ev
       </div>
       {/* Weekly dinners share a title, so the printout carries the date and when it was printed. */}
       <div className="hidden print:block">
-        <h1 className="text-xl font-bold">Dietary report — {event.title}</h1>
+        <h1 className="text-3xl font-bold lg:text-[2.5rem] lg:leading-tight print:text-xl">Dietary report — {event.title}</h1>
         <p className="mt-1 text-sm">
           {formatEventWhen(event.starts_at, event.ends_at)} · Printed {formatDateTime(new Date())}. RSVPs can change, so reprint on the day.
         </p>
@@ -80,7 +80,7 @@ export default async function DietaryReportPage({ params }: PageProps<"/admin/ev
               ["Chose not to share", summary.not_shared],
             ].map(([label, value]) => (
               <div key={label as string} className="rounded-xl bg-stone-50 p-3">
-                <dt className="text-xs font-semibold text-muted">{label}</dt>
+                <dt className="text-sm font-semibold text-muted">{label}</dt>
                 <dd className="text-xl font-extrabold text-ink">{value}</dd>
               </div>
             ))}
@@ -92,11 +92,11 @@ export default async function DietaryReportPage({ params }: PageProps<"/admin/ev
           ) : null}
           {/* One line per allergen, severe first, so nothing is cut off on a phone. */}
           {summary.allergens.length === 0 ? (
-            <p className="mt-5 text-sm text-muted">No allergies shared yet.</p>
+            <p className="mt-6 text-sm text-muted">No allergies shared yet.</p>
           ) : (
-            <ul aria-label="Allergen counts by severity" className="mt-5 divide-y divide-stone-100 border-y border-stone-100 text-sm">
+            <ul aria-label="Allergen counts by severity" className="mt-6 divide-y divide-stone-100 border-y border-stone-100 text-sm">
               {summary.allergens.map((a) => (
-                <li key={a.code} className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 py-2">
+                <li key={a.code} className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 py-2">
                   <span className="font-semibold text-ink">{a.label}</span>
                   <span className="text-muted">
                     <span className={a.severe ? "font-bold text-red-800" : ""}>{a.severe} severe</span>
@@ -152,9 +152,9 @@ export default async function DietaryReportPage({ params }: PageProps<"/admin/ev
                     ) : !hasInfo ? (
                       <p className="mt-1 text-sm text-muted">No dietary needs listed.</p>
                     ) : (
-                      <div className="mt-1.5 space-y-1 text-sm text-ink">
+                      <div className="mt-2 space-y-1 text-sm text-ink">
                         {allergens.length ? (
-                          <div className="flex flex-wrap gap-1.5">
+                          <div className="flex flex-wrap gap-2">
                             {allergens.map((a) => (
                               <Badge key={a.code} tone={a.severity === "severe" ? "red" : a.severity === "allergy" ? "amber" : "neutral"}>
                                 {allergenLabel(a.code)} — {SEVERITY_LABELS[a.severity]}

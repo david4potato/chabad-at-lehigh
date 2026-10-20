@@ -47,7 +47,7 @@ export default async function DishPage({ params, searchParams }: PageProps<"/adm
             ← All dishes
           </Link>
         )}
-        <h1 className="mt-1 text-2xl font-extrabold tracking-tight sm:text-3xl">{dish.name}</h1>
+        <h1 className="text-3xl mt-1 font-extrabold tracking-tight lg:text-[2.5rem] lg:leading-tight">{dish.name}</h1>
       </div>
       {query.created ? <Alert tone="success">Dish created. Now add its ingredients below.</Alert> : null}
       <Alert tone="info">
@@ -66,17 +66,17 @@ export default async function DishPage({ params, searchParams }: PageProps<"/adm
         {list.length ? (
           <ul className="mt-4 divide-y divide-stone-100 rounded-xl border border-stone-200">
             {list.map((i) => (
-              <li key={i.ingredient_id} className="flex items-start justify-between gap-3 px-3 py-2.5">
+              <li key={i.ingredient_id} className="flex items-start justify-between gap-3 px-3 py-3">
                 <div className="min-w-0 text-sm">
                   <p className="font-semibold text-ink">
                     {i.ingredient?.name}
                     {i.quantity_note ? <span className="font-normal text-muted"> ({i.quantity_note})</span> : null}
-                    {i.is_optional ? <span className="ml-1 text-xs font-semibold text-muted">optional</span> : null}
+                    {i.is_optional ? <span className="ml-1 text-sm font-semibold text-muted">optional</span> : null}
                   </p>
                   {i.ingredient?.allergens.length ? (
-                    <p className="text-xs font-semibold text-red-800">{i.ingredient.allergens.map((a) => allergenLabel(a.allergen_code)).join(", ")}</p>
+                    <p className="text-sm font-semibold text-red-800">{i.ingredient.allergens.map((a) => allergenLabel(a.allergen_code)).join(", ")}</p>
                   ) : null}
-                  {i.ingredient?.notes ? <p className="text-xs text-muted">{i.ingredient.notes}</p> : null}
+                  {i.ingredient?.notes ? <p className="text-sm text-muted">{i.ingredient.notes}</p> : null}
                 </div>
                 <RemoveIngredientButton dishId={dish.id} ingredientId={i.ingredient_id} name={i.ingredient?.name ?? "ingredient"} />
               </li>
@@ -85,7 +85,7 @@ export default async function DishPage({ params, searchParams }: PageProps<"/adm
         ) : (
           <p className="mt-3 text-sm text-muted">No ingredients yet.</p>
         )}
-        <div className="mt-5 border-t border-stone-100 pt-5">
+        <div className="mt-6 border-t border-stone-100 pt-6">
           <AddIngredientForm dishId={dish.id} ingredients={(ingredients ?? []).filter((i) => !used.has(i.id))} />
         </div>
       </Card>

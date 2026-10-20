@@ -53,11 +53,11 @@ export async function GettingStarted() {
             )}
             <span className="sr-only">{s.done ? "Done:" : "To do:"}</span>
             {s.href && !s.done ? (
-              <Link href={s.href} className="inline-flex min-h-11 min-w-0 flex-1 items-center font-semibold text-brand-700 hover:underline">
+              <Link href={s.href} className="inline-flex min-h-11 min-w-0 flex-[1_1_12rem] items-center font-semibold text-brand-700 hover:underline">
                 {s.label}
               </Link>
             ) : (
-              <span className={s.done ? "min-w-0 flex-1 text-muted line-through" : "min-w-0 flex-1 font-semibold text-ink"}>{s.label}</span>
+              <span className={s.done ? "min-w-0 flex-[1_1_12rem] text-muted line-through" : "min-w-0 flex-[1_1_12rem] font-semibold text-ink"}>{s.label}</span>
             )}
             {s.action}
           </li>

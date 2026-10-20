@@ -36,7 +36,7 @@ export function AdminNav({ roles }: { roles: Role[] }) {
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex min-h-11 items-center rounded-xl px-3.5 text-sm font-semibold whitespace-nowrap transition-colors",
+                  "flex min-h-11 items-center rounded-xl px-3 text-sm font-semibold whitespace-nowrap transition-colors",
                   active ? "bg-brand-700 text-white" : "text-muted hover:bg-stone-100 hover:text-ink",
                 )}
               >

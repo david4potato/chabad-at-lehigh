@@ -104,9 +104,9 @@ export function MenuItemEditor({ eventId, item }: { eventId: string; item: MenuI
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="font-bold text-ink">{item.dish.name}</p>
-          <div className="mt-1.5">
+          <div className="mt-2">
             {item.dish.ingredients.length === 0 ? (
-              <p className="flex items-start gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1.5 text-sm font-medium text-amber-900">
+              <p className="flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-900">
                 <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
                 <span>
                   This dish has no ingredients yet — add them under{" "}
@@ -119,7 +119,7 @@ export function MenuItemEditor({ eventId, item }: { eventId: string; item: MenuI
             ) : item.dish.allergens.length ? (
               <AllergenBadges codes={item.dish.allergens} optionalOnly={optionalOnly} label="From ingredients:" />
             ) : (
-              <p className="text-xs text-muted">No allergens listed in its ingredients. Double-check the dish&apos;s ingredients.</p>
+              <p className="text-sm text-muted">No allergens listed in its ingredients. Double-check the dish&apos;s ingredients.</p>
             )}
           </div>
         </div>
@@ -162,7 +162,7 @@ export function MenuItemEditor({ eventId, item }: { eventId: string; item: MenuI
           </Field>
           <fieldset>
             <legend className="text-sm font-semibold text-ink">May contain (cross-contact)</legend>
-            <p className="text-xs text-muted">Allergens this dish could touch: shared trays, fryer oil, cutting boards, serving utensils.</p>
+            <p className="text-sm text-muted">Allergens this dish could touch: shared trays, fryer oil, cutting boards, serving utensils.</p>
             <div className="mt-2 grid grid-cols-2 gap-x-4 sm:grid-cols-3">
               {ALLERGENS.map((a) => (
                 <Checkbox key={a.code} name="cross_contact" value={a.code} label={a.label} defaultChecked={item.cross_contact_allergens.includes(a.code)} />
@@ -374,7 +374,7 @@ export function VotingOptions({
             {open ? "Close voting" : "Open voting"}
           </Button>
         ) : (
-          <span className="text-xs text-muted">Organizers can open or close voting.</span>
+          <span className="text-sm text-muted">Organizers can open or close voting.</span>
         )}
       </div>
       <FormMessage state={toggle.result} />

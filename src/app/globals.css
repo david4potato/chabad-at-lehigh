@@ -40,6 +40,14 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  /* Fields focused by form validation or anchor links stay clear of the sticky header, tab bar and save bar. */
+  scroll-padding-top: 7rem;
+  scroll-padding-bottom: calc(10rem + env(safe-area-inset-bottom));
+}
+@media (min-width: 768px) {
+  html {
+    scroll-padding-bottom: 6rem;
+  }
 }
 
 body {
@@ -47,6 +55,13 @@ body {
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  /* Long words and URLs wrap instead of widening the page. */
+  overflow-wrap: anywhere;
+}
+
+/* Tables scroll inside their own box, so their words stay whole. */
+table {
+  overflow-wrap: normal;
 }
 
 /* Clear, consistent keyboard focus everywhere. */
@@ -54,6 +69,16 @@ body {
   outline: 3px solid var(--color-brand-500);
   outline-offset: 2px;
   border-radius: 6px;
+}
+
+/* Inside sideways-scrolling rows the ring would be cut off, so it sits just inside the edge. */
+.focus-inset:focus-visible {
+  outline-offset: -3px;
+}
+
+/* Elements focused only by script (tabindex="-1") don't need a ring. */
+[tabindex="-1"]:focus {
+  outline: none;
 }
 
 /* Respect people who prefer less motion. */

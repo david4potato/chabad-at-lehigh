@@ -16,7 +16,8 @@ import { Alert } from "@/components/ui/alert";
 import { GettingStarted } from "@/components/admin/getting-started";
 import { StatsRow } from "@/components/admin/stats-row";
 
-export const metadata: Metadata = { title: "Overview" };
+// The dashboard layout's title template only applies to child pages, so this one spells it out.
+export const metadata: Metadata = { title: { absolute: "Overview · Dashboard" } };
 
 export default async function AdminHome({ searchParams }: PageProps<"/admin">) {
   const viewer = await requireRole(["organizer", "kitchen_staff", "admin"], "/admin");
@@ -65,7 +66,7 @@ export default async function AdminHome({ searchParams }: PageProps<"/admin">) {
         <Alert tone="warning">That page needs a different role. Ask an admin (People &amp; roles) if you need access.</Alert>
       ) : null}
       <div>
-        <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">Hi, {viewer.displayName}</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight lg:text-[2.5rem] lg:leading-tight">Hi, {viewer.displayName}</h1>
         <p className="mt-1 text-muted">
           Here&apos;s what&apos;s coming up. New to the dashboard?{" "}
           <Link href="/admin/help" className="font-semibold text-brand-700 hover:underline">

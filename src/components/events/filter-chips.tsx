@@ -15,7 +15,7 @@ export function FilterChips({ label, items, className }: { label: string; items:
               prefetch={false}
               aria-current={item.active ? "page" : undefined}
               className={cn(
-                "inline-flex h-11 items-center rounded-full border px-4 text-sm font-semibold whitespace-nowrap transition-colors",
+                "focus-inset inline-flex h-11 items-center rounded-full border px-4 text-sm font-semibold whitespace-nowrap transition-colors",
                 item.active
                   ? "border-brand-700 bg-brand-700 text-white"
                   : "border-stone-300 bg-white text-ink hover:bg-stone-50",

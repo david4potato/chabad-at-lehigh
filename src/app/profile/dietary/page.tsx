@@ -31,7 +31,7 @@ export default async function DietaryPage({ searchParams }: PageProps<"/profile/
       {welcome ? (
         <div>
           <p className="text-sm font-semibold text-gold-700">Step 2 of 2 · optional</p>
-          <h1 className="text-3xl font-extrabold tracking-tight">Any food allergies or dietary needs?</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight lg:text-[2.5rem] lg:leading-tight">Any food allergies or dietary needs?</h1>
           <p className="mt-2 text-muted">
             Recommended if you&apos;ll come to meals. You&apos;ll also get personal alerts on menus. You can skip this and
             add it later.

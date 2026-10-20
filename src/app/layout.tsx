@@ -10,9 +10,8 @@ export const metadata: Metadata = {
   title: { default: SITE.name, template: `%s · ${SITE.name}` },
   description: SITE.description,
   applicationName: SITE.name,
+  // No og:title or og:description here: link previews then use each page's own title and description.
   openGraph: {
-    title: SITE.name,
-    description: SITE.description,
     type: "website",
     siteName: SITE.name,
     locale: "en_US",
@@ -41,8 +40,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           Skip to main content
         </a>
         <SiteHeader />
-        <main id="main" className="flex-1">
-          <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8">{children}</div>
+        <main id="main" tabIndex={-1} className="flex-1">
+          <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8 md:px-8">{children}</div>
         </main>
         <div className="pb-safe-nav print:hidden">
           <SiteFooter />

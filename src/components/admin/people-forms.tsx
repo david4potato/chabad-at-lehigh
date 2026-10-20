@@ -59,7 +59,7 @@ export function RoleChip({ userId, name, role, label }: { userId: string; name: 
           </span>
         </button>
       </span>
-      {result && !result.ok ? <span role="alert" className="mt-1 text-xs text-red-700">{result.error}</span> : null}
+      {result && !result.ok ? <span role="alert" className="mt-1 text-sm text-red-700">{result.error}</span> : null}
     </span>
   );
 }
@@ -75,12 +75,12 @@ export function PendingGrantChip({ email, role, label }: { email: string; role: 
         onClick={() => {
           if (confirm(`Cancel the pending ${label} role for ${email}?`)) start(async () => setResult(await removePendingGrant(email, role)));
         }}
-        className="inline-flex min-h-11 items-center gap-1 rounded-full border border-dashed border-stone-300 px-3 text-xs font-semibold text-muted hover:text-ink"
+        className="inline-flex min-h-11 items-center gap-1 rounded-full border border-dashed border-stone-300 px-3 text-sm font-semibold text-muted hover:text-ink"
         aria-label={`Cancel pending ${label} role for ${email}`}
       >
         {label} <X className="size-3.5" aria-hidden="true" />
       </button>
-      {result && !result.ok ? <span role="alert" className="mt-1 text-xs text-red-700">{result.error}</span> : null}
+      {result && !result.ok ? <span role="alert" className="mt-1 text-sm text-red-700">{result.error}</span> : null}
     </span>
   );
 }

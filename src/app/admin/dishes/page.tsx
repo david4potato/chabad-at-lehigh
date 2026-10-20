@@ -82,13 +82,13 @@ export default async function DishesPage({ searchParams }: PageProps<"/admin/dis
               <Link href={`/admin/dishes/${d.id}`} className="block h-full rounded-[var(--radius-card)] border border-stone-200 bg-white p-4 shadow-sm hover:border-brand-200">
                 <div className="flex items-start justify-between gap-2">
                   <p className="font-bold text-ink">{d.name}</p>
-                  <span className="inline-flex shrink-0 items-center gap-1 text-xs text-muted">
+                  <span className="inline-flex shrink-0 items-center gap-1 text-sm text-muted">
                     <Heart className="size-3.5" aria-hidden="true" />
                     {favorites.get(d.id) ?? 0}
                     <span className="sr-only"> favorites</span>
                   </span>
                 </div>
-                <div className="mt-1 flex flex-wrap gap-1.5">
+                <div className="mt-1 flex flex-wrap gap-2">
                   <Badge>{COURSE_LABELS[d.category] ?? d.category}</Badge>
                   {d.kosher_type ? <Badge>{d.kosher_type[0].toUpperCase() + d.kosher_type.slice(1)}</Badge> : null}
                 </div>
@@ -96,7 +96,7 @@ export default async function DishesPage({ searchParams }: PageProps<"/admin/dis
                   {allergens.get(d.id)?.length ? (
                     <AllergenBadges codes={allergens.get(d.id)!} />
                   ) : d.ingredients[0]?.count ? (
-                    <p className="text-xs text-muted">No allergens in listed ingredients.</p>
+                    <p className="text-sm text-muted">No allergens in listed ingredients.</p>
                   ) : (
                     <Badge tone="amber">No ingredients yet</Badge>
                   )}

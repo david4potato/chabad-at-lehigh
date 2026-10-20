@@ -6,11 +6,23 @@ import { Button } from "./button";
 
 type Props = ComponentProps<typeof Button> & { pendingText?: string };
 
-/** A submit button that disables itself and shows progress while the form submits. */
-export function SubmitButton({ children, pendingText, disabled, ...props }: Props) {
+/**
+ * A submit button that shows progress and ignores clicks while the form submits. It uses aria-disabled, not the
+ * disabled attribute, so keyboard focus stays on it instead of jumping to the top of the page.
+ */
+export function SubmitButton({ children, pendingText, disabled, onClick, ...props }: Props) {
   const { pending } = useFormStatus();
+  const off = pending || disabled;
   return (
-    <Button type="submit" disabled={pending || disabled} aria-disabled={pending || disabled} {...props}>
+    <Button
+      type="submit"
+      aria-disabled={off || undefined}
+      onClick={(e) => {
+        if (off) e.preventDefault();
+        else onClick?.(e);
+      }}
+      {...props}
+    >
       {pending ? (
         <>
           <span

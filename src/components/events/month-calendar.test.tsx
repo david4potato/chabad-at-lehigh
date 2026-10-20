@@ -40,7 +40,7 @@ describe("MonthCalendar", () => {
   it("links only days with events, with a descriptive name", () => {
     expect(html.match(/<a /g)).toHaveLength(2);
     expect(html).toContain('href="/events?view=month&amp;month=2026-10&amp;day=2026-10-23"');
-    expect(html).toContain('aria-label="Friday, October 23, selected. 1 event: Shabbat Dinner"');
+    expect(html).toContain('aria-label="23 Shabbat Dinner. Friday, October 23, selected. 1 event: Shabbat Dinner"');
     expect(html).toContain("3 events: Lunch &amp; Learn; Study Break; Game Night (cancelled)");
   });
 
