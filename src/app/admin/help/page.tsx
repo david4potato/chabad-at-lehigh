@@ -28,7 +28,8 @@ const SECTIONS: Section[] = [
       <ol className="list-decimal space-y-2 pl-5">
         <li>
           <A href="/admin/events?tab=past">Events → Past</A> → tap <strong>Duplicate for next week</strong> on last week&apos;s dinner. You get a
-          draft copy one week later.
+          draft copy one week later. Used <strong>Repeat</strong>? Next week&apos;s dinner is already in{" "}
+          <A href="/admin/events?tab=drafts">Events → Drafts</A>; open it there instead.
         </li>
         <li>
           Check the copy: date, time and capacity. Its menu comes along as a draft, and its volunteer shifts open when you publish. Then press <strong>Publish</strong>.
