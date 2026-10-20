@@ -16,9 +16,10 @@ long it takes and what must come first. [SETUP.md](SETUP.md) has the full refere
 
 1. **Load the database** (5 min). Comes first.
    - Supabase → the project → **Table Editor**. If `events`, `rsvps` and `dishes` are listed, the database was
-     loaded earlier: run `supabase/migrations/20261019000100_efficiency.sql` once in **SQL Editor → New query** (it
-     adds the indexes measured in [docs/SCALING.md](docs/SCALING.md); running it again does no harm), then go to
-     step 2.
+     loaded earlier: run `supabase/migrations/20261019000100_efficiency.sql` and then
+     `supabase/migrations/20261020000100_contact_name.sql` once each in **SQL Editor → New query** (the indexes
+     measured in [docs/SCALING.md](docs/SCALING.md), and a blank contact name until the directors agree; running
+     them again does no harm), then go to step 2.
    - Otherwise: **SQL Editor → New query** → paste all of `supabase/setup/all_migrations.sql` → **Run**. Expect
      *Success*.
    - New query → paste `supabase/scripts/bootstrap_admin.sql` with your own sign-in email → **Run**.
@@ -52,8 +53,9 @@ long it takes and what must come first. [SETUP.md](SETUP.md) has the full refere
 5. **First sign-in** (10 min). After steps 1–4.
    - Open the site → **Sign in** → use the link or the 6-digit code → **Dashboard → Getting started**.
    - In **Settings**:
-     - confirm the contact details with the directors (they were pre-filled from public sources);
-     - add their phone number (shown as the allergy contact);
+     - check the email and address (pre-filled from public sources);
+     - leave the contact name and phone blank until the directors agree, then add them (the phone is shown as the
+       allergy contact). Until then pages say "Contact the organizer";
      - check parking.
    - **Remove demo content** if you loaded it.
 6. **Your own test run** (30 min). After step 5.
@@ -150,6 +152,7 @@ they say yes: the address carries their name, so register it in an account they 
 | [docs/REPLICATE.md](docs/REPLICATE.md) | Running a copy for another community |
 | [docs/SCALING.md](docs/SCALING.md) | What grows, what it costs, and what to change when |
 | [docs/one-pager/one-pager.pdf](docs/one-pager/one-pager.pdf) | One-page overview to show the directors |
+| [docs/shared/MOBILE_AND_SPACING.md](docs/shared/MOBILE_AND_SPACING.md) | The mobile and spacing standard every site follows, and its check (`node docs/shared/mobile-check.mjs <url> <paths>`) |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How helpers work on the code |
 | [README.md](README.md) | Features and how the code is laid out |
 
