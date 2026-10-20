@@ -35,7 +35,7 @@ export default async function AdminEventsPage({ searchParams }: PageProps<"/admi
   const supabase = await createClient();
   let query = supabase
     .from("events")
-    .select("id, slug, title, status, category, starts_at, ends_at, capacity, has_meal")
+    .select("id, slug, title, status, category, starts_at, ends_at, capacity, has_meal, is_demo")
     .limit(LIMIT);
   // Same split as the public site: an event is over when it ends (or 3 hours after it starts).
   if (tab === "drafts") query = query.eq("status", "draft").order("starts_at");
@@ -133,7 +133,7 @@ export default async function AdminEventsPage({ searchParams }: PageProps<"/admi
                   </div>
                   <div className="flex flex-wrap items-start gap-2">
                     {/* Past: the weekly routine starts here, so copying is the one primary action. */}
-                    {organizer && tab === "past" ? <DuplicateEventButton id={e.id} size="sm" className="min-h-11" /> : null}
+                    {organizer && tab === "past" && !e.is_demo ? <DuplicateEventButton id={e.id} size="sm" className="min-h-11" /> : null}
                     {organizer ? (
                       <>
                         <ButtonLink href={`/admin/events/${e.id}/attendees`} size="sm" className="min-h-11" variant={tab === "past" ? "secondary" : "primary"}>

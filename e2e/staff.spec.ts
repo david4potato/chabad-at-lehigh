@@ -114,7 +114,7 @@ test.describe("organizer dashboard", () => {
       await page.getByRole("combobox", { name: "Repeat", exact: true }).selectOption("2");
       await page.getByLabel("How many more dates").fill("4");
       await page.getByRole("button", { name: "Add dates" }).click();
-      await expect(page.getByText(/Added 1 event: .*Skipped 3 dates that already have this event\./)).toBeVisible();
+      await expect(page.getByText(/Added 1 event: .*Skipped 3 dates that already have an event with this name\./)).toBeVisible();
       const [{ count }] = await db<{ count: string }>(`select count(*) from events where title = $1`, [title]);
       expect(Number(count)).toBe(5);
     } finally {

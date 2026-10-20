@@ -62,10 +62,13 @@ export default async function EditEventPage({ params, searchParams }: PageProps<
           </div>
         </Alert>
       ) : (
-        <div className="mb-4">
-          <DuplicateEventButton id={event.id} variant="secondary" />
-          {event.status !== "cancelled" ? <RepeatEventForm eventId={event.id} /> : null}
-        </div>
+        // [DEMO] samples are deleted by Remove demo content, so they aren't offered for copying.
+        !event.is_demo ? (
+          <div className="mb-4">
+            <DuplicateEventButton id={event.id} variant="secondary" />
+            {event.status !== "cancelled" ? <RepeatEventForm eventId={event.id} /> : null}
+          </div>
+        ) : null
       )}
       <EventShiftsAdmin eventId={event.id} shifts={shifts} />
       <EventForm action={updateEvent} event={event} canDelete={isAdmin(viewer.roles)} onDelete={deleteEvent} />

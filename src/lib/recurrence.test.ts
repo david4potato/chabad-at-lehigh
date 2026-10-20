@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { repeatStarts } from "./recurrence";
+import { localDaysBetween, repeatStarts, shiftLocalDays } from "./recurrence";
 
 // Fri 23 Oct 2026, 7:00 PM in Bethlehem (EDT, UTC-4).
 const FRIDAY_7PM = "2026-10-23T23:00:00.000Z";
@@ -37,5 +37,18 @@ describe("repeatStarts", () => {
   it("returns exactly the number asked for", () => {
     expect(repeatStarts(FRIDAY_7PM, 1, 26, BEFORE)).toHaveLength(26);
     expect(repeatStarts(FRIDAY_7PM, 1, 0, BEFORE)).toEqual([]);
+  });
+});
+
+describe("shiftLocalDays", () => {
+  it("keeps the clock time when a week crosses the fall-back change", () => {
+    // Fri 30 Oct 2026, 5:00 PM EDT, to Fri 6 Nov, 5:00 PM EST.
+    expect(shiftLocalDays("2026-10-30T21:00:00.000Z", 7)).toBe("2026-11-06T22:00:00.000Z");
+  });
+
+  it("counts calendar days on campus, not 24-hour blocks", () => {
+    expect(localDaysBetween("2026-10-30T21:00:00.000Z", "2026-11-06T22:00:00.000Z")).toBe(7);
+    // 11 PM Bethlehem time is already the next day in UTC; it's still the same campus day.
+    expect(localDaysBetween("2026-10-23T03:00:00.000Z", "2026-10-22T16:00:00.000Z")).toBe(0);
   });
 });
