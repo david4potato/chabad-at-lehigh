@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ButtonLink } from "@/components/ui/button";
 import { ShiftList } from "@/components/volunteer/shift-card";
+import { RoleGuides } from "@/components/volunteer/role-guides";
 
 export const metadata: Metadata = {
   title: "Help out",
@@ -64,6 +65,8 @@ export default async function VolunteerPage() {
           })}
         </div>
       )}
+
+      <RoleGuides />
 
       <p className="mt-8 text-sm text-muted">
         Want to help in another way? Tell an organizer. We&apos;d love to have you.

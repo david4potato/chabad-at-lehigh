@@ -14,6 +14,7 @@ serious allergies.
 - [ ] Cancelling an event, or changing its time or place, sends everyone who RSVP'd an urgent in-app notification.
 - [ ] We know **Email everyone going** (opens your email app, BCC) and the CSV export (no dietary data).
 - [ ] Volunteer shifts (Dashboard → Volunteers) fit how we organize cooking, setup and clean-up.
+- [ ] The Quick guides on **Help out** (kitchen, setup, clean-up) match how our kitchen works. Tell David what to change.
 
 ## 2. Meals and allergens
 
