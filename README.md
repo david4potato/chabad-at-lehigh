@@ -14,6 +14,20 @@ ingredients and allergens, private dietary preferences, and a simple organizer d
   **Dashboard → Help**. Admins get a **Getting started** checklist (incl. one-click demo removal).
 - **Helping out:** [CONTRIBUTING.md](CONTRIBUTING.md) — run it locally, the rules, and the shared Claude Code settings.
 
+## Quick start
+
+Needs Node.js 22 and Docker.
+
+```bash
+npm install
+npx supabase start && npx supabase db reset   # local database, sign-in and email, with [DEMO] data
+cp .env.example .env.local                     # paste the local URL and publishable key from `npx supabase status`
+npm run dev                                    # http://localhost:3000
+npm run lint && npm run typecheck && npm test  # the fast checks; every check is in docs/AUDIT_NOTES.md
+```
+
+Change something on a branch and open a draft pull request; the owner merges ([CONTRIBUTING.md](CONTRIBUTING.md)).
+
 ## Features
 
 | Area | What it does |

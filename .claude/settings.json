@@ -30,20 +30,20 @@
       "Bash(git * push -f*)",
       "Bash(git * push * -f)",
       "Bash(git * push * -f *)",
-      "Bash(git * push * +*)"
-    ],
-    "ask": [
-      "Bash(git push * main)",
-      "Bash(git push * HEAD:main*)",
-      "Bash(git push * main:main*)",
-      "Bash(gh pr merge*)",
+      "Bash(git * push * +*)",
       "Bash(*supabase* link*)",
       "Bash(*supabase* db push*)",
       "Bash(*supabase* config push*)",
       "Bash(*supabase* migration repair*)",
       "Bash(*supabase* --linked*)",
       "Bash(*supabase* --db-url*)",
-      "Bash(*supabase* --project-ref*)",
+      "Bash(*supabase* --project-ref*)"
+    ],
+    "ask": [
+      "Bash(git push * main)",
+      "Bash(git push * HEAD:main*)",
+      "Bash(git push * main:main*)",
+      "Bash(gh pr merge*)",
       "Bash(psql *)",
       "mcp__*__execute_sql",
       "mcp__*__apply_migration",
