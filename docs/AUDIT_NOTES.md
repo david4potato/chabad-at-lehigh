@@ -1,7 +1,7 @@
 # Audit notes
 
 What has been checked, how to run every check again, and what is known not to be covered. Last updated
-21 October 2026. Read this before auditing; GO_LIVE.md has the setup steps.
+21 October 2026, evening. Read this before auditing; GO_LIVE.md has the setup steps.
 
 ## Done
 
@@ -14,6 +14,7 @@ What has been checked, how to run every check again, and what is known not to be
 | 20 Oct | Accessibility: axe on every page and role at 375 and 1280 px, keyboard walk-through, source review | 11 fixes, merged |
 | 21 Oct | Privacy: every table, RPC and page as anon, student, guest, organizer, kitchen staff and admin | One fix: organizers' dietary counts stay hidden until 5 people share |
 | 21 Oct | Links, downloads (.ics, CSV), special files, secrets in tracked files and git history | Clean |
+| 21 Oct | Ready for contributors: README quick start, CONTRIBUTING (branch, draft pull request, owner merges), CODEOWNERS, `.env.example` names only, session-start hook, `.claude/settings.json` guardrails (no `.env` reads, deploys, force pushes or live-database pushes) | Done. Secret scanning and branch protection are the owner's clicks (GO_LIVE.md, "GitHub settings") |
 
 ## Run every check
 
