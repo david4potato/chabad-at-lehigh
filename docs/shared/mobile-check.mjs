@@ -4,7 +4,9 @@
 // Needs Playwright (`playwright` or `@playwright/test`) in the project. Set PW_CHROMIUM_PATH to use
 // an installed Chromium instead of Playwright's download.
 import { existsSync, mkdirSync } from "node:fs";
+import { createRequire } from "node:module";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const WIDTHS = [320, 375, 390, 768, 1280];
 const MIN_TAP = 44;
@@ -20,10 +22,22 @@ if (!base) {
 const paths = rawPaths.length ? rawPaths : ["/"];
 
 async function loadChromium() {
+  // Resolve Playwright from the folder the check is run in first (for example a site/ subfolder
+  // with its own node_modules), then from this script's own location.
+  const fromCwd = createRequire(join(process.cwd(), "noop.js"));
   for (const name of ["playwright", "@playwright/test"]) {
     try {
+      // resolve() finds the CommonJS entry, whose exports arrive on `default` when imported.
+      const mod = await import(pathToFileURL(fromCwd.resolve(name)).href);
+      const chromium = mod.chromium ?? mod.default?.chromium;
+      if (chromium) return chromium;
+    } catch {
+      // Not installed where the check runs; try the script's location next.
+    }
+    try {
       const mod = await import(name);
-      if (mod.chromium) return mod.chromium;
+      const chromium = mod.chromium ?? mod.default?.chromium;
+      if (chromium) return chromium;
     } catch {
       // Try the next package name.
     }
