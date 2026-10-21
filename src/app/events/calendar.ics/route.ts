@@ -33,7 +33,8 @@ export async function GET() {
     headers: {
       "Content-Type": "text/calendar; charset=utf-8",
       "Content-Disposition": `inline; filename="${SITE.slug}.ics"`,
-      "Cache-Control": "public, max-age=900",
+      // The feed is the same for everyone, so Vercel's cache can answer calendar apps' polls for 15 minutes.
+      "Cache-Control": "public, max-age=900, s-maxage=900",
     },
   });
 }
