@@ -169,7 +169,7 @@ const SECTIONS: Section[] = [
     who: "Kitchen staff & admins",
     body: (
       <ul className="list-disc space-y-2 pl-6">
-        <li>The <strong>Dietary</strong> tab shows anonymous counts to organizers. Names next to allergies are visible only to kitchen staff and admins.</li>
+        <li>The <strong>Dietary</strong> tab shows organizers anonymous counts once at least 5 people have shared, so no count points to one person. Names next to allergies are visible only to kitchen staff and admins.</li>
         <li>Every time the named report is opened it&apos;s recorded in the audit log. Use it only for preparing food, and don&apos;t share it.</li>
         <li>People who chose not to share are listed as &ldquo;Not shared&rdquo; — ask them directly. Severe allergies and epinephrine are highlighted.</li>
         <li>Guests&apos; needs only appear if the person who RSVP&apos;d wrote them in their meal notes. Those notes show even when the person doesn&apos;t share their own profile.</li>

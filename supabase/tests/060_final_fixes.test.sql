@@ -277,7 +277,8 @@ select ok(
    from public.event_dietary_report((select id from ids where name = 'fx-dinner'))
    where user_id = (select id from ids where name = 'd')),
   'the kitchen sees guest notes, but not the person''s own details, when they turned off sharing');
-select tests.as_user((select id from ids where name = 'organizer'));
+-- Kitchen staff get the full summary; organizers get no breakdown while fewer than 5 people share.
+select tests.as_user((select id from ids where name = 'kitchen'));
 select is((public.event_dietary_summary((select id from ids where name = 'fx-dinner')) ->> 'with_guest_notes')::int, 1,
   'the anonymous summary counts guest notes from everyone');
 

@@ -11,7 +11,7 @@ export function DietaryPrivacyCard() {
         <li>
           Kitchen staff and admins see it only for events you RSVP to, only to prepare food — and every view is logged.
         </li>
-        <li>Organizers see anonymous counts (like &ldquo;3 people avoid sesame&rdquo;), never your name.</li>
+        <li>Organizers see anonymous counts (like &ldquo;6 people avoid sesame&rdquo;) once at least 5 people share, never your name.</li>
         <li>It is never shown publicly or to other students.</li>
       </ul>
     </div>
