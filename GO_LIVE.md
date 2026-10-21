@@ -114,6 +114,32 @@ What the app stores, and who can see it (the site's Privacy page says the same t
 - **Claude sessions:** Claude's Supabase connector is linked to a different Supabase account and can't see this
   project. Nothing here needs it; it only means a Claude session can't check the hosted database for you. If you
   want that, connect the connector to the account that holds the project.
+- **Shared data rules (Project OS), used now:**
+  - Supabase, because people sign in. This app keeps its own project and accounts. It had them before the shared
+    rule, and dietary details stay in the community's own database, so sign-ups aren't linked to Project OS.
+  - Only the fields each feature needs, and capped, paged lists.
+  - No images.
+  - Sign-in rate limits are kept 1 day. Read notifications older than 90 days are cleared the next time the person
+    opens their notifications.
+  - Anyone can delete their own account, and demo content goes in one click.
+- **Shared data rules, later:**
+  - Resend through Supabase SMTP, in place of Gmail, when the sender moves to an address Chabad owns.
+  - Retention periods, agreed with the directors, for past RSVPs and the audit log. Today these stay until the
+    person deletes their account.
+  - Caching public pages if traffic grows. Pages read the sign-in cookie, so they're built per visit now.
+- **Not used:** Neon, Cloudflare Email Routing (Chabad has its own address) and mailing lists.
+
+## GitHub settings (optional, 3 min)
+
+Your clicks; a Claude session doesn't change repository settings.
+
+1. GitHub → the repository → **Settings → Code security** → turn on **Secret scanning** and **Push protection**.
+   They're free on public repositories. (1 min)
+2. **Settings → Branches → Add branch protection rule** for `main`: require a pull request before merging. Force
+   pushes and deleting `main` stay blocked by default. When helpers join, also require 1 approval with Code Owner
+   review; as an admin you can still merge your own pull requests. Leave required status checks off unless you
+   remove `paths-ignore` from `.github/workflows/ci.yml`. Otherwise docs-only pull requests wait on checks that
+   never run. (2 min)
 
 ## A web address of their own (optional)
 

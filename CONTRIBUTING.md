@@ -27,8 +27,8 @@ npm run dev                 # http://localhost:3000 — sign-in emails appear at
 1. Branch from `main`. One change per pull request. Never push to `main` directly.
 2. Before you push: `npm run lint`, `npm run typecheck`, `npm test`. Database changes: `npm run test:db`.
    Screens: `npx playwright install chromium` (once), `npm run build`, then `npm run test:e2e`.
-3. Open a pull request into `main`. CI runs every check, and the owner reviews and merges. A merge to `main`
-   updates the live site.
+3. Open a draft pull request into `main`. CI runs every check. Mark it ready when it's done; the owner reviews
+   and merges. A merge to `main` updates the live site.
 
 ## Rules that never bend
 
@@ -60,5 +60,4 @@ The full list is [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md). The ones people trip 
 - Before running Claude on a helper's branch, open the pull request's **Files changed**. If it touches
   `.claude/`, `CLAUDE.md`, `AGENTS.md`, `.github/`, `package.json`, `package-lock.json` or `scripts/`, read those
   changes first, and turn off the Supabase connector for that session.
-- Keep `main` protected (Settings → Branches): require a pull request with 1 approval and Code Owner review, and
-  require both CI checks. On a free GitHub account this works only while the repo is public.
+- Keep `main` protected and secret scanning on: the clicks are in [GO_LIVE.md](GO_LIVE.md), "GitHub settings".
