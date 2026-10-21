@@ -185,6 +185,7 @@ they say yes: the address carries their name, so register it in an account they 
 | [docs/REPLICATE.md](docs/REPLICATE.md) | Running a copy for another community |
 | [docs/SCALING.md](docs/SCALING.md) | What grows, what it costs, and what to change when |
 | [docs/one-pager/one-pager.pdf](docs/one-pager/one-pager.pdf) | One-page overview to show the directors |
+| [docs/AUDIT_NOTES.md](docs/AUDIT_NOTES.md) | What has been checked, the commands that run every check, known gaps and what isn't tested |
 | [docs/shared/MOBILE_AND_SPACING.md](docs/shared/MOBILE_AND_SPACING.md) | The mobile and spacing standard every site follows, and its check (`node docs/shared/mobile-check.mjs <url> <paths>`) |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How helpers work on the code |
 | [README.md](README.md) | Features and how the code is laid out |
