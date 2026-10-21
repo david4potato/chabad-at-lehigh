@@ -19,10 +19,10 @@ long it takes and what must come first. [SETUP.md](SETUP.md) has the full refere
      expected; it can't be changed later). The organization's **Billing** page shows the plan. Free is fine until
      launch; step 10 moves it to Pro for backups.
    - Supabase → the project → **Table Editor**. If `events`, `rsvps` and `dishes` are listed, the database was
-     loaded earlier: run `supabase/migrations/20261019000100_efficiency.sql` and then
-     `supabase/migrations/20261020000100_contact_name.sql` once each in **SQL Editor → New query** (the indexes
-     measured in [docs/SCALING.md](docs/SCALING.md), and a blank contact name until the directors agree; running
-     them again does no harm), then go to step 2.
+     loaded earlier: run the files in `supabase/migrations` dated 19 October or later, oldest first, once each in
+     **SQL Editor → New query**. They add the indexes measured in [docs/SCALING.md](docs/SCALING.md), keep the
+     contact name blank until the directors agree, and hide organizers' dietary counts until 5 people share.
+     Running them again does no harm. Then go to step 2.
    - Otherwise: **SQL Editor → New query** → paste all of `supabase/setup/all_migrations.sql` → **Run**. Expect
      *Success*.
    - New query → paste `supabase/scripts/bootstrap_admin.sql` with your own sign-in email → **Run**.

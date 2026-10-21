@@ -76,7 +76,7 @@ export function ShiftForm({
           <Field label="Starts" htmlFor="shift-starts" hint={SITE.timeZoneLabel} errors={e?.starts_at} required>
             <Input id="shift-starts" name="starts_at" type="datetime-local" required defaultValue={toDateTimeLocalValue(shift?.starts_at)} />
           </Field>
-          <Field label="Ends" htmlFor="shift-ends" hint="Optional" errors={e?.ends_at}>
+          <Field label="Ends" htmlFor="shift-ends" hint="Optional. Keep shifts to 2 hours or less; split longer cooking into two shifts." errors={e?.ends_at}>
             <Input id="shift-ends" name="ends_at" type="datetime-local" defaultValue={toDateTimeLocalValue(shift?.ends_at)} />
           </Field>
         </div>

@@ -20,9 +20,11 @@ type Summary = {
   going: number;
   approved_guests: number;
   not_shared: number;
-  with_notes: number;
-  with_guest_notes: number;
-  carries_epinephrine: number;
+  /** True for organizers when fewer than 5 people share: the breakdown below is left out. */
+  hidden?: boolean;
+  with_notes: number | null;
+  with_guest_notes: number | null;
+  carries_epinephrine: number | null;
   allergens: { code: string; label: string; intolerance: number; allergy: number; severe: number }[];
   diets: { diet: string; count: number }[];
 };
@@ -76,7 +78,7 @@ export default async function DietaryReportPage({ params }: PageProps<"/admin/ev
             {[
               ["People", summary.attendees],
               ["Approved guests", summary.approved_guests],
-              ["Carry epinephrine", summary.carries_epinephrine],
+              ...(summary.hidden ? [] : [["Carry epinephrine", summary.carries_epinephrine]]),
               ["Chose not to share", summary.not_shared],
             ].map(([label, value]) => (
               <div key={label as string} className="rounded-xl bg-stone-50 p-3">
@@ -91,7 +93,12 @@ export default async function DietaryReportPage({ params }: PageProps<"/admin/ev
             </Alert>
           ) : null}
           {/* One line per allergen, severe first, so nothing is cut off on a phone. */}
-          {summary.allergens.length === 0 ? (
+          {summary.hidden ? (
+            <p className="mt-6 text-sm text-muted">
+              Fewer than 5 people have shared their dietary details, so the counts are hidden to keep them anonymous. Kitchen staff and
+              admins see the full report.
+            </p>
+          ) : summary.allergens.length === 0 ? (
             <p className="mt-6 text-sm text-muted">No allergies shared yet.</p>
           ) : (
             <ul aria-label="Allergen counts by severity" className="mt-6 divide-y divide-stone-100 border-y border-stone-100 text-sm">
@@ -112,9 +119,11 @@ export default async function DietaryReportPage({ params }: PageProps<"/admin/ev
               {summary.diets.map((d) => `${dietLabel(d.diet)} (${d.count})`).join(", ")}
             </p>
           ) : null}
-          <p className="mt-2 text-sm text-muted">
-            {summary.with_notes} with notes for the kitchen · {summary.with_guest_notes} with notes about guests
-          </p>
+          {summary.hidden ? null : (
+            <p className="mt-2 text-sm text-muted">
+              {summary.with_notes} with notes for the kitchen · {summary.with_guest_notes} with notes about guests
+            </p>
+          )}
         </Card>
       )}
 

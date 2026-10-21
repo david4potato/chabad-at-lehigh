@@ -61,7 +61,7 @@ export default function MealSafetyPage() {
             Dietary &amp; allergies
           </Link>{" "}
           for personal menu alerts. Only you and kitchen staff/admins (for events you RSVP to, logged) see it; organizers see
-          anonymous counts.
+          anonymous counts once at least 5 people share.
         </p>
       </Card>
 

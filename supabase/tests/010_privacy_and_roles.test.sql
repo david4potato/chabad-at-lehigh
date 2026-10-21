@@ -1,6 +1,6 @@
 -- Dietary privacy, role management and the audit log.
 begin;
-select plan(27);
+select plan(30);
 
 -- ---------------------------------------------------------------------------
 -- Setup (as postgres)
@@ -78,6 +78,12 @@ select is(
 select is(
   (public.event_dietary_summary((select id from ids where name = 'event')) ->> 'not_shared')::int, 1,
   'the summary counts people who chose not to share');
+select is(
+  (public.event_dietary_summary((select id from ids where name = 'event')) ->> 'hidden')::boolean, true,
+  'with fewer than 5 people sharing, organizers get no allergy breakdown');
+select is(
+  jsonb_array_length(public.event_dietary_summary((select id from ids where name = 'event')) -> 'allergens'), 0,
+  'the hidden summary lists no allergens');
 select ok((select count(*) from public.profiles) >= 6, 'organizers can read profiles to manage RSVPs');
 
 -- Kitchen staff: named report, respecting consent, audited
@@ -96,6 +102,9 @@ select ok(
    where user_id = (select id from ids where name = 'student_b')),
   'people who opted out are listed without any dietary details');
 select is((select count(*)::int from public.profiles), 1, 'kitchen staff cannot browse other profiles directly');
+select is(
+  (public.event_dietary_summary((select id from ids where name = 'event')) ->> 'hidden')::boolean, false,
+  'kitchen staff always get the full summary');
 
 reset role;
 select ok(

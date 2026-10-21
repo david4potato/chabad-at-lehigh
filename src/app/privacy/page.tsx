@@ -37,7 +37,7 @@ export default async function PrivacyPage() {
             Your dietary information is visible only to you, and to kitchen staff and admins for events you RSVP to — only
             for preparing food. Every time they open the dietary report it is logged.
           </li>
-          <li>Organizers who are not kitchen staff see anonymous allergy counts, never names.</li>
+          <li>Organizers who are not kitchen staff see anonymous allergy counts, never names, and only once at least 5 people have shared.</li>
           <li>Nothing about you is shown publicly or to other students. Vote counts are shown without names.</li>
         </ul>
       ),
