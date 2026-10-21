@@ -14,6 +14,15 @@ long it takes and what must come first. [SETUP.md](SETUP.md) has the full refere
 
 ## David's steps
 
+**Quickest start, about 10 minutes:**
+- Step 1, then step 2.
+- From step 3, only **URL Configuration**.
+- Step 5, signing in with the emailed link on the same device.
+
+Supabase's built-in email reaches you as the project owner, and the app accepts its default sign-in link in the same
+browser. The email templates and rate limit in step 3, and the email sender in step 4, are needed before anyone else
+signs in.
+
 1. **Load the database** (5 min). Comes first.
    - **Plan and region:** Supabase → the project → **Project Settings → General** shows the region (East US is
      expected; it can't be changed later). The organization's **Billing** page shows the plan. Free is fine until
