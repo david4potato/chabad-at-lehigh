@@ -15,6 +15,7 @@ What has been checked, how to run every check again, and what is known not to be
 | 21 Oct | Privacy: every table, RPC and page as anon, student, guest, organizer, kitchen staff and admin | One fix: organizers' dietary counts stay hidden until 5 people share |
 | 21 Oct | Links, downloads (.ics, CSV), special files, secrets in tracked files and git history | Clean |
 | 21 Oct | Ready for contributors: README quick start, CONTRIBUTING (branch, draft pull request, owner merges), CODEOWNERS, `.env.example` names only, session-start hook, `.claude/settings.json` guardrails (no `.env` reads, deploys, force pushes or live-database pushes) | Done. Secret scanning and branch protection are the owner's clicks (GO_LIVE.md, "GitHub settings") |
+| 21 Oct | Efficiency: page weight, packages, polling, database queries, build warnings | One fix: the public calendar feed is cached for 15 minutes, so calendar apps' polls don't reach the database. Home page about 17 KB of HTML plus 195 KB of compressed scripts and styles; no images, web fonts or trackers |
 
 ## Run every check
 
