@@ -3,6 +3,27 @@
 David's steps from here to students using the site, in order. Each step says where to go, what to do, about how
 long it takes and what must come first. [SETUP.md](SETUP.md) has the full reference for each screen.
 
+## Today (about 10 minutes)
+
+This puts the site up privately. Anyone with the address can open it, search engines are asked not to list it, and
+only you can sign in until the email steps below are done.
+
+1. **Database** (2 min). Supabase → **chabad-at-lehigh → SQL Editor → New query** → paste all of
+   `chabad-database-setup.sql` → **Run**. Expect *Success*. It loads the database, or updates one loaded earlier, and
+   makes you admin. Claude sent you that file privately because it has your email in it. Without it, do step 1 under
+   "David's steps".
+2. **Two values** (1 min). Supabase → **Project Settings → Data API**: copy the **Project URL**. Then **API Keys**:
+   copy the **Publishable key** (`sb_publishable_…`). Never the secret key.
+3. **Vercel** (3 min). **chabad-at-lehigh → Settings → Environment Variables**: add `NEXT_PUBLIC_SUPABASE_URL` and
+   `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` with those two values → **Save**. Then **Deployments** → newest →
+   **⋯ → Redeploy**. Copy the address from **Overview → Domains**.
+4. **Sign-in address** (2 min). Supabase → **Authentication → URL Configuration**: **Site URL** = the address, with
+   no slash at the end. **Redirect URLs** → add the address followed by `/**` → **Save**.
+5. **Sign in** (2 min). Open the site → **Sign in** with your email → open the emailed link on the same phone or
+   computer. You're in as admin.
+
+Before anyone else signs in: steps 3 and 4 under "David's steps" (email templates, rate limit and the email sender).
+
 ## Where things stand
 
 - **Code:** this repository, branch `main`. Every merge to `main` deploys to the Vercel project `chabad-at-lehigh`.
@@ -14,11 +35,7 @@ long it takes and what must come first. [SETUP.md](SETUP.md) has the full refere
 
 ## David's steps
 
-**Quickest start, about 10 minutes:**
-- Step 1, then step 2.
-- From step 3, only **URL Configuration**.
-- Step 5, signing in with the emailed link on the same device.
-
+Every step, in order. "Today" above covers steps 1 and 2, URL Configuration from step 3, and the first sign-in.
 Supabase's built-in email reaches you as the project owner, and the app accepts its default sign-in link in the same
 browser. The email templates and rate limit in step 3, and the email sender in step 4, are needed before anyone else
 signs in.
