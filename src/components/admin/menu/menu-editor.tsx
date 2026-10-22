@@ -106,7 +106,7 @@ export function MenuItemEditor({ eventId, item }: { eventId: string; item: MenuI
           <p className="font-bold text-ink">{item.dish.name}</p>
           <div className="mt-2">
             {item.dish.ingredients.length === 0 ? (
-              <p className="flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-900">
+              <p className="flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-900 max-w-none">
                 <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
                 <span>
                   This dish has no ingredients yet — add them under{" "}

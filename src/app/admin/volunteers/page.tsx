@@ -35,7 +35,7 @@ function ShiftRow({ shift }: { shift: AdminShift }) {
           <p className="text-sm text-muted">
             {formatShortDate(shift.starts_at)} · {formatTimeRange(shift.starts_at, shift.ends_at)}
             {" · "}
-            <span className="font-semibold text-ink">
+            <span className="whitespace-nowrap font-semibold text-ink">
               {shift.taken} / {shift.slots} signed up
             </span>
           </p>
