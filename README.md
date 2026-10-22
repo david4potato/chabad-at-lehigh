@@ -12,7 +12,8 @@ ingredients and allergens, private dietary preferences, and a simple organizer d
 - **Decisions:** [docs/DECISIONS.md](docs/DECISIONS.md) — what was decided, why, and what is still open.
 - **Organizers:** one-page [docs/ORGANIZER_QUICKSTART.md](docs/ORGANIZER_QUICKSTART.md), plus a built-in guide at
   **Dashboard → Help**. Admins get a **Getting started** checklist (incl. one-click demo removal).
-- **Helping out:** [CONTRIBUTING.md](CONTRIBUTING.md) — run it locally, the rules, and the shared Claude Code settings.
+- **Helping out:** [CONTRIBUTING.md](CONTRIBUTING.md) — run it locally, good first tasks, the rules, and the shared
+  Claude Code settings.
 
 ## Quick start
 
