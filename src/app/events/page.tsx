@@ -305,7 +305,7 @@ async function MonthView({
               ))}
             </div>
           ) : (
-            <p className="rounded-[var(--radius-card)] border border-dashed border-stone-300 bg-white/60 px-4 py-6 text-sm text-muted">
+            <p className="rounded-[var(--radius-card)] border border-dashed border-stone-300 bg-white/60 px-4 py-6 text-sm text-muted max-w-none">
               Nothing on this day.
               {following ? (
                 <>

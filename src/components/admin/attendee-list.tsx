@@ -129,7 +129,7 @@ export function AttendeeList({
       </p>
 
       {visible.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-stone-300 bg-white/60 p-6 text-center text-sm text-muted">
+        <p className="rounded-2xl border border-dashed border-stone-300 bg-white/60 p-6 text-center text-sm text-muted max-w-none">
           {attendees.length > 0
             ? "No one here."
             : ended || status === "cancelled"

@@ -59,6 +59,19 @@ body {
   overflow-wrap: anywhere;
 }
 
+/* Readable lines: running text stops at about 80 characters on wide screens. In the base layer, so a
+   utility like max-w-none still wins (boxes styled on a <p> use it to stay full width). */
+@layer base {
+  :where(p, dd, :is(ul, ol):is(.list-disc, .list-decimal) > li) {
+    max-width: 60ch;
+  }
+  /* Centered text keeps its narrower box centered. */
+  :where(.text-center) :where(p, dd),
+  :where(p, dd):where(.text-center) {
+    margin-inline: auto;
+  }
+}
+
 /* Tables scroll inside their own box, so their words stay whole. */
 table {
   overflow-wrap: normal;

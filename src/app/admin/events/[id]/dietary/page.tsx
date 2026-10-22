@@ -60,7 +60,7 @@ export default async function DietaryReportPage({ params }: PageProps<"/admin/ev
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-900 ring-1 ring-red-200">
+        <p className="flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-900 ring-1 ring-red-200 max-w-none">
           <Lock className="size-4" aria-hidden="true" /> Confidential — for meal preparation only.{named ? " Every view is logged." : ""}
         </p>
         <PrintButton />

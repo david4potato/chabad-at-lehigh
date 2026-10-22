@@ -99,7 +99,7 @@ export async function EventMenuSection({ event, viewer }: { event: MenuEvent; vi
 
       {urgent.length > 0 ? (
         <Alert tone="warning" title="Urgent menu update">
-          <ul className="space-y-2">
+          <ul className="max-w-[60ch] space-y-2">
             {urgent.map((u) => (
               <li key={u.id}>
                 {u.message} <span className="whitespace-nowrap text-sm opacity-80">({formatDateTime(u.created_at)})</span>
@@ -142,7 +142,7 @@ export async function EventMenuSection({ event, viewer }: { event: MenuEvent; vi
                   Menu changes ({otherUpdates.length})
                   <ChevronDown className="size-4 transition-transform group-open:rotate-180" aria-hidden="true" />
                 </summary>
-                <ul className="space-y-2 text-muted">
+                <ul className="max-w-[60ch] space-y-2 text-muted">
                   {otherUpdates.map((u) => (
                     <li key={u.id}>
                       {u.message} <span className="text-sm">({formatDateTime(u.created_at)})</span>
@@ -299,7 +299,7 @@ function PersonalNotice({
     );
   }
   return (
-    <p className="flex items-start gap-2 rounded-xl bg-white px-3 py-3 text-sm text-muted ring-1 ring-stone-200">
+    <p className="flex items-start gap-2 rounded-xl bg-white px-3 py-3 text-sm text-muted ring-1 ring-stone-200 max-w-none">
       <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
       <span>
         Nothing listed matches your saved allergies. This is not a guarantee — contact the organizer about serious
