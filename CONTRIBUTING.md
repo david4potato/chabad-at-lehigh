@@ -30,6 +30,24 @@ npm run dev                 # http://localhost:3000 — sign-in emails appear at
 3. Open a draft pull request into `main`. CI runs every check. Mark it ready when it's done; the owner reviews
    and merges. A merge to `main` updates the live site.
 
+## Good first tasks
+
+Small, useful, and none of them touch allergy logic. Pick one, say so in a draft pull request, and ask if
+anything is unclear. They come from the known gaps in [docs/AUDIT_NOTES.md](docs/AUDIT_NOTES.md).
+
+1. **Try the quick start from a fresh clone.** Follow [README.md](README.md), "Quick start", word for word on your
+   own computer. Fix any step that didn't work for you, in the README itself.
+2. **Name the record in the browser tab.** The dashboard's event, dish and shift pages all show a generic tab title
+   ("Edit event · Dashboard"). In `src/app/admin/events/[id]/page.tsx`, `src/app/admin/dishes/[id]/page.tsx` and
+   `src/app/admin/volunteers/[id]/page.tsx`, replace `metadata` with `generateMetadata` so the tab shows the
+   record's name, for example "[DEMO] Shabbat Dinner · Dashboard". Done when `npm run test:e2e` passes.
+3. **Check the printed Dietary report.** Sign in as an admin with the demo data, open an event's **Dietary** tab
+   and print it to PDF from Chrome. Fix anything cut off or hard to read, using the `print:` styles in
+   `src/app/admin/events/[id]/dietary/page.tsx`. Printing has never been tested.
+4. **Screen reader pass.** With VoiceOver, TalkBack or NVDA, sign in, RSVP to the demo Shabbat dinner and fill in
+   **Dietary & allergies**. List anything confusing or unannounced in the pull request, and fix the labels you
+   can. Screen readers have never been tested; only axe and keyboard checks have.
+
 ## Rules that never bend
 
 The full list is [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md). The ones people trip over:
@@ -51,7 +69,8 @@ The full list is [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md). The ones people trip 
   its file tools or commands like `cat`, won't run the Vercel CLI or force-push in the usual forms, and asks
   before pushing to `main`, merging, or the usual Supabase commands that touch the live project. Your own
   `.claude/settings.local.json` (ignored by git) can add rules but can't lift these.
-- Claude Code on the web installs the npm packages when a session starts (`.claude/hooks/session-start.sh`).
+- When a Claude Code session starts, it installs the npm packages if they're missing
+  (`.claude/hooks/session-start.sh`), on your computer or on the web.
 - What actually protects the live site and data: helpers have no Vercel or Supabase access, and `main` only
   changes through a pull request the owner approves.
 
