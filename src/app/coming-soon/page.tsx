@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Coming soon" };
 const PLANS: { Icon: typeof Mail; title: string; text: string; badge?: string }[] = [
   { Icon: GraduationCap, title: "Learning programs", text: "Join classes and study groups and see your schedule." },
   { Icon: Camera, title: "Photo gallery", text: "Photos from Shabbat dinners and events, shared by organizers." },
-  { Icon: Users, title: "Friends attending", text: "Optionally see which friends are going (opt-in only). Inviting friends already works — tap “Invite friends” on any event." },
+  { Icon: Users, title: "Friends attending", text: "See which friends are going (opt-in only). Inviting friends already works: tap “Invite friends” on any event." },
   { Icon: Mail, title: "Email and text reminders", text: "Optional reminders before events you RSVP'd to." },
   { Icon: QrCode, title: "QR check-in & walk-ins", text: "Faster check-in at the door, including guests who didn't RSVP." },
   {
@@ -34,7 +34,7 @@ export default function ComingSoonPage() {
               <Badge>{badge ?? "Planned"}</Badge>
             </div>
             <h2 className="mt-3 font-bold text-ink">{title}</h2>
-            <p className="mt-1 text-sm text-muted">{text}</p>
+            <p className="mt-1 text-base text-muted">{text}</p>
           </li>
         ))}
       </ul>
