@@ -60,10 +60,10 @@ const STATUS_VIEW = {
 
 const STATUS_HINT: Record<keyof typeof STATUS_VIEW, string> = {
   going: "See you there!",
-  waitlist: "We'll confirm you automatically if a spot opens, and send you a notification.",
+  waitlist: "If a spot opens, we'll confirm you automatically and notify you.",
   pending: "An organizer will confirm your spot. We'll send you a notification.",
   not_going: "Thanks for letting us know. Hope to see you next time.",
-  declined: "Please contact the organizer if you have questions.",
+  declined: "Questions? Contact the organizer.",
 };
 
 const FOCUS_TARGETS = {
@@ -184,7 +184,7 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
               variant="secondary"
               className="w-full"
               onClick={(e) => {
-                if (!confirm("Cancel your spot? RSVPs are closed, so you won't be able to RSVP again here.")) e.preventDefault();
+                if (!confirm("Cancel your spot? RSVPs are closed, so you can't RSVP again.")) e.preventDefault();
               }}
             >
               I can&apos;t make it

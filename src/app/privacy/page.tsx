@@ -13,12 +13,12 @@ export default async function PrivacyPage() {
       title: "What we collect",
       body: (
         <ul className="list-disc space-y-1 pl-6">
-          <li>Your email address (to sign you in and send event updates).</li>
-          <li>Your name, whether you&apos;re a student or community member, and optionally class year and phone.</li>
+          <li>Your email, to sign you in and send event updates.</li>
+          <li>Your name, whether you&apos;re a student or community member, and (optional) class year and phone.</li>
           <li>Your RSVPs, guests and notes to organizers.</li>
           <li>Which events you came to (from RSVPs and check-ins).</li>
           <li>Volunteer shifts you sign up for.</li>
-          <li>Optional dietary information: allergies, diet, notes for the kitchen, per-event meal notes.</li>
+          <li>Optional dietary information: allergies, diet, kitchen notes and per-event meal notes.</li>
           <li>Dish votes and suggestions.</li>
         </ul>
       ),
@@ -30,14 +30,14 @@ export default async function PrivacyPage() {
           <li>Organizers see RSVPs, names and contact details to run events.</li>
           <li>Organizers see who signed up for a volunteer shift and can email them.</li>
           <li>
-            Organizers can see who RSVP&apos;d to and checked in at each event, past and upcoming. Only admins see a one-page summary of
-            a person&apos;s attendance and volunteering. The numbers on the organizer overview are totals, without names.
+            Organizers see who RSVP&apos;d and checked in at each event, past and upcoming. Only admins see a one-page
+            summary of one person&apos;s attendance and volunteering. Organizer overview numbers are totals, without names.
           </li>
           <li>
-            Your dietary information is visible only to you, and to kitchen staff and admins for events you RSVP to — only
-            for preparing food. Every time they open the dietary report it is logged.
+            Your dietary information is visible only to you, and to kitchen staff and admins for events you RSVP to, only
+            to prepare food. Every time they open the dietary report, it&apos;s logged.
           </li>
-          <li>Organizers who are not kitchen staff see anonymous allergy counts, never names, and only once at least 5 people have shared.</li>
+          <li>Organizers who aren&apos;t kitchen staff see anonymous allergy counts, never names, and only once at least 5 people share.</li>
           <li>Nothing about you is shown publicly or to other students. Vote counts are shown without names.</li>
         </ul>
       ),
@@ -46,9 +46,9 @@ export default async function PrivacyPage() {
       title: "Where it's stored",
       body: (
         <p>
-          The app is hosted on Vercel, stores data in Supabase (a managed Postgres database) with strict access rules on
-          every table, and sends sign-in emails through an email delivery service. We don&apos;t sell your information,
-          show ads, or use tracking cookies — only the cookie that keeps you signed in.
+          The app runs on Vercel and stores data in Supabase, a managed database with strict access rules on every table.
+          Sign-in emails go through an email delivery service. We don&apos;t sell your information, show ads or use
+          tracking cookies, only the cookie that keeps you signed in.
         </p>
       ),
     },
@@ -61,8 +61,8 @@ export default async function PrivacyPage() {
             <Link href="/profile/dietary" className="font-semibold text-brand-700 hover:underline">
               Dietary &amp; allergies
             </Link>
-            , or choose not to share it with the kitchen. Notes you write about your guests&apos; needs for an event
-            always go to kitchen staff so they can cook for them.
+            , or stop sharing it with the kitchen. Notes about your guests&apos; needs for an event always go to kitchen
+            staff, so they can cook for them.
           </li>
           <li>Update your details on your profile.</li>
           <li>
@@ -70,7 +70,7 @@ export default async function PrivacyPage() {
             <Link href="/profile" className="font-semibold text-brand-700 hover:underline">
               Profile &amp; settings
             </Link>
-            .
+            . This is permanent.
           </li>
         </ul>
       ),
@@ -79,7 +79,7 @@ export default async function PrivacyPage() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <PageHeader title="Privacy" description="Plain-language summary of how we handle your information." />
+      <PageHeader title="Privacy" description="How we handle your information." />
       <div className="space-y-4">
         {sections.map((s) => (
           <Card key={s.title}>

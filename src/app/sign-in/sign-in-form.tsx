@@ -43,12 +43,12 @@ function authErrorMessage(
   if (err.code === "captcha_failed") return "The bot check failed. Please try again.";
   if (step === "send") {
     if (err.code === "validation_failed" || err.code === "email_address_invalid") {
-      return "That email address doesn't look right. Check it for typos and try again.";
+      return "That email address doesn't look right. Check it for typos.";
     }
     return "We couldn't send the sign-in email. Please try again.";
   }
   if (err.code === "otp_expired" || /expired|invalid/i.test(err.message ?? "")) {
-    return "That code is incorrect or has expired. Check the latest email, or send a new code.";
+    return "That code is wrong or expired. Check the latest email, or send a new code.";
   }
   return "We couldn't sign you in. Please try again.";
 }
@@ -201,8 +201,8 @@ export function SignInForm({ next }: { next: string }) {
       ) : (
         <form onSubmit={verifyCode} className="space-y-4" noValidate>
           <Alert tone="success" title="Check your email">
-            We sent a sign-in link and a code to <strong className="break-all">{email}</strong>. Tap the link on this
-            device, or type the code here.
+            We sent a link and a code to <strong className="break-all">{email}</strong>. Tap the link on this device,
+            or enter the code here.
           </Alert>
           <Field label="Sign-in code" htmlFor="code">
             <Input

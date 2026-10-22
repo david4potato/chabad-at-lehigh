@@ -58,7 +58,7 @@ export default async function PeoplePage({ searchParams }: PageProps<"/admin/peo
 
       <Alert tone="info" title="Keep dietary access small">
         Only <strong>Kitchen staff</strong> and <strong>Admins</strong> can see names next to allergies. Give those roles only
-        to people who truly need them.
+        to people who need them.
       </Alert>
 
       <details className="group rounded-[var(--radius-card)] border border-stone-200 bg-white px-4 py-1 shadow-sm">

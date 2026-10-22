@@ -76,8 +76,8 @@ export default async function ProfilePage() {
 
       <Card>
         <CardTitle>Your details</CardTitle>
-        <p className="mt-1 text-sm text-muted">
-          Your sign-in email can&apos;t be changed here. Need a different one?{" "}
+        <p className="mt-1 text-base text-muted">
+          Need a different sign-in email?{" "}
           {org.contact_email ? (
             <>
               Email us at{" "}
@@ -106,12 +106,12 @@ export default async function ProfilePage() {
 
       <Card>
         <CardTitle>Privacy</CardTitle>
-        <p className="mt-1 text-sm text-muted">
-          See exactly who can see what on our{" "}
+        <p className="mt-1 text-base text-muted">
+          Your dietary information is private, and you can delete it any time. Our{" "}
           <Link href="/privacy" className="font-semibold text-brand-700 hover:underline">
             privacy page
-          </Link>
-          . Your dietary information is private and you can delete it any time.
+          </Link>{" "}
+          shows who can see what.
         </p>
       </Card>
 

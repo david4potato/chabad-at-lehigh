@@ -8,8 +8,8 @@ const GUIDES = [
     Icon: ChefHat,
     steps: [
       "Wash your hands and tie back long hair before you start.",
-      "Follow the cook's kitchen rules, including kosher ones. Not sure about a pot, a utensil or a counter? Ask first.",
-      "Use only what's on the recipe. If you add or swap an ingredient, tell the cook so the menu's allergen list stays right.",
+      "Follow the cook's kitchen rules, including kosher ones. Unsure about a pot, utensil or counter? Ask first.",
+      "Use only what's on the recipe. Added or swapped an ingredient? Tell the cook so the menu's allergen list stays right.",
       "Keep dishes that contain allergens apart, with their own spoons and boards.",
       "Allergy questions go to the cook or the organizer. Never guess.",
     ],
@@ -54,7 +54,7 @@ export function RoleGuides() {
               {title}
               <ChevronDown className="ml-auto size-4 text-muted transition-transform group-open:rotate-180" aria-hidden="true" />
             </summary>
-            <ol className="list-decimal space-y-2 pb-4 pl-6 text-sm text-ink">
+            <ol className="list-decimal space-y-2 pb-4 pl-6 text-base text-ink">
               {steps.map((s) => (
                 <li key={s}>{s}</li>
               ))}

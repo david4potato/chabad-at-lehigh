@@ -27,9 +27,9 @@ export default async function WelcomePage({ searchParams }: PageProps<"/welcome"
     <div className="mx-auto max-w-xl py-2 sm:py-6">
       <div className="mb-6">
         <p className="text-sm font-semibold text-gold-700">Step 1 of 2</p>
-        <h1 className="text-3xl font-extrabold tracking-tight lg:text-[2.5rem] lg:leading-tight">Welcome to {SITE.name}!</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight lg:text-[2.5rem] lg:leading-tight">Welcome to {SITE.name}</h1>
         <p className="mt-2 text-muted">
-          Just your name and you&apos;re in. Your email ({viewer.email}) is only used to sign in and for event updates.
+          Add your name and you&apos;re in. We use your email ({viewer.email}) only for sign-in and event updates.
         </p>
       </div>
       <Card>

@@ -23,7 +23,7 @@ export async function GettingStarted() {
 
   const steps: Step[] = [
     {
-      label: `Give admin access to at least one more trusted person (e.g. ${SITE.adminExample})`,
+      label: `Make at least one more trusted person an admin (e.g. ${SITE.adminExample})`,
       href: "/admin/people",
       done: (admins.count ?? 0) + (pendingAdmins.count ?? 0) >= 2,
     },

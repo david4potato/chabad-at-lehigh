@@ -46,7 +46,7 @@ export default async function MyEventsPage({ searchParams }: PageProps<"/my-even
     <div className="mx-auto max-w-3xl space-y-8">
       <PageHeader
         title="My Events"
-        description="Everything you've RSVP'd to. Tap an event to see details or change your RSVP."
+        description="Tap an event for details or to change your RSVP."
         actions={<ButtonLink href="/events" variant="secondary">Browse events</ButtonLink>}
       />
 

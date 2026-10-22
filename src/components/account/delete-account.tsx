@@ -33,9 +33,9 @@ export function DeleteAccount() {
   }
   return (
     <div className="space-y-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-900">
-      <p>
-        This permanently deletes your account, RSVPs, dietary information, votes, suggestions and notifications. If you
-        held a seat at an upcoming event, it goes to the next person on the waitlist. This can&apos;t be undone.
+      <p className="text-base">
+        This permanently deletes your account, RSVPs, dietary information, votes, suggestions and notifications. Any
+        seat you hold at an upcoming event goes to the next person on the waitlist.
       </p>
       <Field label='Type "DELETE" to confirm' htmlFor="confirm-delete">
         <Input ref={confirmRef} id="confirm-delete" value={typed} onChange={(e) => setTyped(e.target.value)} autoComplete="off" />

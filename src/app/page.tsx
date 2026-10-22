@@ -45,7 +45,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
         <Alert tone="success">Your account and its information have been deleted. You&apos;re always welcome back.</Alert>
       ) : null}
       {params.denied ? (
-        <Alert tone="warning">That page is only for organizers. If you think you should have access, ask an admin.</Alert>
+        <Alert tone="warning">That page is only for organizers. Think you should have access? Ask an admin.</Alert>
       ) : null}
 
       <div>

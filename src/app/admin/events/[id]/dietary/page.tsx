@@ -94,9 +94,9 @@ export default async function DietaryReportPage({ params }: PageProps<"/admin/ev
           ) : null}
           {/* One line per allergen, severe first, so nothing is cut off on a phone. */}
           {summary.hidden ? (
-            <p className="mt-6 text-sm text-muted">
-              Fewer than 5 people have shared their dietary details, so the counts are hidden to keep them anonymous. Kitchen staff and
-              admins see the full report.
+            <p className="mt-6 text-base text-muted">
+              Counts show once at least 5 people share their dietary details, to keep them anonymous. Kitchen staff and admins see the full
+              report.
             </p>
           ) : summary.allergens.length === 0 ? (
             <p className="mt-6 text-sm text-muted">No allergies shared yet.</p>
