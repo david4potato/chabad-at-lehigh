@@ -63,7 +63,7 @@ export default async function AdminHome({ searchParams }: PageProps<"/admin">) {
     <div className="space-y-6">
       {params.notice === "demo-removed" ? <Alert tone="success">Demo content removed.</Alert> : null}
       {params.denied ? (
-        <Alert tone="warning">That page needs a different role. Ask an admin (People &amp; roles) if you need access.</Alert>
+        <Alert tone="warning">That page needs a different role. Ask an admin if you need access.</Alert>
       ) : null}
       <div>
         <h1 className="text-3xl font-extrabold tracking-tight lg:text-[2.5rem] lg:leading-tight">Hi, {viewer.displayName}</h1>

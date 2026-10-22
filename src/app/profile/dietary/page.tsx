@@ -33,8 +33,7 @@ export default async function DietaryPage({ searchParams }: PageProps<"/profile/
           <p className="text-sm font-semibold text-gold-700">Step 2 of 2 · optional</p>
           <h1 className="text-3xl font-extrabold tracking-tight lg:text-[2.5rem] lg:leading-tight">Any food allergies or dietary needs?</h1>
           <p className="mt-2 text-muted">
-            Recommended if you&apos;ll come to meals. You&apos;ll also get personal alerts on menus. You can skip this and
-            add it later.
+            Recommended if you come to meals, and you&apos;ll get personal alerts on menus. You can add it later.
           </p>
           <a href={next} className="mt-2 inline-flex min-h-11 items-center font-semibold text-brand-700 hover:underline">
             No allergies or dietary needs? Skip for now
@@ -43,7 +42,7 @@ export default async function DietaryPage({ searchParams }: PageProps<"/profile/
       ) : (
         <PageHeader
           title="Dietary & allergies"
-          description="Helps our kitchen plan, and shows you personal alerts on menus. Menus are never a guarantee — contact the organizer about serious allergies."
+          description="Helps our kitchen plan and gives you personal menu alerts. Menus are never a guarantee — contact the organizer about serious allergies."
         />
       )}
       <DietaryPrivacyCard />

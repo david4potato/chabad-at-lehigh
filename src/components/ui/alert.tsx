@@ -18,7 +18,7 @@ export function Alert({ tone = "info", title, children, className, role, ...prop
   return (
     <div
       role={role ?? (tone === "danger" || tone === "warning" ? "alert" : "status")}
-      className={cn("flex gap-3 rounded-2xl border p-4 text-sm leading-relaxed", box, className)}
+      className={cn("flex gap-3 rounded-2xl border p-4 text-base leading-relaxed", box, className)}
       {...props}
     >
       <Icon className="mt-0.5 size-5 shrink-0" aria-hidden="true" />

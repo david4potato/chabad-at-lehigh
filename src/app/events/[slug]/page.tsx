@@ -50,7 +50,7 @@ function SignInToView({ slug }: { slug: string }) {
   return (
     <div className="mx-auto max-w-md py-12 text-center">
       <h1 className="text-3xl font-extrabold tracking-tight lg:text-[2.5rem] lg:leading-tight">Sign in to see this event</h1>
-      <p className="mt-2 text-muted">This event may be for signed-in members, or it may no longer be available.</p>
+      <p className="mt-2 text-muted">It may be for signed-in members only, or no longer available.</p>
       <div className="mt-6 flex justify-center gap-2">
         <ButtonLink href={`/sign-in?next=${encodeURIComponent(`/events/${slug}`)}`}>Sign in</ButtonLink>
         <ButtonLink href="/events" variant="secondary">
@@ -103,7 +103,7 @@ export default async function EventPage({ params, searchParams }: PageProps<"/ev
       ) : null}
       {event.status === "cancelled" ? (
         <Alert tone="warning" title="This event has been cancelled">
-          We&apos;re sorry for any inconvenience. Please contact the organizer with questions.
+          We&apos;re sorry. Questions? Contact the organizer.
         </Alert>
       ) : null}
 

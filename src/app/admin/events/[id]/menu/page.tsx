@@ -31,7 +31,7 @@ const STATUS_TONE = { draft: "brand", published: "green", archived: "neutral" } 
 
 const NOTICES: Record<string, string> = {
   started: "Draft started. Changes stay private until you publish.",
-  discarded: "Draft discarded. The published menu (if any) is unchanged.",
+  discarded: "Draft discarded. Any published menu is unchanged.",
   published: "Menu published.",
   published_urgent: "Menu published, and everyone who RSVP'd was notified in the app (no email or text).",
 };
@@ -82,17 +82,17 @@ export default async function MenuAdminPage({ params, searchParams }: PageProps<
       {notice ? <Alert tone="success">{notice}</Alert> : null}
       {!event.has_meal ? (
         <Alert tone="info">
-          This event isn&apos;t marked as having a meal, so the menu won&apos;t show on the event page.{" "}
+          This menu won&apos;t show on the event page until &ldquo;This event has a meal&rdquo; is on.{" "}
           {canManageEvents(viewer.roles) ? (
             <>
-              Turn on &ldquo;This event has a meal&rdquo; in{" "}
+              Turn it on in{" "}
               <Link href={`/admin/events/${event.id}`} className="font-semibold underline">
                 Details
               </Link>
               .
             </>
           ) : (
-            <>Ask an organizer to turn on &ldquo;This event has a meal&rdquo;.</>
+            <>Ask an organizer to turn it on.</>
           )}
         </Alert>
       ) : null}
@@ -272,25 +272,25 @@ function FoodAndWater({ counts, rsvpOpen }: { counts?: EventCounts; rsvpOpen: bo
     <Card>
       <CardTitle>Food and water</CardTitle>
       {!rsvpOpen ? (
-        <p className="mt-1 text-sm text-ink">RSVPs are off for this event, so there&apos;s no count. Ask the organizer how many to expect.</p>
+        <p className="mt-1 text-base text-ink">RSVPs are off, so there&apos;s no count. Ask the organizer how many to expect.</p>
       ) : !counts ? (
         <p className="mt-1 text-sm text-ink">We couldn&apos;t load the RSVP count. Check the Attendees tab.</p>
       ) : (
         <>
-          <p className="mt-1 text-sm text-ink">
+          <p className="mt-1 text-base text-ink">
             <span className="font-semibold">Cook for about {plural(counts.seatsTaken, "person", "people")}</span>
             {counts.guests ? ` (${counts.going} going and ${plural(counts.guests, "guest")})` : ""}.
-            {maybe ? ` ${plural(maybe, "RSVP is", "RSVPs are")} on the waitlist or waiting for approval, and may bring guests.` : ""}
+            {maybe ? ` ${plural(maybe, "RSVP is", "RSVPs are")} waitlisted or awaiting approval, and may bring guests.` : ""}
           </p>
           <p className="mt-1 text-sm text-muted">RSVPs change, so check the count again the day before.</p>
         </>
       )}
-      <ul className="mt-3 list-disc space-y-2 pl-6 text-sm text-ink">
+      <ul className="mt-3 list-disc space-y-2 pl-6 text-base text-ink">
         <li>Water for everyone: pitchers or a refill station, and cups.</li>
         {rsvpOpen ? <li>Cook for the count above, not much more.</li> : null}
         <li>
-          Leftovers: refrigerate within 2 hours in containers labeled with the dish, the date and what it contains. Offer them to take home, or use
-          them within 3 days. Serving them at another meal? Add the dish to that meal&apos;s menu so its allergens show.
+          Leftovers: refrigerate within 2 hours, labeled with the dish, the date and what it contains. Offer them to take home, or use them within 3
+          days. To serve them at another meal, add the dish to that meal&apos;s menu so its allergens show.
         </li>
         <li>After the meal: wash and reuse trays and containers, recycle cans, bottles and cardboard, and compost food scraps where you can.</li>
       </ul>

@@ -9,9 +9,8 @@ import { SignInForm } from "./sign-in-form";
 export const metadata: Metadata = { title: "Sign in" };
 
 const ERRORS: Record<string, string> = {
-  link: "That sign-in link has expired or was already used. Enter your email to get a new one — or use the code from the email.",
-  device:
-    "That link was opened on a different device or browser. Use the 6-digit code from the email instead, or request a new link here.",
+  link: "That link expired or was already used. Enter your email for a new link, or use the code from the email.",
+  device: "That link was opened on a different device or browser. Use the 6-digit code from the email, or get a new link here.",
 };
 
 export default async function SignInPage({ searchParams }: PageProps<"/sign-in">) {
@@ -25,7 +24,7 @@ export default async function SignInPage({ searchParams }: PageProps<"/sign-in">
   return (
     <div className="mx-auto max-w-md py-4 sm:py-12">
       <div className="mb-6 text-center">
-        <h1 className="text-3xl font-extrabold tracking-tight lg:text-[2.5rem] lg:leading-tight">Welcome!</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight lg:text-[2.5rem] lg:leading-tight">Welcome</h1>
         <p className="mt-2 text-muted">Sign in to RSVP, save your dietary needs and see your events.</p>
       </div>
       {error ? (

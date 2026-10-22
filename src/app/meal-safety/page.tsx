@@ -25,11 +25,13 @@ export default function MealSafetyPage() {
             <dt>
               <Badge tone="amber">May contain (cross-contact)</Badge>
             </dt>
-            <dd className="mt-1 text-muted">Possible contact from shared trays, fryers, boards or serving areas — noted by the kitchen.</dd>
+            <dd className="mt-1 text-muted">The kitchen notes possible contact from shared trays, fryers, boards or serving areas.</dd>
           </div>
           <div>
             <dt className="font-semibold">Related allergens</dt>
-            <dd className="mt-1 text-muted">Sesame seeds and sesame oil are listed separately, as are wheat and gluten. We point out both.</dd>
+            <dd className="mt-1 text-muted">
+              Sesame seeds and sesame oil are listed separately, as are wheat and gluten. Save one and we flag both.
+            </dd>
           </div>
         </dl>
       </Card>
@@ -38,17 +40,14 @@ export default function MealSafetyPage() {
         <h2 className="text-lg font-bold text-ink">How menus are published</h2>
         <ul className="mt-2 list-disc space-y-2 pl-6 text-base leading-relaxed text-ink">
           <li>
-            Once a menu is posted, every dish lists its ingredients and allergens, and you can see it without RSVPing.
-            Menus are often posted after RSVPs open, so check back before the event.
+            Each posted dish lists its ingredients and allergens; no RSVP needed to see it. Menus often go up after RSVPs
+            open, so check back before the event.
           </li>
           <li>Staff confirm preparation and cross-contact details before publishing.</li>
+          <li>Changes get a new version and a note. Urgent ones notify everyone who RSVP&apos;d, in the app.</li>
           <li>
-            Changes get a new version with a note; urgent ones appear in the in-app notifications of everyone who
-            RSVP&apos;d.
-          </li>
-          <li>
-            Votes and suggestions are advisory. A popular dish is <strong>never</strong> a sign it suits an allergy, and we
-            never label food &ldquo;allergen-free&rdquo;.
+            Votes and suggestions are advisory; staff approve the final menu. A popular dish is <strong>never</strong> a
+            sign it suits an allergy. We never label food &ldquo;allergen-free&rdquo;.
           </li>
         </ul>
       </Card>
@@ -60,8 +59,8 @@ export default function MealSafetyPage() {
           <Link href="/profile/dietary" className="font-semibold text-brand-700 hover:underline">
             Dietary &amp; allergies
           </Link>{" "}
-          for personal menu alerts. Only you and kitchen staff/admins (for events you RSVP to, logged) see it; organizers see
-          anonymous counts once at least 5 people share.
+          for personal menu alerts. Only you, and kitchen staff and admins for events you RSVP to, can see it (every view
+          is logged). Organizers see anonymous counts once at least 5 people share.
         </p>
       </Card>
 
