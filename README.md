@@ -17,15 +17,18 @@ ingredients and allergens, private dietary preferences, and a simple organizer d
 
 ## Quick start
 
-Needs Node.js 22 and Docker.
+Needs Node.js 22.12 or newer, and Docker running.
 
 ```bash
 npm install
 npx supabase start && npx supabase db reset   # local database, sign-in and email, with [DEMO] data
 cp .env.example .env.local                     # paste the local URL and publishable key from `npx supabase status`
-npm run dev                                    # http://localhost:3000
 npm run lint && npm run typecheck && npm test  # the fast checks; every check is in docs/AUDIT_NOTES.md
+npm run dev                                    # http://localhost:3000; sign-in codes arrive at http://127.0.0.1:54324
 ```
+
+`npm install` reports high-severity issues in the lint tools only. Don't run `npm audit fix --force`: it downgrades
+the Next.js lint config.
 
 Change something on a branch and open a draft pull request; the owner merges ([CONTRIBUTING.md](CONTRIBUTING.md)).
 
@@ -102,9 +105,9 @@ http://127.0.0.1:54324.
 
 ## Verified locally (before deployment)
 
-Against a local Supabase stack and a production build: **201** unit tests, **303** database tests,
-**60** end-to-end tests (30 journeys × phone and desktop, real email-code sign-in), and a crawl of every
-internal link as a visitor and as an admin (no errors). The one-file SQL setup was verified on an empty database. Your
+Against a local Supabase stack and a production build: every unit test, database (pgTAP) test and end-to-end
+test (each journey on a phone and a desktop, real email-code sign-in), and a crawl of every internal link as a
+visitor and as an admin (no errors). The one-file SQL setup was verified on an empty database. Your
 hosted Supabase, Vercel, email sender and domain are verified by the checklist at the end of SETUP.md.
 
 ## For maintainers

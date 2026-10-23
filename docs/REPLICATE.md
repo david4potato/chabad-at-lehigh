@@ -28,7 +28,7 @@ the code, and one email sender. The cost table near the top of [SETUP.md](../SET
 4. **Two admins.** Pick at least two trusted people. Kitchen staff see names next to allergies, so keep that
    group small too.
 
-To try changes on your own computer you need Node.js 20.9+ (22 recommended) and Docker.
+To try changes on your own computer you need Node.js 22.12 or newer, and Docker running.
 
 ## Make your copy
 

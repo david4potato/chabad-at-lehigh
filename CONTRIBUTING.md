@@ -12,7 +12,7 @@ local copy of the database with **[DEMO]** data.
 
 ## Run it
 
-Needs Node.js 20.9+ (22 recommended) and Docker.
+Needs Node.js 22.12 or newer, and Docker running.
 
 ```bash
 npm install
@@ -21,6 +21,11 @@ npx supabase db reset       # tables + [DEMO] data
 cp .env.example .env.local  # paste the local URL + publishable key from `npx supabase status`
 npm run dev                 # http://localhost:3000 — sign-in emails appear at http://127.0.0.1:54324
 ```
+
+**The dashboard locally.** Sign in once, then open Supabase Studio at http://127.0.0.1:54323 → **SQL Editor**,
+paste `supabase/scripts/bootstrap_admin.sql` with the email you signed in with, and press **Run**. Refresh the
+app and you're an admin. Run it again after `npx supabase db reset`. The demo data has events and dishes but no
+people: RSVP and fill in **Dietary & allergies** yourself, with made-up details.
 
 ## Make a change
 
@@ -37,16 +42,13 @@ anything is unclear. They come from the known gaps in [docs/AUDIT_NOTES.md](docs
 
 1. **Try the quick start from a fresh clone.** Follow [README.md](README.md), "Quick start", word for word on your
    own computer. Fix any step that didn't work for you, in the README itself.
-2. **Name the record in the browser tab.** The dashboard's event, dish and shift pages all show a generic tab title
-   ("Edit event · Dashboard"). In `src/app/admin/events/[id]/page.tsx`, `src/app/admin/dishes/[id]/page.tsx` and
-   `src/app/admin/volunteers/[id]/page.tsx`, replace `metadata` with `generateMetadata` so the tab shows the
-   record's name, for example "[DEMO] Shabbat Dinner · Dashboard". Done when `npm run test:e2e` passes.
-3. **Check the printed Dietary report.** Sign in as an admin with the demo data, open an event's **Dietary** tab
-   and print it to PDF from Chrome. Fix anything cut off or hard to read, using the `print:` styles in
-   `src/app/admin/events/[id]/dietary/page.tsx`. Printing has never been tested.
-4. **Screen reader pass.** With VoiceOver, TalkBack or NVDA, sign in, RSVP to the demo Shabbat dinner and fill in
+2. **Add a print test.** The Dietary report's print layout was checked by hand on 23 October. Add an end-to-end
+   test in `e2e/` that RSVPs a test person with an allergy (see `e2e/helpers.ts`), opens that event's **Dietary**
+   tab as an admin, switches to print (`page.emulateMedia({ media: "print" })`), and checks that the site header,
+   tabs and Print button are hidden and the confidential line shows. Done when `npm run test:e2e` passes.
+3. **Screen reader pass.** With VoiceOver, TalkBack or NVDA, sign in, RSVP to the demo Shabbat dinner and fill in
    **Dietary & allergies**. List anything confusing or unannounced in the pull request, and fix the labels you
-   can. Screen readers have never been tested; only axe and keyboard checks have.
+   can. An automated check of the same flows was done on 23 October; a real screen reader hasn't been tried.
 
 ## Rules that never bend
 
