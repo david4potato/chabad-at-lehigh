@@ -10,7 +10,10 @@ import { AttendeeList } from "@/components/admin/attendee-list";
 import { InvitePeople } from "@/components/admin/invite-people";
 import { Card, CardTitle } from "@/components/ui/card";
 
-export const metadata: Metadata = { title: "Attendees" };
+export async function generateMetadata({ params }: PageProps<"/admin/events/[id]/attendees">): Promise<Metadata> {
+  const { id } = await params;
+  return { title: `Attendees · ${(await getAdminEvent(id)).title}` };
+}
 
 export default async function AttendeesPage({ params }: PageProps<"/admin/events/[id]/attendees">) {
   const { id } = await params;

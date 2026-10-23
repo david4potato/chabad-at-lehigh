@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 import { getShiftForAdmin, hasStarted, hiddenByEventLabel, listShiftEventOptions, SHIFT_STATUS_LABEL } from "@/lib/data/volunteer";
 import { formatDateTime, formatEventWhen } from "@/lib/time";
 import { Alert } from "@/components/ui/alert";
@@ -11,7 +12,13 @@ import { ShiftForm } from "@/components/admin/shift-form";
 import { SignupList } from "@/components/volunteer/signup-list";
 import { deleteShift, removeSignup, updateShift } from "../actions";
 
-export const metadata: Metadata = { title: "Edit shift" };
+export async function generateMetadata({ params }: PageProps<"/admin/volunteers/[id]">): Promise<Metadata> {
+  const { id } = await params;
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return { title: "Shift" };
+  const supabase = await createClient();
+  const { data } = await supabase.from("volunteer_shifts").select("title").eq("id", id).maybeSingle();
+  return { title: data?.title ?? "Shift" };
+}
 
 const STATUS_TONE = { draft: "neutral", open: "green", closed: "amber" } as const;
 

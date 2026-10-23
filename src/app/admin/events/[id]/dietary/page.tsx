@@ -13,7 +13,10 @@ import { EventTabs } from "@/components/admin/event-tabs";
 import { AdminEventHeader } from "@/components/admin/event-header";
 import { PrintButton } from "@/components/admin/print-button";
 
-export const metadata: Metadata = { title: "Dietary" };
+export async function generateMetadata({ params }: PageProps<"/admin/events/[id]/dietary">): Promise<Metadata> {
+  const { id } = await params;
+  return { title: `Dietary · ${(await getAdminEvent(id)).title}` };
+}
 
 type Summary = {
   attendees: number;
