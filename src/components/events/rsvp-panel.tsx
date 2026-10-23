@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { Check, Clock, Hourglass, Minus, Plus, UserCheck, X } from "lucide-react";
 import { setRsvp } from "@/app/events/actions";
@@ -72,6 +72,9 @@ const FOCUS_TARGETS = {
   change: "[data-change-rsvp]",
 } as const;
 
+// How long a saved form waits for the refreshed RSVP before it closes anyway (a refresh that never arrives).
+const REFRESH_WAIT_MS = 10000;
+
 function ResponseButton({ value, children, active }: { value: "going" | "not_going"; children: string; active: boolean }) {
   const { pending, data } = useFormStatus();
   const thisPending = pending && data?.get("response") === value;
@@ -123,14 +126,43 @@ export function RsvpPanel({ event, counts, rsvp, signedIn, isMember, intent }: P
       el.focus();
     }
   }, [editing, rsvp]);
+  // After a save, the form stays open until the page sends back the new RSVP, so the status box
+  // (and focus) never shows the old answer first. A pending closeTimer means "close on the next RSVP".
+  const closeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  // "Not going" clears guests in the database, so a later "Going" starts from 0 too. The reset waits for
+  // the form to close, so the open form doesn't announce a guest count of 0 first.
+  const resetGuestsOnClose = useRef(false);
+  // A layout effect closes the form before paint, so the open form never shows the new answer either.
+  useLayoutEffect(() => {
+    if (closeTimer.current === undefined) return;
+    clearTimeout(closeTimer.current);
+    closeTimer.current = undefined;
+    if (resetGuestsOnClose.current) {
+      resetGuestsOnClose.current = false;
+      setGuests(0);
+    }
+    focusNext.current = "summary";
+    setEditing(false);
+  }, [rsvp]);
+  useEffect(() => () => clearTimeout(closeTimer.current), []);
+  function showSummary() {
+    clearTimeout(closeTimer.current);
+    closeTimer.current = undefined;
+    if (resetGuestsOnClose.current) {
+      resetGuestsOnClose.current = false;
+      setGuests(0);
+    }
+    focusNext.current = "summary";
+    setEditing(false);
+  }
   const [state, formAction] = useActionState(async (prev: typeof initialActionState, formData: FormData) => {
+    clearTimeout(closeTimer.current);
+    closeTimer.current = undefined;
     const result = await setRsvp(prev, formData);
     setShowMessage(true);
     if (result.ok) {
-      focusNext.current = "summary";
-      setEditing(false);
-      // "Not going" clears guests in the database, so a later "Going" starts from 0 too.
-      if (formData.get("response") === "not_going") setGuests(0);
+      resetGuestsOnClose.current = formData.get("response") === "not_going";
+      closeTimer.current = setTimeout(showSummary, REFRESH_WAIT_MS);
     }
     return result;
   }, initialActionState);

@@ -10,6 +10,7 @@ export function Card({ className, ...props }: ComponentProps<"div">) {
   );
 }
 
-export function CardTitle({ className, ...props }: ComponentProps<"h2">) {
-  return <h2 className={cn("text-lg font-bold text-ink", className)} {...props} />;
+/** `as` sets the heading level so the card fits the page outline; it looks the same either way. */
+export function CardTitle({ as: Heading = "h2", className, ...props }: ComponentProps<"h2"> & { as?: "h2" | "h3" }) {
+  return <Heading className={cn("text-lg font-bold text-ink", className)} {...props} />;
 }

@@ -191,7 +191,7 @@ export async function EventMenuSection({ event, viewer }: { event: MenuEvent; vi
 
       {votingOpen && options.length > 0 ? (
         <Card>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle as="h3" className="flex items-center gap-2">
             <Vote className="size-5 text-brand-700" aria-hidden="true" /> Help pick the menu
           </CardTitle>
           <p className="mt-1 text-sm text-muted">{ADVISORY_NOTE}</p>
@@ -235,7 +235,7 @@ export async function EventMenuSection({ event, viewer }: { event: MenuEvent; vi
       ) : null}
 
       <Card>
-        <CardTitle>Suggest a dish or ingredient</CardTitle>
+        <CardTitle as="h3">Suggest a dish or ingredient</CardTitle>
         <div className="mt-4">
           {viewer ? (
             <SuggestionForm eventId={event.id} />

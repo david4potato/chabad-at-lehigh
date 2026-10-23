@@ -4,7 +4,7 @@ import { requireRole } from "@/lib/auth";
 import { canViewDietary } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 import { getAdminEvent } from "@/lib/data/admin";
-import { formatDateTime, formatEventWhen } from "@/lib/time";
+import { formatDateTime, formatEventWhen, formatShortDate } from "@/lib/time";
 import { allergenLabel, dietLabel, SEVERITY_LABELS, type Severity } from "@/lib/allergens";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +15,10 @@ import { PrintButton } from "@/components/admin/print-button";
 
 export async function generateMetadata({ params }: PageProps<"/admin/events/[id]/dietary">): Promise<Metadata> {
   const { id } = await params;
-  return { title: `Dietary · ${(await getAdminEvent(id)).title}` };
+  const event = await getAdminEvent(id);
+  // Weekly dinners share a title. The date names the saved PDF, and Safari and Firefox print the title on every
+  // page (Chrome uses the margin boxes below). The date comes first so a long title can't push it out.
+  return { title: `Dietary (confidential) · ${formatShortDate(event.starts_at)} · ${event.title}` };
 }
 
 type Summary = {
@@ -33,6 +36,9 @@ type Summary = {
 };
 
 const STATUS_LABEL: Record<string, string> = { going: "Going", pending: "Needs approval", waitlist: "Waitlist" };
+const SEVERITY_RANK: Record<Severity, number> = { severe: 0, allergy: 1, intolerance: 2 };
+// Backgrounds don't print and pale borders fade in grayscale, so severe items get a dark outline and heavy text.
+const PRINT_SEVERE = "print:border-2 print:border-current print:font-extrabold";
 
 export default async function DietaryReportPage({ params }: PageProps<"/admin/events/[id]/dietary">) {
   const { id } = await params;
@@ -56,6 +62,10 @@ export default async function DietaryReportPage({ params }: PageProps<"/admin/ev
       </div>
       {/* Weekly dinners share a title, so the printout carries the date and when it was printed. */}
       <div className="hidden print:block">
+        {/* Page-scoped margin boxes so every printed page is labeled (Chromium only; others get the dated tab title).
+            Only the date goes in, never free text. Relies on cacheComponents: false (the page unmounts on navigation);
+            with Activity, toggle the style's media to "not all" while hidden. */}
+        <style>{`@page{@top-left{content:"Confidential: for meal preparation only";font:600 9pt system-ui,sans-serif}@top-right{content:${JSON.stringify(`Dietary report · ${formatShortDate(event.starts_at)}`)};font:9pt system-ui,sans-serif}@bottom-right{content:"Page " counter(page) " of " counter(pages);font:9pt system-ui,sans-serif}}`}</style>
         <h1 className="text-3xl font-bold lg:text-[2.5rem] lg:leading-tight print:text-xl">Dietary report — {event.title}</h1>
         <p className="mt-1 text-sm">
           {formatEventWhen(event.starts_at, event.ends_at)} · Printed {formatDateTime(new Date())}. RSVPs can change, so reprint on the day.
@@ -132,7 +142,7 @@ export default async function DietaryReportPage({ params }: PageProps<"/admin/ev
 
       {named ? (
         <Card>
-          <CardTitle>By person</CardTitle>
+          <CardTitle className="print:break-after-avoid">By person</CardTitle>
           {report.error ? (
             <Alert tone="danger" className="mt-3">We couldn&apos;t load the named report.</Alert>
           ) : people.length === 0 ? (
@@ -140,7 +150,10 @@ export default async function DietaryReportPage({ params }: PageProps<"/admin/ev
           ) : (
             <ul className="mt-3 divide-y divide-stone-100">
               {people.map((p) => {
-                const allergens = (p.allergens ?? []) as { code: string; severity: Severity; notes: string | null }[];
+                // Severe first for each person; the sort is stable, so allergen order holds within a severity.
+                const allergens = [...((p.allergens ?? []) as { code: string; severity: Severity; notes: string | null }[])].sort(
+                  (a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity],
+                );
                 const hasInfo = allergens.length || (p.diets ?? []).length || p.other_restrictions || p.notes_for_kitchen || p.meal_preference || p.guest_dietary_notes || p.carries_epinephrine;
                 return (
                   <li key={p.user_id} className="py-3 break-inside-avoid">
@@ -153,7 +166,11 @@ export default async function DietaryReportPage({ params }: PageProps<"/admin/ev
                           {p.guest_status === "approved" ? "" : ` (${p.guest_status})`}
                         </Badge>
                       ) : null}
-                      {p.carries_epinephrine ? <Badge tone="red">Carries epinephrine</Badge> : null}
+                      {p.carries_epinephrine ? (
+                        <Badge tone="red" className={PRINT_SEVERE}>
+                          Carries epinephrine
+                        </Badge>
+                      ) : null}
                     </div>
                     {!p.shared ? (
                       <div className="mt-1 space-y-1 text-sm">
@@ -168,7 +185,11 @@ export default async function DietaryReportPage({ params }: PageProps<"/admin/ev
                         {allergens.length ? (
                           <div className="flex flex-wrap gap-2">
                             {allergens.map((a) => (
-                              <Badge key={a.code} tone={a.severity === "severe" ? "red" : a.severity === "allergy" ? "amber" : "neutral"}>
+                              <Badge
+                                key={a.code}
+                                tone={a.severity === "severe" ? "red" : a.severity === "allergy" ? "amber" : "neutral"}
+                                className={a.severity === "severe" ? PRINT_SEVERE : undefined}
+                              >
                                 {allergenLabel(a.code)} — {SEVERITY_LABELS[a.severity]}
                                 {a.notes ? ` (${a.notes})` : ""}
                               </Badge>
