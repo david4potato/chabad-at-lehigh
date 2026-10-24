@@ -25,7 +25,10 @@ import {
   VotingOptions,
 } from "@/components/admin/menu/menu-editor";
 
-export const metadata: Metadata = { title: "Menu" };
+export async function generateMetadata({ params }: PageProps<"/admin/events/[id]/menu">): Promise<Metadata> {
+  const { id } = await params;
+  return { title: `Menu · ${(await getAdminEvent(id)).title}` };
+}
 
 const STATUS_TONE = { draft: "brand", published: "green", archived: "neutral" } as const;
 

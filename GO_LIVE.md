@@ -155,7 +155,7 @@ What the app stores, and who can see it (the site's Privacy page says the same t
   - Caching public pages if traffic grows. Pages read the sign-in cookie, so they're built per visit now.
 - **Not used:** Neon, Cloudflare Email Routing (Chabad has its own address) and mailing lists.
 
-## GitHub settings (optional, 3 min)
+## GitHub settings (optional, 5 min)
 
 Your clicks; a Claude session doesn't change repository settings.
 
@@ -166,6 +166,9 @@ Your clicks; a Claude session doesn't change repository settings.
    review; as an admin you can still merge your own pull requests. Leave required status checks off unless you
    remove `paths-ignore` from `.github/workflows/ci.yml`. Otherwise docs-only pull requests wait on checks that
    never run. (2 min)
+3. Tidy-up: **Settings → General → Pull Requests** → tick **Automatically delete head branches**. Then
+   **Branches** shows about 30 old `claude/…` branches whose pull requests are merged; delete them with the bin
+   icon. Each can be restored from its pull request. (2 min)
 
 ## A web address of their own (optional)
 

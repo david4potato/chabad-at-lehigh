@@ -165,7 +165,7 @@ that would take down the current site and rabbi@ email. Use a subdomain instead,
 
 ## Local development
 
-Needs Node.js 20.9+ and Docker.
+Needs Node.js 22.12 or newer, and Docker running.
 
 ```bash
 npm install

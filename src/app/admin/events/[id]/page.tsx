@@ -16,7 +16,10 @@ import { PublishDraftButton } from "@/components/admin/publish-draft-button";
 import { EventShiftsAdmin } from "@/components/volunteer/event-shifts-admin";
 import { deleteEvent, updateEvent } from "../actions";
 
-export const metadata: Metadata = { title: "Edit event" };
+export async function generateMetadata({ params }: PageProps<"/admin/events/[id]">): Promise<Metadata> {
+  const { id } = await params;
+  return { title: (await getAdminEvent(id)).title };
+}
 
 /** What else "Duplicate for next week" brought along, said plainly. */
 function copiedExtras(menu: boolean, shifts: boolean) {

@@ -106,8 +106,9 @@ export function DishCard({ item, matches, favorite }: Props) {
                 </span>
                 {ing.optional ? <span className="text-sm font-semibold text-muted">optional</span> : null}
                 {ing.allergens.length > 0 ? (
-                  <span className="text-sm font-semibold text-red-800">
-                    {sortAllergens(ing.allergens).map(allergenLabel).join(", ")}
+                  <span className="text-sm text-red-800">
+                    <span className="font-normal">Contains:</span>{" "}
+                    <span className="font-semibold">{sortAllergens(ing.allergens).map(allergenLabel).join(", ")}</span>
                   </span>
                 ) : null}
                 {ing.notes ? <span className="w-full text-sm text-muted">{ing.notes}</span> : null}

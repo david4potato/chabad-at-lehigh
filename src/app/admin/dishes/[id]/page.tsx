@@ -9,7 +9,13 @@ import { Alert } from "@/components/ui/alert";
 import { AllergenBadges } from "@/components/menu/allergen-badges";
 import { AddIngredientForm, DeleteDishButton, DishForm, RemoveIngredientButton } from "@/components/admin/menu/library-forms";
 
-export const metadata: Metadata = { title: "Dish" };
+export async function generateMetadata({ params }: PageProps<"/admin/dishes/[id]">): Promise<Metadata> {
+  const { id } = await params;
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return { title: "Dish" };
+  const supabase = await createClient();
+  const { data } = await supabase.from("dishes").select("name").eq("id", id).maybeSingle();
+  return { title: data?.name ?? "Dish" };
+}
 
 export default async function DishPage({ params, searchParams }: PageProps<"/admin/dishes/[id]">) {
   const [{ id }, query] = await Promise.all([params, searchParams]);

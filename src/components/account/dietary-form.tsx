@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState, useTransition } from "react";
+import { useActionState, useEffect, useId, useRef, useState, useTransition } from "react";
 import { Info } from "lucide-react";
 import { saveDietary, deleteDietary } from "@/app/profile/actions";
 import { ALLERGENS, DIETS, SEVERITY_LABELS, type Severity } from "@/lib/allergens";
@@ -23,6 +23,12 @@ type Initial = {
   hasData: boolean;
 };
 
+const FOCUS_TARGETS = {
+  confirm: "[data-delete-confirm]",
+  delete: "[data-delete-dietary]",
+  form: "input[name='allergen']",
+} as const;
+
 export function DietaryForm({ initial, welcome, next }: { initial: Initial; welcome: boolean; next: string }) {
   const [state, action] = useActionState(saveDietary, initialActionState);
   const [selected, setSelected] = useState(() => new Map(initial.allergens.map((a) => [a.code, a])));
@@ -32,6 +38,19 @@ export function DietaryForm({ initial, welcome, next }: { initial: Initial; welc
   const [deleting, startDelete] = useTransition();
   // Bumped after deleting so the form remounts with the (now empty) saved values.
   const [formKey, setFormKey] = useState(0);
+  const warningId = useId();
+  // The delete button and its confirm panel swap places, and the whole block goes away once deleted,
+  // so focus moves to whatever replaces the control that was used.
+  const rootRef = useRef<HTMLDivElement>(null);
+  const focusNext = useRef<keyof typeof FOCUS_TARGETS | null>(null);
+  useEffect(() => {
+    const target = focusNext.current;
+    const el = target ? rootRef.current?.querySelector<HTMLElement>(FOCUS_TARGETS[target]) : null;
+    if (el) {
+      focusNext.current = null;
+      el.focus();
+    }
+  }, [confirmDelete, formKey]);
 
   const toggle = (code: string, on: boolean) =>
     setSelected((prev) => {
@@ -42,7 +61,9 @@ export function DietaryForm({ initial, welcome, next }: { initial: Initial; welc
     });
 
   return (
-    <div className="space-y-6">
+    <div ref={rootRef} className="space-y-6">
+      {/* A successful delete moves focus to the first allergen just below, so its message shows here. */}
+      <FormMessage state={deleteState?.ok ? deleteState : null} />
       {/* Form, not <form action>: React's automatic reset after a save would untick new allergies and re-tick sharing. */}
       <Form key={formKey} action={action} className="space-y-8">
         {welcome ? <input type="hidden" name="welcome" value="1" /> : null}
@@ -150,35 +171,57 @@ export function DietaryForm({ initial, welcome, next }: { initial: Initial; welc
       {initial.hasData && !welcome ? (
         <div className="border-t border-stone-200 pt-6">
           {!confirmDelete ? (
-            <Button variant="ghost" className="text-red-700 hover:bg-red-50" onClick={() => setConfirmDelete(true)}>
+            <Button
+              variant="ghost"
+              className="text-red-700 hover:bg-red-50"
+              data-delete-dietary
+              onClick={() => {
+                focusNext.current = "confirm";
+                setConfirmDelete(true);
+              }}
+            >
               Delete my dietary information
             </Button>
           ) : (
-            <div className="space-y-3 rounded-2xl border border-red-200 bg-red-50 p-4">
-              <p className="text-sm text-red-900">
+            <div
+              role="group"
+              aria-labelledby={warningId}
+              tabIndex={-1}
+              data-delete-confirm
+              className="space-y-3 rounded-2xl border border-red-200 bg-red-50 p-4"
+            >
+              <p id={warningId} className="text-sm text-red-900">
                 This permanently deletes your allergies, diet, notes and per-event meal notes. Organizers will no longer
                 have this information.
               </p>
               <div className="flex flex-wrap gap-2">
                 <Button
                   variant="danger"
-                  disabled={deleting}
-                  onClick={() =>
+                  aria-disabled={deleting || undefined}
+                  onClick={() => {
+                    if (deleting) return;
                     startDelete(async () => {
                       const result = await deleteDietary();
                       setDeleteState(result);
                       if (result.ok) {
+                        focusNext.current = "form";
                         setSelected(new Map());
                         setShare(true);
                         setConfirmDelete(false);
                         setFormKey((k) => k + 1);
                       }
-                    })
-                  }
+                    });
+                  }}
                 >
                   {deleting ? "Deleting…" : "Yes, delete it"}
                 </Button>
-                <Button variant="secondary" onClick={() => setConfirmDelete(false)}>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    focusNext.current = "delete";
+                    setConfirmDelete(false);
+                  }}
+                >
                   Cancel
                 </Button>
               </div>
@@ -186,8 +229,8 @@ export function DietaryForm({ initial, welcome, next }: { initial: Initial; welc
           )}
         </div>
       ) : null}
-      {/* Outside the block above: it disappears once nothing is saved. */}
-      <FormMessage state={deleteState} />
+      {/* Errors stay next to "Yes, delete it", which keeps focus. Outside the block above: it disappears once nothing is saved. */}
+      <FormMessage state={deleteState && !deleteState.ok ? deleteState : null} />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 # Audit notes
 
 What has been checked, how to run every check again, and what is known not to be covered. Last updated
-21 October 2026, evening. Read this before auditing; GO_LIVE.md has the setup steps.
+23 October 2026. Read this before auditing; GO_LIVE.md has the setup steps.
 
 ## Done
 
@@ -18,10 +18,16 @@ What has been checked, how to run every check again, and what is known not to be
 | 21 Oct | Efficiency: page weight, packages, polling, database queries, build warnings | One fix: the public calendar feed is cached for 15 minutes, so calendar apps' polls don't reach the database. Home page about 17 KB of HTML plus 195 KB of compressed scripts and styles; no images, web fonts or trackers |
 | 21 Oct | Final look by eye at 375 and 1280 px (home, events, an event, help out, find us, sign-in; as a student: an event with allergies, My Events, dietary form; as admin: dashboard, event editor, dietary report), then the shared mobile check | Nothing to fix. All clear on 16 public pages at 5 widths |
 | 22 Oct | Typography and spacing on all 32 pages at 320 to 1920 px: centering, line length, line height, heading sizes, phone gutters, card rows; then by eye at 375 and 1440 px | Content was already centered at every width. Fixed: text lines reached 158 characters on wide screens, now about 80 (one base rule); three dashboard alignments (attendee tiles, ingredient rows, shift counts) |
+| 22 Oct | Ready to share: contributor files, guardrails, private data in tracked files | Added good first tasks and a session hook that installs packages on a fresh clone. No keys, real people's details, drafts or real dietary data in tracked files |
+| 22 Oct | Plain wording on every text-heavy screen, with an adversarial review per screen group | Shorter text, paragraphs of 3 sentences at most, alerts at 16 px; every rule and privacy line kept |
+| 23 Oct | Printed Dietary report (Chromium PDF, Letter, grayscale and a 36-person copy) | Every page now says confidential, names the dinner date and has page numbers; severe allergies and epinephrine stand out in black and white and are listed first; the "By person" heading stays with its list; the tab title (and PDF file name) includes the date |
+| 23 Oct | Screen-reader pass on sign-in, RSVP and the dietary form (accessibility tree and focus after every action, 375 and 1280 px) | Focus now lands on the new RSVP status, the sign-in field with the error, and a sensible place after deleting dietary information; ingredient allergens say "Contains"; menu headings in order |
+| 23 Oct | Fresh clone, following README and CONTRIBUTING word for word | Node 22.12 or newer stated everywhere; quick start runs the checks before the dev server; how to become admin locally; no stale test counts |
+| 23 Oct | Dashboard browser tabs | Event, dish and shift pages name the record (person pages don't, so names stay out of browser history) |
 
 ## Run every check
 
-From the repository root, with Node 22 and Docker running:
+From the repository root, with Node 22.12 or newer and Docker running:
 
 ```bash
 npm ci
@@ -55,7 +61,6 @@ Get the demo event slugs from the local database (`select slug from events where
 - **Dietary counts and differencing.** Organizers see no breakdown until 5 people share. Past that, someone who
   compares the counts before and after one RSVP could still guess one person's allergy. Kitchen staff and admins see
   names anyway; organizers are trusted staff.
-- **Admin record pages have generic browser-tab titles** (for example "Edit event · Dashboard").
 
 ## Not tested
 
@@ -63,7 +68,8 @@ Get the demo event slugs from the local database (`select slug from events where
   connector can't see the project, and local tests use Mailpit. GO_LIVE.md "How to check it worked" covers these
   after setup.
 - Real phones (iOS Safari, Android Chrome). Tests use Chromium's phone emulation.
-- Screen readers. Coverage is axe plus keyboard checks, not VoiceOver, TalkBack or NVDA.
-- Printing the dietary report.
+- Real screen readers (VoiceOver, TalkBack, NVDA). Coverage is axe, keyboard checks and an accessibility-tree pass.
+- Printing on a real printer, and in Safari or Firefox (page headers and numbers use Chromium's `@page` boxes;
+  other browsers still print the report, with their own header and footer).
 - Time zones other than `America/New_York`, languages other than English, and the optional bot check (Turnstile)
   end to end.
